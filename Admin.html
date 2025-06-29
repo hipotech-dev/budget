@@ -1602,7 +1602,7 @@
         
         auth.onAuthStateChanged(async user => {
             if (!user || !user.emailVerified) {
-                window.location.href = 'auth.html';
+                window.location.href = 'index.html';
             } else {
                 try {
                     const userDoc = await db.collection('users').doc(user.uid).get();
@@ -1615,7 +1615,7 @@
                     if (userData.status && userData.status.toLowerCase() === 'inactive') {
                         alert('Your account is inactive. Please contact support.');
                         await auth.signOut();
-                        window.location.href = 'auth.html';
+                        window.location.href = 'index.html';
                         return;
                     }
                     setupUserAvatar(user);
@@ -1627,7 +1627,7 @@
                     fetchAllUsersForSearch();
                 } catch (err) {
                     alert('Error verifying admin access.');
-                    window.location.href = 'auth.html';
+                    window.location.href = 'index.html';
                     return;
                 }
             }
@@ -1777,7 +1777,7 @@
         // Logout
         logoutBtn.addEventListener('click', () => {
             auth.signOut().then(() => {
-                window.location.href = 'auth.html';
+                window.location.href = 'index.html';
             });
         });
         
