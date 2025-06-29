@@ -1796,6 +1796,10 @@
             if (e.key === 'theme' || e.key === 'themeColor') {
                 if (window.applyTheme) window.applyTheme();
             }
+            if (e.key === 'userCurrency') {
+                // Re-render goals to reflect new currency
+                if (typeof loadGoals === 'function') loadGoals();
+            }
         });
 
         // Apply theme on load
