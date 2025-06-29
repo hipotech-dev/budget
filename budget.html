@@ -1721,7 +1721,7 @@
     // Add storage event listener to re-render budgets if the currency changes in another tab
     window.addEventListener('storage', function(e) {
         if (e.key === 'userCurrency') {
-            renderBudgetsTable();
+            fetchBudgetsAndTransactions();
         }
     });
 
