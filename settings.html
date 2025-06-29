@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase scripts and config FIRST -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <!-- Theme and main scripts AFTER Firebase is initialized -->
+    <script src="theme.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+        }
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .avatar-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 48px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 10;
+            min-width: 120px;
+        }
+
+        .avatar-dropdown.show {
+            display: block;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        /* Settings Content */
+        .settings-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .section-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        /* Theme Colors */
+        .theme-colors {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .theme-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .theme-color.selected {
+            border-color: var(--text-color);
+            transform: scale(1.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray);
+            color: white;
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.25rem;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger-content {
+            display: none;
+            padding: 0.5rem 0;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .hamburger-content.active {
+            display: block;
+        }
+
+        .hamburger-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-item:hover {
+            background: var(--light-gray);
+        }
+
+        .hamburger-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .hamburger-item.admin-link, .hamburger-item.user-management-link { display: none; }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background: rgba(0,0,0,0.4);
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #fff;
+            margin: 10vh auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            position: relative;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95vw;
+                padding: 1rem;
+            }
+        }
+
+        /* Notification Items */
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-label {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .notification-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        /* Floating Action Button */
+        .floating-action-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-action-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding-bottom: 64px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 0.5rem;
+                position: sticky;
+                top: 48px;
+                background: var(--body-bg);
+                z-index: 100;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .settings-container {
+                padding: 1rem;
+            }
+
+            .settings-section {
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .form-control, .form-select {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+
+            .btn, .btn-primary, .btn-outline, .btn-danger, .btn-secondary {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                width: 100%;
+                border-radius: 1rem 1rem 0 0;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                transform: none;
+            }
+
+            .mobile-nav,
+            .hamburger-menu {
+                display: block;
+            }
+
+            .floating-action-btn {
+                bottom: 80px;
+            }
+        }
+
+        /* Restore original popover/modal card look for delete confirmation */
+        .popover-modal {
+            display: none;
+            position: absolute;
+            z-index: 9999;
+            min-width: 260px;
+            max-width: 340px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 1.25rem 1.5rem;
+            margin-top: 0.5rem;
+            left: 0;
+            top: 0;
+            transition: opacity 0.2s;
+            border: none;
+        }
+        .popover-modal .modal-content {
+            background: none;
+            box-shadow: none;
+            margin: 0;
+            padding: 0;
+            border-radius: 0;
+            max-width: none;
+        }
+        .popover-arrow {
+            position: absolute;
+            width: 24px;
+            height: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+        }
+        .popover-arrow.up {
+            top: -12px;
+        }
+        .popover-arrow.down {
+            bottom: -12px;
+        }
+        .popover-arrow::after {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transform: rotate(45deg);
+            margin: 0 auto;
+            position: relative;
+            top: -8px;
+        }
+        @media (max-width: 600px) {
+            .popover-modal {
+                position: fixed;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw;
+                height: 100vh;
+                min-width: unset;
+                max-width: unset;
+                border-radius: 0;
+                margin: 0;
+                padding: 0;
+                display: none;
+            }
+            .popover-modal .modal-content {
+                background: var(--card-bg);
+                margin: 10vh auto;
+                padding: 2rem;
+                border-radius: 1rem;
+                max-width: 400px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            }
+            .popover-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hamburger-content" id="hamburgerContent">
+                <a href="settings.html" class="hamburger-item active">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="User management.html" class="hamburger-item user-management-link">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="Admin.html" class="hamburger-item admin-link">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
+                </a>
+                <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--light-gray);">
+                <a href="#" class="hamburger-item" id="hamburgerLogout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="transaction.html" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="budget.html" class="nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Budget</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="goals.html" class="nav-link">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Goals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="Reports.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title">Settings</h1>
+                <div class="user-menu">
+                    <span id="realtime-clock"></span>
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <button class="logout-btn" id="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <!-- Theme Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Appearance</h2>
+                    </div>
+                    <div class="section-description">
+                        Customize how HipoBudget looks and feels to match your preferences.
+                    </div>
+                    <div class="form-group">
+                        <div class="switch-container">
+                            <div>
+                                <label class="form-label">Dark Mode</label>
+                                <div class="section-description">Toggle between light and dark theme</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Color</label>
+                        <div class="section-description">Choose your preferred accent color</div>
+                        <div class="theme-colors">
+                            <div class="theme-color selected" style="background-color: #6366f1;" data-color="indigo"></div>
+                            <div class="theme-color" style="background-color: #10b981;" data-color="emerald"></div>
+                            <div class="theme-color" style="background-color: #f59e0b;" data-color="amber"></div>
+                            <div class="theme-color" style="background-color: #ef4444;" data-color="red"></div>
+                            <div class="theme-color" style="background-color: #8b5cf6;" data-color="violet"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Account Settings</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" class="form-control" value="" placeholder="Loading...">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" class="form-control" value="" placeholder="Loading..." readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency" class="form-label">Currency</label>
+                        <select id="currency" class="form-select">
+                            <option value="USD">US Dollar ($)</option>
+                            <option value="EUR">Euro (€)</option>
+                            <option value="GBP">British Pound (£)</option>
+                            <option value="JPY">Japanese Yen (¥)</option>
+                            <option value="CAD">Canadian Dollar (CAD)</option>
+                            <option value="TZS">Tanzanian Shilling (Tsh)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="saveAccountBtn">
+                        <i class="fas fa-save"></i>
+                        <span id="saveBtnText">Save Changes</span>
+                        <span id="saveSpinner" style="display:none;margin-left:8px;"><i class="fas fa-spinner fa-spin"></i></span>
+                    </button>
+                    <div id="saveMsg" style="margin-top:10px;font-size:0.95em;"></div>
+                </div>
+
+                <!-- Email Notifications -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Email Notifications</h2>
+                    </div>
+                    <div class="section-description">
+                        Choose which notifications you'd like to receive via email.<br>
+                        <span style="color: var(--danger); font-size: 0.95em;">Note: To receive real email notifications, please contact support or enable notifications in your account. These toggles only save your preferences.</span>
+                    </div>
+                    <div class="notification-settings">
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">Budget Alerts</div>
+                                <div class="notification-description">Get notified when you're close to your budget limits</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="budgetNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">Goal Updates</div>
+                                <div class="notification-description">Receive updates about your savings goals progress</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="goalNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">Monthly Reports</div>
+                                <div class="notification-description">Get monthly summary of your spending and saving</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="reportNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Data -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Export Data</h2>
+                    </div>
+                    <div class="section-description">
+                        Download your financial data in different formats
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary" id="exportJSON">
+                            <i class="fas fa-file-code"></i> Export as JSON
+                        </button>
+                        <button class="btn btn-secondary" id="exportCSV">
+                            <i class="fas fa-file-csv"></i> Export as CSV
+                        </button>
+                        <button class="btn btn-secondary" id="exportPDF">
+                            <i class="fas fa-file-pdf"></i> Export as PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Delete Account -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Delete Account</h2>
+                    </div>
+                    <div class="section-description">
+                        Permanently delete your account and all associated data
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-danger" id="deleteAccount">
+                            <i class="fas fa-trash"></i> Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="popover-modal" id="deleteModal">
+        <div class="popover-arrow"></div>
+        <div class="modal-content">
+            <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <h3 class="modal-title" style="color:#ef4444;"><i class="fas fa-exclamation-triangle" style="color:#ef4444;margin-right:0.5rem;"></i>Delete Account</h3>
+                <button id="closeDeleteModal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#ef4444;cursor:pointer;line-height:1;padding:0 0.5rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#ef4444;font-weight:bold;">Warning: This action is <u>permanent</u> and cannot be undone. All your data will be deleted!</p>
+                <div class="form-group">
+                    <label class="form-label" for="deletePassword" style="color:#ef4444;">Enter your password to confirm:</label>
+                    <input type="password" class="form-control" id="deletePassword" placeholder="Enter your password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete" disabled>Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-action-btn" id="fabSettings" aria-label="Save Settings">
+        <i class="fas fa-save"></i>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="transaction.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Trans.</span>
+            </a>
+            <a href="budget.html" class="mobile-nav-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>Budget</span>
+            </a>
+            <a href="goals.html" class="mobile-nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span>Goals</span>
+            </a>
+            <a href="Reports.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+    // Get Firebase instances from centralized manager
+    let auth, db;
+    
+    // Initialize Firebase and get instances
+    async function initializeFirebase() {
+        try {
+            const firebaseInstance = await window.FirebaseManager.waitForReady();
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            console.log('Firebase initialized successfully in settings page');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+    }
+    
+    let currentUser = null;
+    let userDocRef = null;
+
+    // Theme management
+    function applyTheme() {
+        const theme = localStorage.getItem('theme') || 'light';
+        const themeColor = localStorage.getItem('themeColor') || 'indigo';
+
+        // Apply theme
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+
+        // Apply color
+        let primaryColor, primaryDarkColor;
+        switch(themeColor) {
+            case 'emerald':
+                primaryColor = '#10b981';
+                primaryDarkColor = '#059669';
+                break;
+            case 'amber':
+                primaryColor = '#f59e0b';
+                primaryDarkColor = '#d97706';
+                break;
+            case 'red':
+                primaryColor = '#ef4444';
+                primaryDarkColor = '#dc2626';
+                break;
+            case 'violet':
+                primaryColor = '#8b5cf6';
+                primaryDarkColor = '#7c3aed';
+                break;
+            default: // indigo
+                primaryColor = '#6366f1';
+                primaryDarkColor = '#4f46e5';
+        }
+
+        document.documentElement.style.setProperty('--primary', primaryColor);
+        document.documentElement.style.setProperty('--primary-dark', primaryDarkColor);
+
+        // Update UI
+        document.getElementById('darkModeToggle').checked = (theme === 'dark');
+        const themeColors = document.querySelectorAll('.theme-color');
+        themeColors.forEach(color => color.classList.remove('selected'));
+        const selectedColor = document.querySelector(`.theme-color[data-color="${themeColor}"]`);
+        if (selectedColor) selectedColor.classList.add('selected');
+    }
+
+    // Collect user data
+    async function collectUserData(userId) {
+        const collections = ['transactions', 'budgets', 'goals'];
+        const data = {};
+
+        for (const collection of collections) {
+            const snapshot = await db.collection(collection)
+                .where('userId', '==', userId)
+                .get();
+            data[collection] = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        }
+
+        return data;
+    }
+
+    // Delete user data
+    async function deleteUserData(userId) {
+        const collections = ['transactions', 'budgets', 'goals'];
+        const batch = db.batch();
+
+        for (const collection of collections) {
+            const snapshot = await db.collection(collection)
+                .where('userId', '==', userId)
+                .get();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        }
+
+        batch.delete(db.collection('users').doc(userId));
+        await batch.commit();
+    }
+
+    // Export JSON
+    function downloadJSON(data, filename) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Export CSV
+    function downloadCSV(data, filename, username, email) {
+        let csv = '';
+        csv += `Name:,"${username || ''}"\nEmail:,"${email || ''}"\nExported:,"${new Date().toLocaleString()}"\n\n`;
+
+        if (data.transactions && data.transactions.length) {
+            csv += 'Transactions\n';
+            const txHeaders = ['Type', 'Amount', 'Category', 'Date', 'Description'];
+            csv += txHeaders.join(',') + '\n';
+            data.transactions.forEach(tx => {
+                let date = tx.date;
+                if (date && typeof date.toDate === 'function') {
+                    date = date.toDate();
+                } else if (date) {
+                    date = new Date(date);
+                } else {
+                    date = new Date();
+                }
+                const row = [
+                    tx.type || '',
+                    tx.amount || 0,
+                    tx.category || '',
+                    date.toISOString().split('T')[0],
+                    tx.description || ''
+                ].map(field => `"${field}"`).join(',');
+                csv += row + '\n';
+            });
+            csv += '\n';
+        }
+
+        if (data.budgets && data.budgets.length) {
+            csv += 'Budgets\n';
+            const budgetHeaders = ['Category', 'Amount', 'Period', 'Notes'];
+            csv += budgetHeaders.join(',') + '\n';
+            data.budgets.forEach(b => {
+                const row = [
+                    b.category || '',
+                    b.amount || 0,
+                    b.period || '',
+                    b.notes || ''
+                ].map(field => `"${field}"`).join(',');
+                csv += row + '\n';
+            });
+            csv += '\n';
+        }
+
+        if (data.goals && data.goals.length) {
+            csv += 'Goals\n';
+            const goalHeaders = ['Title', 'Category', 'Current Amount', 'Target Amount', 'Target Date', 'Notes'];
+            csv += goalHeaders.join(',') + '\n';
+            data.goals.forEach(g => {
+                let targetDate = g.targetDate;
+                if (targetDate && typeof targetDate.toDate === 'function') {
+                    targetDate = targetDate.toDate();
+                } else if (targetDate) {
+                    targetDate = new Date(targetDate);
+                } else {
+                    targetDate = '';
+                }
+                const row = [
+                    g.title || '',
+                    g.category || '',
+                    g.currentAmount || 0,
+                    g.targetAmount || 0,
+                    targetDate ? targetDate.toISOString().split('T')[0] : '',
+                    g.notes || ''
+                ].map(field => `"${field}"`).join(',');
+                csv += row + '\n';
+            });
+        }
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Export PDF
+    function generatePDF(data, filename, username, email) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 18;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        // Colors
+        const teal = '#00796B';
+        const yellow = '#FFD600';
+        const white = '#FFFFFF';
+        const gray = '#F5F5F5';
+        const dark = '#222';
+        const green = '#10b981';
+        const red = '#ef4444';
+        // --- HEADER BAR ---
+        doc.setFillColor(teal);
+        doc.rect(0, 0, pageWidth, 30, 'F');
+        // Logo (wallet icon + HipoBudget)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(yellow);
+        // Unicode wallet icon (💰)
+        doc.text('💰', 12, 20);
+        doc.setTextColor(white);
+        doc.text('HipoBudget', 25, 20);
+        // User info (right)
+        doc.setFontSize(10);
+        doc.setTextColor(white);
+        doc.text(`User: ${username || ''}`, pageWidth - 70, 13);
+        doc.text(`Email: ${email || ''}`, pageWidth - 70, 19);
+        doc.text(`Exported: ${new Date().toLocaleString()}`, pageWidth - 70, 25);
+        // --- TITLE ---
+        y = 40;
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(teal);
+        doc.text('FINANCIAL STATUS REPORT', pageWidth / 2, y, { align: 'center' });
+        y += 10;
+        // --- SUMMARY TABLE ---
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(teal);
+        doc.text('SUMMARY', 12, y);
+        y += 4;
+        doc.setDrawColor(teal);
+        doc.setLineWidth(1);
+        doc.line(12, y, pageWidth - 12, y);
+        y += 4;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setFillColor(gray);
+        doc.rect(12, y, pageWidth - 24, 10, 'F');
+        doc.setTextColor(dark);
+        doc.text('Report Date', 16, y + 7);
+        doc.text('User Name', 70, y + 7);
+        doc.text('Email', 130, y + 7);
+        y += 10;
+        doc.setFillColor(white);
+        doc.rect(12, y, pageWidth - 24, 10, 'F');
+        doc.text(new Date().toLocaleDateString(), 16, y + 7);
+        doc.text(username || '', 70, y + 7);
+        doc.text(email || '', 130, y + 7);
+        y += 16;
+        // --- STATUS SUMMARY TABLE ---
+        let totalIncome = 0, totalExpenses = 0;
+        if (data.transactions && data.transactions.length) {
+            data.transactions.forEach(tx => {
+                if ((tx.type || '').toLowerCase() === 'income') totalIncome += Number(tx.amount || 0);
+                if ((tx.type || '').toLowerCase() === 'expense') totalExpenses += Number(tx.amount || 0);
+            });
+        }
+        const profit = totalIncome - totalExpenses;
+        const savings = profit > 0 ? profit : 0;
+        const loss = profit < 0 ? Math.abs(profit) : 0;
+        const progressStatus = profit >= 0 ? 'Good' : 'Bad';
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(teal);
+        doc.text('STATUS SUMMARY', 12, y);
+        y += 4;
+        doc.setDrawColor(teal);
+        doc.setLineWidth(1);
+        doc.line(12, y, pageWidth - 12, y);
+        y += 4;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setFillColor(gray);
+        doc.rect(12, y, pageWidth - 24, 10, 'F');
+        doc.setTextColor(dark);
+        doc.text('Total Income', 16, y + 7);
+        doc.text('Total Expenses', 50, y + 7);
+        doc.text('Profit', 100, y + 7);
+        doc.text('Savings', 130, y + 7);
+        doc.text('Loss', 160, y + 7);
+        doc.text('Progress', 190, y + 7);
+        y += 10;
+        doc.setFillColor(white);
+        doc.rect(12, y, pageWidth - 24, 10, 'F');
+        doc.setTextColor(green);
+        doc.text(window.formatCurrency(totalIncome), 16, y + 7);
+        doc.setTextColor(red);
+        doc.text(window.formatCurrency(totalExpenses), 50, y + 7);
+        doc.setTextColor(profit >= 0 ? green : red);
+        doc.text(window.formatCurrency(profit), 100, y + 7);
+        doc.setTextColor(green);
+        doc.text(window.formatCurrency(savings), 130, y + 7);
+        doc.setTextColor(loss > 0 ? red : dark);
+        doc.text(window.formatCurrency(loss), 160, y + 7);
+        doc.setTextColor(progressStatus === 'Good' ? green : red);
+        doc.text(progressStatus, 190, y + 7);
+        y += 16;
+        // --- TRANSACTION OVERVIEW TABLE ---
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(teal);
+        doc.text('TRANSACTION OVERVIEW', 12, y);
+        y += 4;
+        doc.setDrawColor(teal);
+        doc.setLineWidth(1);
+        doc.line(12, y, pageWidth - 12, y);
+        y += 4;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        // Table header
+        doc.setFillColor(teal);
+        doc.setTextColor(white);
+        doc.rect(12, y, pageWidth - 24, 8, 'F');
+        doc.text('Date', 14, y + 6);
+        doc.text('Type', 36, y + 6);
+        doc.text('Category', 58, y + 6);
+        doc.text('Amount', 100, y + 6);
+        doc.text('Description', 130, y + 6);
+        y += 8;
+        // Table rows
+        let row = 0;
+        if (data.transactions && data.transactions.length) {
+            data.transactions.forEach(tx => {
+                if (y > 270) { doc.addPage(); y = 20; }
+                let date = tx.date;
+                if (date && typeof date.toDate === 'function') {
+                    date = date.toDate();
+                } else if (date) {
+                    date = new Date(date);
+                } else {
+                    date = new Date();
+                }
+                // Alternate row color
+                doc.setFillColor(row % 2 === 0 ? white : gray);
+                doc.rect(12, y, pageWidth - 24, 8, 'F');
+                doc.setTextColor(dark);
+                doc.text(date.toLocaleDateString(), 14, y + 6);
+                doc.text(String(tx.type || ''), 36, y + 6);
+                doc.text(String(tx.category || ''), 58, y + 6);
+                doc.text(window.formatCurrency(tx.amount || 0), 100, y + 6);
+                doc.text(String(tx.description || ''), 130, y + 6, { maxWidth: 60 });
+                y += 8;
+                row++;
+            });
+        } else {
+            doc.setFillColor(white);
+            doc.rect(12, y, pageWidth - 24, 8, 'F');
+            doc.setTextColor(red);
+            doc.text('No transactions found.', 14, y + 6);
+            y += 8;
+        }
+        // Footer
+        if (y > 250) { doc.addPage(); y = 270; }
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(teal);
+        doc.text('Generated by HipoBudget', pageWidth / 2, 290, { align: 'center' });
+        doc.save(filename);
+    }
+
+    // Permission checking utility functions (copied from Reports.html)
+    window.checkUserPermission = async function(userId, feature) {
+        try {
+            // Get user's plan
+            const userDoc = await db.collection('users').doc(userId).get();
+            if (!userDoc.exists) return false;
+            const userData = userDoc.data();
+            const userPlan = userData.plan || 'free'; // Default to free plan
+            // Get plan permissions
+            const permissionsDoc = await db.collection('settings').doc('planPermissions').get();
+            if (!permissionsDoc.exists) return true; // If no permissions set, allow everything
+            const permissions = permissionsDoc.data();
+            return permissions[userPlan]?.[feature] !== false; // Default to true if not explicitly set
+        } catch (error) {
+            console.error('Error checking permission:', error);
+            return false; // Fail safe - deny access on error
+        }
+    };
+    window.checkCurrentUserPermission = async function(feature) {
+        const user = auth && auth.currentUser;
+        if (!user) return false;
+        return await window.checkUserPermission(user.uid, feature);
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            // Always use the shared FirebaseManager instance
+            const firebaseInstance = await window.FirebaseManager.waitForReady();
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            if (auth) {
+                auth.onAuthStateChanged(async user => {
+                    console.log('Auth state changed:', user);
+                    if (!user) {
+                        console.log('User is not signed in (user is null).');
+                        return;
+                    }
+                    if (!user.emailVerified) {
+                        console.log('User email is not verified.');
+                        return;
+                    }
+                    // Show loading in fields
+                    document.getElementById('name').value = 'Loading...';
+                    document.getElementById('email').value = 'Loading...';
+                    document.getElementById('currency').value = 'TZS';
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        let userData = userDoc.exists ? userDoc.data() : {};
+                        // Always set fields, fallback to user object if needed
+                        const nameVal = userData.displayName || user.displayName || '';
+                        const emailVal = user.email || userData.email || '';
+                        const currencyVal = userData.currency || 'TZS';
+                        document.getElementById('name').value = nameVal;
+                        document.getElementById('email').value = emailVal;
+                        document.getElementById('currency').value = currencyVal;
+                        console.log('Loaded account settings:', { nameVal, emailVal, currencyVal });
+                        // Load notification preferences
+                        const notif = userData.notifications || {};
+                        document.getElementById('budgetNotifications').checked = !!notif.budget;
+                        document.getElementById('goalNotifications').checked = !!notif.goal;
+                        document.getElementById('reportNotifications').checked = !!notif.report;
+                        // Save notification preferences on toggle
+                        [
+                            { id: 'budgetNotifications', key: 'budget' },
+                            { id: 'goalNotifications', key: 'goal' },
+                            { id: 'reportNotifications', key: 'report' }
+                        ].forEach(({ id, key }) => {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.addEventListener('change', async function() {
+                                    try {
+                                        const newVal = el.checked;
+                                        await db.collection('users').doc(user.uid).set({
+                                            notifications: { ...notif, [key]: newVal }
+                                        }, { merge: true });
+                                        notif[key] = newVal;
+                                        showToast('success', 'Notification preference saved.');
+                                        console.log('Saved notification preference:', key, newVal);
+                                    } catch (err) {
+                                        showToast('error', 'Failed to save notification preference.');
+                                        console.error('Error saving notification preference:', err);
+                                    }
+                                });
+                            }
+                        });
+                        // Save userData for later use in export buttons
+                        window._settingsUserData = userData;
+                        window._settingsUser = user;
+
+                        // Export data buttons (attach after user loaded)
+                        const exportJSONBtn = document.getElementById('exportJSON');
+                        const exportCSVBtn = document.getElementById('exportCSV');
+                        const exportPDFBtn = document.getElementById('exportPDF');
+                        const username = userData.displayName || user.displayName || '';
+                        const email = user.email || userData.email || '';
+                        if (exportJSONBtn) {
+                            exportJSONBtn.onclick = async function() {
+                                console.log('Export JSON button clicked');
+                                try {
+                                    const data = await collectUserData(user.uid);
+                                    downloadJSON(data, 'hipobudget-data.json');
+                                    showToast('success', 'Exported as JSON');
+                                    console.log('Exported JSON:', data);
+                                } catch (err) {
+                                    showToast('error', 'Failed to export JSON');
+                                    console.error('Export JSON error:', err);
+                                }
+                            };
+                        }
+                        if (exportCSVBtn) {
+                            exportCSVBtn.onclick = async function() {
+                                console.log('Export CSV button clicked');
+                                try {
+                                    const data = await collectUserData(user.uid);
+                                    downloadCSV(data, 'hipobudget-data.csv', username, email);
+                                    showToast('success', 'Exported as CSV');
+                                    console.log('Exported CSV:', data);
+                                } catch (err) {
+                                    showToast('error', 'Failed to export CSV');
+                                    console.error('Export CSV error:', err);
+                                }
+                            };
+                        }
+                        if (exportPDFBtn) {
+                            exportPDFBtn.onclick = async function() {
+                                console.log('Export PDF button clicked');
+                                try {
+                                    const data = await collectUserData(user.uid);
+                                    generatePDF(data, 'hipobudget-data.pdf', username, email);
+                                    showToast('success', 'Exported as PDF');
+                                    console.log('Exported PDF:', data);
+                                } catch (err) {
+                                    showToast('error', 'Failed to export PDF');
+                                    console.error('Export PDF error:', err);
+                                }
+                            };
+                        }
+                    } catch (err) {
+                        document.getElementById('name').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('currency').value = 'TZS';
+                        document.getElementById('saveMsg').textContent = 'Failed to load account info.';
+                        document.getElementById('saveMsg').style.color = 'var(--danger)';
+                        console.error('Error loading user document:', err);
+                    }
+                    // Set user avatar (photo or initials)
+                    const avatar = document.getElementById('user-avatar');
+                    let name = user.displayName || user.email || 'U';
+                    let initials = getInitials(name);
+                    if (avatar) {
+                        if (user.photoURL) {
+                            avatar.style.background = 'none';
+                            avatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+                        } else {
+                            avatar.textContent = initials;
+                        }
+                    }
+                    // Avatar dropdown toggle
+                    const avatarDropdown = document.getElementById('avatarDropdown');
+                    if (avatar && avatarDropdown) {
+                        avatar.addEventListener('click', e => {
+                            e.stopPropagation();
+                            avatarDropdown.classList.toggle('show');
+                        });
+                        document.addEventListener('click', e => {
+                            if (!avatar.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                                avatarDropdown.classList.remove('show');
+                            }
+                        });
+                    }
+                    // Logout button
+                    const logoutBtn = document.getElementById('logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', () => {
+                            console.log('Logout button clicked');
+                            if (auth) auth.signOut().then(() => {
+                                window.location.href = 'index.html';
+                            });
+                        });
+                    }
+                    // Save handler
+                    const saveBtn = document.getElementById('saveAccountBtn');
+                    const saveMsg = document.getElementById('saveMsg');
+                    const saveSpinner = document.getElementById('saveSpinner');
+                    const saveBtnText = document.getElementById('saveBtnText');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', async function() {
+                            saveBtn.disabled = true;
+                            saveSpinner.style.display = '';
+                            saveBtnText.textContent = 'Saving...';
+                            saveMsg.textContent = '';
+                            try {
+                                const newName = document.getElementById('name').value.trim();
+                                const newCurrency = document.getElementById('currency').value;
+                                await db.collection('users').doc(user.uid).update({
+                                    displayName: newName,
+                                    currency: newCurrency
+                                });
+                                // Update localStorage for currency
+                                localStorage.setItem('userCurrency', newCurrency);
+                                saveMsg.textContent = 'Account settings updated!';
+                                saveMsg.style.color = 'var(--success)';
+                                showToast('success', 'Account settings updated!');
+                            } catch (err) {
+                                saveMsg.textContent = 'Failed to update account settings.';
+                                saveMsg.style.color = 'var(--danger)';
+                                console.error('Error saving account settings:', err);
+                                showToast('error', 'Failed to update account settings.');
+                            } finally {
+                                saveBtn.disabled = false;
+                                saveSpinner.style.display = 'none';
+                                saveBtnText.textContent = 'Save Changes';
+                            }
+                        });
+                    }
+
+                    // --- Delete Account Logic ---
+                    const deleteAccountBtn = document.getElementById('deleteAccount');
+                    const deleteModal = document.getElementById('deleteModal');
+                    const closeDeleteModalBtn = document.getElementById('closeDeleteModal');
+                    const cancelDeleteBtn = document.getElementById('cancelDelete');
+                    const confirmDeleteBtn = document.getElementById('confirmDelete');
+                    const deletePasswordInput = document.getElementById('deletePassword');
+
+                    if (deleteAccountBtn && deleteModal) {
+                        deleteAccountBtn.addEventListener('click', () => {
+                            // Position the popover above or below the button (desktop)
+                            const rect = deleteAccountBtn.getBoundingClientRect();
+                            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                            const modalHeight = deleteModal.offsetHeight || 220;
+                            const arrow = deleteModal.querySelector('.popover-arrow');
+                            let top, arrowClass;
+                            if (window.innerWidth > 600) {
+                                // Prefer above, but if not enough space, show below
+                                if (rect.top > modalHeight + 24) {
+                                    // Pop above
+                                    top = rect.top + scrollTop - modalHeight - 16;
+                                    arrowClass = 'down';
+                                } else {
+                                    // Pop below
+                                    top = rect.bottom + scrollTop + 8;
+                                    arrowClass = 'up';
+                                }
+                                deleteModal.style.position = 'absolute';
+                                deleteModal.style.left = (rect.left + scrollLeft + rect.width/2 - 170) + 'px';
+                                deleteModal.style.top = top + 'px';
+                                if (arrow) {
+                                    arrow.className = 'popover-arrow ' + arrowClass;
+                                    arrow.style.display = '';
+                                }
+                            } else {
+                                deleteModal.style.position = 'fixed';
+                                deleteModal.style.left = '0';
+                                deleteModal.style.top = '0';
+                                if (arrow) arrow.style.display = 'none';
+                            }
+                            deleteModal.style.display = 'block';
+                            deletePasswordInput.value = '';
+                            confirmDeleteBtn.disabled = true;
+                        });
+                    }
+                    if (closeDeleteModalBtn && deleteModal) {
+                        closeDeleteModalBtn.addEventListener('click', () => {
+                            deleteModal.style.display = 'none';
+                        });
+                    }
+                    if (cancelDeleteBtn && deleteModal) {
+                        cancelDeleteBtn.addEventListener('click', () => {
+                            deleteModal.style.display = 'none';
+                        });
+                    }
+                    if (deletePasswordInput && confirmDeleteBtn) {
+                        deletePasswordInput.addEventListener('input', () => {
+                            confirmDeleteBtn.disabled = deletePasswordInput.value.trim().length < 6;
+                        });
+                    }
+                    if (confirmDeleteBtn) {
+                        confirmDeleteBtn.addEventListener('click', async () => {
+                            confirmDeleteBtn.disabled = true;
+                            confirmDeleteBtn.textContent = 'Deleting...';
+                            try {
+                                const user = auth.currentUser;
+                                const password = deletePasswordInput.value;
+                                if (!user || !password) {
+                                    showToast('error', 'Please enter your password to confirm account deletion.');
+                                    confirmDeleteBtn.disabled = false;
+                                    confirmDeleteBtn.textContent = 'Delete Account';
+                                    return;
+                                }
+                                // Re-authenticate user
+                                const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                                await user.reauthenticateWithCredential(cred);
+                                // Delete user data from Firestore
+                                await deleteUserData(user.uid);
+                                // Delete user from Auth
+                                await user.delete();
+                                showToast('success', 'Your account and all data have been permanently deleted.');
+                                setTimeout(() => {
+                                    window.location.href = 'index.html';
+                                }, 1800);
+                            } catch (err) {
+                                let msg = 'Failed to delete account. Please check your password and try again.';
+                                if (err && (err.code === 'auth/wrong-password' || (err.message && err.message.toLowerCase().includes('password is invalid')))) {
+                                    msg = 'Incorrect password. Please try again.';
+                                }
+                                showToast('error', msg);
+                                confirmDeleteBtn.disabled = false;
+                                confirmDeleteBtn.textContent = 'Delete Account';
+                            }
+                        });
+                    }
+                });
+            } else {
+                console.error('Firebase Auth not initialized');
+            }
+            // Theme/appearance logic
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                // Set initial state from localStorage
+                darkModeToggle.checked = (localStorage.getItem('theme') || 'light') === 'dark';
+                darkModeToggle.addEventListener('change', function() {
+                    const mode = darkModeToggle.checked ? 'dark' : 'light';
+                    localStorage.setItem('theme', mode);
+                    if (window.applyTheme) window.applyTheme();
+                    // Notify other tabs
+                    window.dispatchEvent(new StorageEvent('storage', { key: 'theme', newValue: mode }));
+                });
+            }
+            // Theme color buttons
+            document.querySelectorAll('.theme-color').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.theme-color').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const color = btn.getAttribute('data-color');
+                    localStorage.setItem('themeColor', color);
+                    if (window.applyTheme) window.applyTheme();
+                    // Notify other tabs
+                    window.dispatchEvent(new StorageEvent('storage', { key: 'themeColor', newValue: color }));
+                });
+            });
+            // Listen for theme changes from other tabs
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'theme' || e.key === 'themeColor') {
+                    if (window.applyTheme) window.applyTheme();
+                    // Update modal colors
+                    if (deleteModal) {
+                        deleteModal.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+                        deleteModal.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                    }
+                }
+            });
+            // Apply theme on load
+            if (window.applyTheme) window.applyTheme();
+        } catch (error) {
+            console.error('Error initializing settings page:', error);
+        }
+    });
+
+    function getInitials(nameOrEmail) {
+        if (!nameOrEmail) return 'U';
+        const parts = nameOrEmail.split(/\s+|@/);
+        let initials = parts[0][0] || '';
+        if (parts.length > 1) initials += parts[1][0] || '';
+        return initials.substring(0, 2).toUpperCase();
+    }
+    </script>
+</body>
+</html>

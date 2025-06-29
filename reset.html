@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    // Forward all query params to action.html
+    window.onload = function() {
+      var params = window.location.search;
+      window.location.replace('action.html' + params);
+    };
+  </script>
+</head>
+<body style="background:#18181b;color:#fff;text-align:center;padding-top:3rem;font-family:sans-serif;">
+  <h2>Redirecting to password reset...</h2>
+  <noscript>
+    Please enable JavaScript to continue.
+  </noscript>
+</body>
+</html> 

@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HipoBudget - Secure Financial Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>window.firebase = firebase;</script>
+    <!-- Fallback Firebase SDK if primary fails -->
+    <script>
+        if (typeof firebase === 'undefined') {
+            console.warn('Primary Firebase CDN failed, trying fallback...');
+            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-app-compat.js"><\/script>');
+            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-auth-compat.js"><\/script>');
+            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-firestore-compat.js"><\/script>');
+        }
+    </script>
+    <script src="firebase-init.js"></script>
+    <!-- Wait for Firebase to be ready before loading theme.js -->
+    <script>
+        // Ensure Firebase is ready before loading theme.js
+        (async function() {
+            try {
+                // Check if Firebase SDK loaded
+                if (typeof firebase === 'undefined') {
+                    console.error('Firebase SDK not loaded');
+                    return;
+                }
+                
+                if (window.FirebaseManager) {
+                    await window.FirebaseManager.waitForReady();
+                    console.log('Firebase ready, loading theme.js');
+                } else {
+                    console.warn('FirebaseManager not available');
+                }
+            } catch (error) {
+                console.warn('Firebase initialization warning:', error);
+            }
+        })();
+    </script>
+    <script src="theme.js"></script>
+    <!-- Password strength meter - using alternative CDN -->
+    <script src="https://unpkg.com/zxcvbn@4.4.2/dist/zxcvbn.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+        }
+        
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .welcome-section::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .welcome-content {
+            max-width: 500px;
+            z-index: 1;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-align: center;
+        }
+        
+        .welcome-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+        
+        .features {
+            margin-top: 2rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon {
+            margin-right: 1rem;
+            color: var(--secondary);
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .security-badge-icon {
+            margin-right: 0.75rem;
+            color: var(--success);
+        }
+        
+        .auth-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            background-color: white;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            justify-content: center;
+        }
+        
+        .auth-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #64748b;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary);
+        }
+        
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+        }
+        
+        .auth-tab:hover {
+            color: var(--primary-dark);
+        }
+        
+        .auth-content {
+            display: none;
+        }
+        
+        .auth-content.active {
+            display: block;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .auth-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .auth-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .auth-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .auth-form input,
+        .auth-form select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .auth-form input:focus,
+        .auth-form select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid #e2e8f0;
+            width: 100%;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .auth-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            color: #76748b;
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: underline;
+            font-weight: 600;
+            margin-left: 0.25rem;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #64748b;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e2e8f0;
+        }
+        
+        .divider-text {
+            padding: 0 1rem;
+        }
+        
+        .social-auth {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .social-btn:hover:not(:disabled) {
+            background-color: #f8fafc;
+        }
+        
+        .social-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .social-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #64748b;
+        }
+        
+        .error-message {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: none;
+            padding: 0.5rem;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-radius: 0.25rem;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        .success-message {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: none;
+            padding: 0.5rem;
+            background-color: rgba(16, 185, 129, 0.1);
+            border-radius: 0.25rem;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            border-radius: 2px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .password-strength-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-align: right;
+        }
+        
+        .form-group.terms-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .terms-text {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .terms-text a {
+            color: var(--primary);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .terms-text a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .btn.loading .loading-spinner {
+            display: inline-block;
+        }
+        
+        .btn.loading span {
+            display: none;
+        }
+        
+        .verification-banner {
+            padding: 1rem;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .verification-icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .verification-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .verification-link {
+            color: var(--info);
+            font-weight: 500;
+            text-decoration: none;
+            margin-left: 0.5rem;
+        }
+        
+        .verification-link:hover {
+            text-decoration: underline;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
+        
+        .language-selector select {
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            color: var(--dark);
+        }
+        
+        html, body {
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                width: 100vw;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+            .welcome-section,
+            .auth-section {
+                width: 100vw;
+                min-width: 0;
+                max-width: 100vw;
+                padding: 1.5rem 0.5rem;
+                box-sizing: border-box;
+            }
+            .welcome-content {
+                max-width: 100vw;
+                padding: 0;
+            }
+            .auth-container {
+                max-width: 100vw;
+                width: 100vw;
+                padding: 0 0.5rem;
+                box-sizing: border-box;
+            }
+            .auth-form input,
+            .auth-form select,
+            .btn {
+                font-size: 1.1rem;
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+            .auth-title {
+                font-size: 1.5rem;
+            }
+            .auth-subtitle {
+                font-size: 1rem;
+            }
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            .divider {
+                margin: 1rem 0;
+            }
+            .auth-footer {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+        <div class="language-selector">
+            <select id="language-selector">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="ja">日本語</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
+        
+        <div class="welcome-content">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            <h1 class="welcome-title" data-i18n="welcome_title">Welcome</h1>
+            <p class="welcome-description" data-i18n="welcome_description">
+                Take control of your finances with our intelligent budgeting tools. 
+                HipoBudget helps you save more, spend wisely, and achieve your 
+                financial goals faster.
+            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <span class="feature-icon">✔</span>
+                    <span data-i18n="feature1">AI-powered budgeting tools</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">✔</span>
+                    <span data-i18n="feature2">Automated expense tracking</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">✔</span>
+                    <span data-i18n="feature3">Custom savings plans</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">✔</span>
+                    <span data-i18n="feature4">Secure & private</span>
+                </div>
+            </div>
+            
+            <div class="security-badge">
+                <span class="security-badge-icon">🔒</span>
+                <span data-i18n="security_badge">GDPR compliant • ISO 27001 certified • End-to-end encryption</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Auth Section -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="signin" data-i18n="sign_in_tab">Sign In</div>
+                <div class="auth-tab" data-tab="signup" data-i18n="sign_up_tab">Sign Up</div>
+            </div>
+            
+            <!-- Sign In Content -->
+            <div class="auth-content active" id="signin-tab">
+                <h2 class="auth-title" data-i18n="sign_in_title">Welcome Back</h2>
+                <p class="auth-subtitle" data-i18n="sign_in_subtitle">Sign in to continue to your HipoBudget dashboard</p>
+                
+                <div class="verification-banner" id="email-verification-banner" style="display: none;">
+                    <span class="verification-icon">✉️</span>
+                    <span class="verification-text" data-i18n="verification_prompt">Please verify your email address to access all features.</span>
+                    <a href="#" class="verification-link" id="resend-verification" data-i18n="resend_link">Resend verification email</a>
+                </div>
+                
+                <div class="social-auth">
+                    <button class="social-btn" id="google-sign-in">
+                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                            <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
+                        </svg>
+                    </button>
+                    <button class="social-btn" id="apple-sign-in" disabled>
+                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                            <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span class="divider-text" data-i18n="or_divider">or</span>
+                </div>
+                
+                <form class="auth-form" id="signin-form-2">
+                    <div class="form-group">
+                        <label for="signin-email-2" data-i18n="email_label">Email Address</label>
+                        <input type="email" id="signin-email-2" placeholder="Enter your email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="signin-password-2" data-i18n="password_label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="signin-password-2" placeholder="Enter your password" required autocomplete="current-password">
+                            <span class="toggle-password" data-target="signin-password-2">👁️</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signin-role-2" data-i18n="role_label">I am a</label>
+                        <select id="signin-role-2">
+                            <option value="admin" data-i18n="role_admin">Admin</option>
+                            <option value="user" data-i18n="role_user">User</option>
+                        </select>
+                    </div>
+                    <div class="error-message" id="signin-error-2"></div>
+                    <div class="success-message" id="signin-success-2"></div>
+                    <button type="submit" class="btn btn-primary" id="signin-button-2">
+                        <span class="loading-spinner"></span>
+                        <span data-i18n="sign_in_button">Sign In</span>
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p><a href="#" id="forgot-password" data-i18n="forgot_password">Forgot password?</a></p>
+                </div>
+            </div>
+            
+            <!-- Sign Up Content -->
+            <div class="auth-content" id="signup-tab">
+                <h2 class="auth-title" data-i18n="sign_up_title">Create Account</h2>
+                <p class="auth-subtitle" data-i18n="sign_up_subtitle">Get started with HipoBudget in just a few steps</p>
+                
+                <div class="social-auth">
+                    <button class="social-btn" id="google-sign-up">
+                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                            <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
+                        </svg>
+                    </button>
+                    <button class="social-btn" id="apple-sign-up" disabled>
+                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                            <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span class="divider-text" data-i18n="or_divider">or</span>
+                </div>
+                
+                <form class="auth-form" id="signup-form-2">
+                    <div class="form-group">
+                        <label for="signup-name-2" data-i18n="full_name_label">Full Name</label>
+                        <input type="text" id="signup-name-2" placeholder="Enter your full name" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email-2" data-i18n="email_label">Email Address</label>
+                        <input type="email" id="signup-email-2" placeholder="Enter your email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-role-2" data-i18n="role_label">I am a</label>
+                        <select id="signup-role-2">
+                            <option value="admin" data-i18n="role_admin">Admin</option>
+                            <option value="user" data-i18n="role_user">User</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password-2" data-i18n="password_label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="signup-password-2" placeholder="Create a password" required autocomplete="new-password">
+                            <span class="toggle-password" data-target="signup-password-2">👁️</span>
+                        </div>
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="password-strength-bar-2"></div>
+                        </div>
+                        <div class="password-strength-text" id="password-strength-text-2"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password-2" data-i18n="confirm_password_label">Confirm Password</label>
+                        <div class="password-container">
+                            <input type="password" id="signup-confirm-password-2" placeholder="Confirm your password" required autocomplete="new-password">
+                            <span class="toggle-password" data-target="signup-confirm-password-2">👁️</span>
+                        </div>
+                    </div>
+                    <div class="form-group terms-checkbox">
+                        <input type="checkbox" id="terms-agreement-2" required>
+                        <label for="terms-agreement-2" class="terms-text">
+                            <span data-i18n="terms_agree">I agree to the</span>
+                            <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="terms_link">Terms of Service</a>
+                            <span data-i18n="and">and</span>
+                            <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="privacy_link">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <div class="error-message" id="signup-error-2"></div>
+                    <div class="success-message" id="signup-success-2"></div>
+                    <button type="submit" class="btn btn-primary" id="signup-button-2">
+                        <span class="loading-spinner"></span>
+                        <span data-i18n="sign_up_button">Create Account</span>
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>
+                        <span data-i18n="already_have_account">Already have an account?</span>
+                        <a href="#" class="switch-tab" data-tab="signin" data-i18n="sign_in_link" style="font-weight:600; color:var(--primary); text-decoration:underline;">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Password Reset Modal -->
+    <div id="password-reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background-color: white; padding: 2rem; border-radius: 0.5rem; max-width: 400px; width: 90%;">
+            <h2 style="margin-bottom: 1rem;" data-i18n="reset_password_title">Reset Password</h2>
+            <p style="margin-bottom: 1.5rem;" data-i18n="reset_password_instructions">Enter your email address and we'll send you a link to reset your password.</p>
+            <div class="form-group">
+                <label for="reset-email-2" data-i18n="email_label">Email Address</label>
+                <input type="email" id="reset-email-2" placeholder="Enter your email" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.25rem;">
+            </div>
+            <div class="error-message" id="reset-error-2" style="margin-top: 0.5rem;"></div>
+            <div class="success-message" id="reset-success-2" style="margin-top: 0.5rem;"></div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button id="cancel-reset-2" class="btn btn-secondary" data-i18n="cancel_button">Cancel</button>
+                <button id="submit-reset-2" class="btn btn-primary" data-i18n="send_reset_link">Send Reset Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Internationalization support
+        const i18n = {
+            en: {
+                welcome_title: "Welcome",
+                welcome_description: "Take control of your finances with our intelligent budgeting tools. HipoBudget helps you save more, spend wisely, and achieve your financial goals faster.",
+                feature1: "AI-powered budgeting tools",
+                feature2: "Automated expense tracking",
+                feature3: "Custom savings plans",
+                feature4: "Secure & private",
+                security_badge: "GDPR compliant • ISO 27001 certified • End-to-end encryption",
+                sign_in_tab: "Sign In",
+                sign_up_tab: "Sign Up",
+                sign_in_title: "Welcome Back",
+                sign_in_subtitle: "Sign in to continue to your HipoBudget dashboard",
+                verification_prompt: "Please verify your email address to access all features.",
+                resend_link: "Resend verification email",
+                or_divider: "or",
+                email_label: "Email Address",
+                password_label: "Password",
+                role_label: "I am a",
+                role_admin: "Admin",
+                role_user: "User",
+                sign_in_button: "Sign In",
+                forgot_password: "Forgot password?",
+                sign_up_title: "Create Account",
+                sign_up_subtitle: "Get started with HipoBudget in just a few steps",
+                full_name_label: "Full Name",
+                confirm_password_label: "Confirm Password",
+                terms_agree: "I agree to the",
+                terms_link: "Terms of Service",
+                and: "and",
+                privacy_link: "Privacy Policy",
+                sign_up_button: "Create Account",
+                already_have_account: "Already have an account?",
+                sign_in_link: "Sign in",
+                reset_password_title: "Reset Password",
+                reset_password_instructions: "Enter your email address and we'll send you a link to reset your password.",
+                cancel_button: "Cancel",
+                send_reset_link: "Send Reset Link",
+                password_weak: "Weak",
+                password_fair: "Fair",
+                password_good: "Good",
+                password_strong: "Strong",
+                password_very_strong: "Very Strong"
+            },
+            es: {
+                welcome_title: "Bienvenido",
+                welcome_description: "Toma el control de tus finanzas con nuestras herramientas de presupuesto inteligente. HipoBudget te ayuda a ahorrar más, gastar sabiamente y alcanzar tus metas financieras más rápido.",
+                feature1: "Herramientas de presupuesto con IA",
+                feature2: "Seguimiento automático de gastos",
+                feature3: "Planes de ahorro personalizados",
+                feature4: "Seguro y privado",
+                security_badge: "Cumple con GDPR • Certificado ISO 27001 • Cifrado de extremo a extremo",
+                sign_in_tab: "Iniciar Sesión",
+                sign_up_tab: "Registrarse",
+                sign_in_title: "Bienvenido de Nuevo",
+                sign_in_subtitle: "Inicia sesión para continuar a tu panel de HipoBudget",
+                verification_prompt: "Por favor verifica tu dirección de correo electrónico para acceder a todas las funciones.",
+                resend_link: "Reenviar correo de verificación",
+                or_divider: "o",
+                email_label: "Correo Electrónico",
+                password_label: "Contraseña",
+                role_label: "Soy un",
+                role_admin: "Administrador",
+                role_user: "Usuario",
+                sign_in_button: "Iniciar Sesión",
+                forgot_password: "¿Olvidaste tu contraseña?",
+                sign_up_title: "Crear Cuenta",
+                sign_up_subtitle: "Comienza con HipoBudget en solo unos pasos",
+                full_name_label: "Nombre Completo",
+                confirm_password_label: "Confirmar Contraseña",
+                terms_agree: "Acepto los",
+                terms_link: "Términos de Servicio",
+                and: "y",
+                privacy_link: "Política de Privacidad",
+                sign_up_button: "Crear Cuenta",
+                already_have_account: "¿Ya tienes una cuenta?",
+                sign_in_link: "Iniciar Sesión",
+                reset_password_title: "Restablecer Contraseña",
+                reset_password_instructions: "Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+                cancel_button: "Cancelar",
+                send_reset_link: "Enviar Enlace",
+                password_weak: "Débil",
+                password_fair: "Aceptable",
+                password_good: "Buena",
+                password_strong: "Fuerte",
+                password_very_strong: "Muy Fuerte"
+            },
+            fr: {
+                welcome_title: "Bienvenue",
+                welcome_description: "Prenez le contrôle de vos finances avec nos outils de budgétisation intelligents. HipoBudget vous aide à économiser plus, à dépenser judicieusement et à atteindre vos objectifs financiers plus rapidement.",
+                feature1: "Outils de budgétisation alimentés par l'IA",
+                feature2: "Suivi automatique des dépenses",
+                feature3: "Plans d'épargne personnalisés",
+                feature4: "Sécurisé et privé",
+                security_badge: "Conforme au RGPD • Certifié ISO 27001 • Chiffrement de bout en bout",
+                sign_in_tab: "Connexion",
+                sign_up_tab: "Inscription",
+                sign_in_title: "Content de vous revoir",
+                sign_in_subtitle: "Connectez-vous pour accéder à votre tableau de bord HipoBudget",
+                verification_prompt: "Veuillez vérifier votre adresse e-mail pour accéder à toutes les fonctionnalités.",
+                resend_link: "Renvoyer l'e-mail de vérification",
+                or_divider: "ou",
+                email_label: "Adresse e-mail",
+                password_label: "Mot de passe",
+                role_label: "Je suis un",
+                role_admin: "Administrateur",
+                role_user: "Utilisateur",
+                sign_in_button: "Connexion",
+                forgot_password: "Mot de passe oublié?",
+                sign_up_title: "Créer un compte",
+                sign_up_subtitle: "Commencez avec HipoBudget en quelques étapes",
+                full_name_label: "Nom complet",
+                confirm_password_label: "Confirmer le mot de passe",
+                terms_agree: "J'accepte les",
+                terms_link: "Conditions d'utilisation",
+                and: "et",
+                privacy_link: "Politique de confidentialité",
+                sign_up_button: "Créer un compte",
+                already_have_account: "Vous avez déjà un compte?",
+                sign_in_link: "Connexion",
+                reset_password_title: "Réinitialiser le mot de passe",
+                reset_password_instructions: "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+                cancel_button: "Annuler",
+                send_reset_link: "Envoyer le lien",
+                password_weak: "Faible",
+                password_fair: "Moyen",
+                password_good: "Bon",
+                password_strong: "Fort",
+                password_very_strong: "Très fort"
+            }
+        };
+
+        // Set language based on browser preference or user selection
+        function setLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+                        el.setAttribute('placeholder', i18n[lang][key]);
+                    } else {
+                        el.textContent = i18n[lang][key];
+                    }
+                }
+            });
+        }
+
+        // Initialize language
+        document.getElementById('language-selector').addEventListener('change', (e) => {
+            setLanguage(e.target.value);
+        });
+
+        // Set initial language based on browser preference
+        const userLang = navigator.language.split('-')[0];
+        const supportedLangs = ['en', 'es', 'fr'];
+        const defaultLang = supportedLangs.includes(userLang) ? userLang : 'en';
+        document.getElementById('language-selector').value = defaultLang;
+        setLanguage(defaultLang);
+
+        // Helper function to display error messages
+        const showError = (elementId, message) => {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('active');
+            }
+        };
+
+        // Helper function to display success messages
+        const showSuccess = (elementId, message) => {
+            const successElement = document.getElementById(elementId);
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.classList.add('active');
+            }
+        };
+
+        // Helper function to clear messages
+        const clearMessage = (elementId) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = '';
+                element.classList.remove('active');
+            }
+        };
+
+        // Helper function to clear form inputs
+        const clearForm = (formId) => {
+            const form = document.getElementById(formId);
+            if (form) form.reset();
+        };
+
+        // Helper function to set button loading state
+        const setLoading = (buttonId, isLoading) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                if (isLoading) {
+                    button.classList.add('loading');
+                    button.disabled = true;
+                } else {
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                }
+            }
+        };
+
+        // Password strength indicator
+        const updatePasswordStrength = (password) => {
+            if (!password) {
+                document.getElementById('password-strength-bar-2').style.width = '0%';
+                document.getElementById('password-strength-bar-2').style.backgroundColor = '';
+                document.getElementById('password-strength-text-2').textContent = '';
+                return;
+            }
+
+            const result = zxcvbn(password);
+            const strength = result.score; // 0-4
+            const strengthText = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+            const strengthColors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#10b981'];
+            const strengthWidth = [(20), (40), (60), (80), (100)];
+
+            document.getElementById('password-strength-bar-2').style.width = strengthWidth[strength] + '%';
+            document.getElementById('password-strength-bar-2').style.backgroundColor = strengthColors[strength];
+            document.getElementById('password-strength-text-2').textContent = i18n[document.getElementById('language-selector').value]['password_' + strengthText[strength].toLowerCase().replace(' ', '_')];
+        };
+
+        // Initialize Firebase with centralized manager
+        let auth = null;
+        let db = null;
+        
+        async function initializeApp() {
+            try {
+                console.log('Initializing Firebase with centralized manager...');
+                
+                // Wait for Firebase to be ready
+                const firebaseInstance = await window.FirebaseManager.waitForReady();
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                
+                // Set persistence to LOCAL to keep user logged in between sessions
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                    .then(() => console.log('Auth persistence set to LOCAL'))
+                    .catch(error => console.error('Error setting auth persistence:', error));
+                
+                console.log('Firebase initialized successfully');
+                
+                // Initialize auth state listener
+                initializeAuthStateListener();
+                
+            } catch (error) {
+                console.error('Firebase initialization error:', error.message);
+                showError('signin-error-2', 'Failed to initialize Firebase. Check your internet connection or Firebase configuration.');
+                showError('signup-error-2', 'Failed to initialize Firebase. Check your internet connection or Firebase configuration.');
+                // Disable forms if Firebase is not initialized
+                document.getElementById('signin-form-2').querySelectorAll('input, button, select').forEach(el => el.disabled = true);
+                document.getElementById('signup-form-2').querySelectorAll('input, button, select').forEach(el => el.disabled = true);
+            }
+        }
+
+        // Check authentication state
+        function initializeAuthStateListener() {
+            if (auth) {
+                auth.onAuthStateChanged(async user => {
+                    if (user) {
+                        console.log('User state changed:', user.email);
+                        
+                        // Check if email is verified
+                        if (!user.emailVerified) {
+                            document.getElementById('email-verification-banner').style.display = 'flex';
+                        } else {
+                            document.getElementById('email-verification-banner').style.display = 'none';
+                        }
+                        
+                        // Fetch user role from Firestore
+                        try {
+                            const userDoc = await db.collection('users').doc(user.uid).get();
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                localStorage.setItem('userRole', userData.role);
+                                localStorage.setItem('userName', userData.name || user.displayName || 'User');
+                                
+                                // Redirect based on role if email is verified
+                                if (user.emailVerified) {
+                                    if (userData.role === 'admin') {
+                                        window.location.href = 'Admin.html';
+                                    } else {
+                                        window.location.href = 'dashboard.html';
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error fetching user role:', err);
+                        }
+                    } else {
+                        console.log('No user signed in');
+                        document.getElementById('email-verification-banner').style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Initialize the app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        // Tab switching functionality
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Tab clicked:', tab.getAttribute('data-tab'));
+                
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                const content = document.getElementById(`${tabId}-tab`);
+                if (content) {
+                    content.classList.add('active');
+                } else {
+                    console.error('Content not found for tab:', tabId);
+                }
+
+                clearForm('signin-form-2');
+                clearForm('signup-form-2');
+                clearMessage('signin-error-2');
+                clearMessage('signup-error-2');
+                clearMessage('signin-success-2');
+                clearMessage('signup-success-2');
+            });
+        });
+
+        // Switch tab from footer link
+        document.querySelectorAll('.switch-tab').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.getAttribute('data-tab');
+                console.log('Footer link clicked:', tabId);
+                
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+                
+                const targetTab = document.querySelector(`.auth-tab[data-tab="${tabId}"]`);
+                const targetContent = document.getElementById(`${tabId}-tab`);
+                if (targetTab && targetContent) {
+                    targetTab.classList.add('active');
+                    targetContent.classList.add('active');
+                } else {
+                    console.error('Target tab or content not found:', tabId);
+                }
+
+                clearForm('signin-form-2');
+                clearForm('signup-form-2');
+                clearMessage('signin-error-2');
+                clearMessage('signup-error-2');
+                clearMessage('signin-success-2');
+                clearMessage('signup-success-2');
+            });
+        });
+
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const targetId = toggle.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                if (passwordInput) {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    toggle.textContent = type === 'password' ? '👁️' : '🔒';
+                    console.log('Toggled password visibility for:', targetId);
+                }
+            });
+        });
+
+        // Password strength meter
+        document.getElementById('signup-password-2').addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+        });
+
+        // Resend verification email
+        document.getElementById('resend-verification').addEventListener('click', async (e) => {
+            e.preventDefault();
+            setLoading('signin-button', true);
+            
+            try {
+                await auth.currentUser.sendEmailVerification();
+                showSuccess('signin-success', 'Verification email sent! Please check your inbox.');
+            } catch (error) {
+                console.error('Error sending verification email:', error);
+                showError('signin-error', 'Failed to send verification email. Please try again later.');
+            } finally {
+                setLoading('signin-button', false);
+            }
+        });
+
+        // Sign In Form Submission
+        document.getElementById('signin-form-2').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('signin-error-2');
+            clearMessage('signin-success-2');
+            setLoading('signin-button-2', true);
+            
+            if (!auth || !db) {
+                showError('signin-error-2', 'Authentication service unavailable.');
+                setLoading('signin-button-2', false);
+                return;
+            }
+
+            const email = document.getElementById('signin-email-2').value;
+            const password = document.getElementById('signin-password-2').value;
+            const role = document.getElementById('signin-role-2').value;
+
+            if (!email || !password) {
+                showError('signin-error-2', 'Please fill in all required fields.');
+                setLoading('signin-button-2', false);
+                return;
+            }
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                if (!userCredential.user.emailVerified) {
+                    showError('signin-error-2', 'Please verify your email before logging in.');
+                    document.getElementById('email-verification-banner').style.display = 'flex';
+                    await auth.signOut();
+                    setLoading('signin-button-2', false);
+                    return;
+                }
+                
+                // Fetch user role from Firestore
+                const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
+                if (!userDoc.exists) {
+                    showError('signin-error-2', 'User role not found. Contact support.');
+                    await auth.signOut();
+                    setLoading('signin-button-2', false);
+                    return;
+                }
+                
+                const userRole = userDoc.data().role;
+                localStorage.setItem('userRole', userRole);
+                localStorage.setItem('userName', userDoc.data().name || userCredential.user.displayName || 'User');
+                
+                // Redirect based on role
+                if (userRole === 'admin') {
+                    window.location.href = 'Admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+
+                // Log login action
+                await db.collection('activityLogs').add({
+                    type: 'login',
+                    user: userCredential.user.email,
+                    userId: userCredential.user.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    title: 'User Logged In',
+                    description: `${userCredential.user.email} logged in.`
+                });
+                await window.addNotification({
+                    type: 'login',
+                    title: 'User Logged In',
+                    description: `${userCredential.user.email} logged in.`,
+                    userId: userCredential.user.uid
+                });
+            } catch (error) {
+                console.error('Email sign-in error:', error);
+                let errorMessage = 'An error occurred. Please try again.';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password, or this account is not registered.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Please try again later.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled. Contact support.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showError('signin-error-2', errorMessage);
+                setLoading('signin-button-2', false);
+            }
+        });
+
+        // Sign Up Form Submission
+        document.getElementById('signup-form-2').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('signup-error-2');
+            clearMessage('signup-success-2');
+            setLoading('signup-button-2', true);
+            
+            if (!auth || !db) {
+                showError('signup-error-2', 'Authentication service unavailable.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            const name = document.getElementById('signup-name-2').value;
+            const email = document.getElementById('signup-email-2').value;
+            const password = document.getElementById('signup-password-2').value;
+            const confirmPassword = document.getElementById('signup-confirm-password-2').value;
+            const role = document.getElementById('signup-role-2').value;
+            const termsAgreed = document.getElementById('terms-agreement-2').checked;
+
+            if (!name || !email || !password || !confirmPassword) {
+                showError('signup-error-2', 'Please fill in all required fields.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            if (!termsAgreed) {
+                showError('signup-error-2', 'You must agree to the Terms of Service and Privacy Policy.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('signup-error-2', 'Passwords do not match.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            // Check password strength
+            const passwordStrength = zxcvbn(password).score;
+            if (passwordStrength < 2) { // Require at least "Fair" strength
+                showError('signup-error-2', 'Password is too weak. Please choose a stronger password.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            // --- NEW: Check if another admin exists with this email before registering ---
+            let adminExists = false;
+            try {
+                const adminQuery = await db.collection('users')
+                    .where('email', '==', email)
+                    .where('role', '==', 'admin')
+                    .get();
+                if (adminQuery.size > 0) {
+                    adminExists = true;
+                }
+            } catch (err) {
+                // If the check fails, assume admin exists to be safe
+                adminExists = true;
+            }
+            if (role === 'admin' && adminExists) {
+                showError('signup-error-2', 'An admin account with this email already exists. Please contact support.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            try {
+                // Now create the user
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Update user profile with display name
+                await userCredential.user.updateProfile({ displayName: name });
+                
+                // Store additional user data in Firestore
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: userCredential.user.email,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Send email verification
+                await userCredential.user.sendEmailVerification({
+                    url: window.location.origin, // Redirect URL after verification
+                    handleCodeInApp: true
+                });
+                
+                showSuccess('signup-success-2', 'A verification email has been sent. Please verify your email before logging in.');
+                
+                // Switch to sign-in tab after a delay
+                setTimeout(() => {
+                    document.querySelector('.auth-tab[data-tab="signin"]').click();
+                }, 3000);
+
+                // Log registration action
+                try {
+                    await db.collection('activityLogs').add({
+                        type: 'user_registered',
+                        user: email,
+                        userId: userCredential.user.uid,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        title: 'New User Registered',
+                        description: `${email} registered an account.`
+                    });
+                    await window.addNotification({
+                        type: 'user_registered',
+                        title: 'New User Registered',
+                        description: `${email} registered an account.`,
+                        userId: userCredential.user.uid
+                    });
+                } catch (err) {
+                    console.warn('Could not log registration to activityLogs:', err.message);
+                }
+            } catch (error) {
+                console.error('Sign-up error:', error);
+                let errorMessage = 'An error occurred. Please try again.';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'This email is already registered.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showError('signup-error-2', errorMessage);
+            } finally {
+                setLoading('signup-button-2', false);
+            }
+        });
+
+        // Google Sign-In
+        document.getElementById('google-sign-in').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearMessage('signin-error-2');
+            setLoading('signin-button-2', true);
+            
+            if (!auth) {
+                showError('signin-error-2', 'Authentication service unavailable.');
+                setLoading('signin-button-2', false);
+                return;
+            }
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('profile');
+            provider.addScope('email');
+            provider.setCustomParameters({
+                prompt: 'select_account' // Force account selection
+            });
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                console.log('Google sign-in successful:', result.user.email);
+                // Check if this is a new user
+                const isNewUser = result.additionalUserInfo.isNewUser;
+                if (isNewUser) {
+                    // For new users, set them as regular users (not admin)
+                    await db.collection('users').doc(result.user.uid).set({
+                        name: result.user.displayName,
+                        email: result.user.email,
+                        role: 'user', // Default to user role for Google sign-ups
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // For existing users, update last login time
+                    await db.collection('users').doc(result.user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                // Store user data in localStorage
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                if (userDoc.exists) {
+                    // --- NEW: Check if another admin exists with this email ---
+                    if (userDoc.data().role === 'admin') {
+                        // Check if another admin exists with the same email (case-insensitive)
+                        const adminQuery = await db.collection('users')
+                            .where('email', '==', result.user.email)
+                            .where('role', '==', 'admin')
+                            .get();
+                        if (adminQuery.size > 1) {
+                            showError('signin-error-2', 'An admin account with this email already exists. Please contact support.');
+                            setLoading('signin-button-2', false);
+                            await auth.signOut();
+                            return;
+                        }
+                    }
+                    localStorage.setItem('userRole', userDoc.data().role);
+                    localStorage.setItem('userName', userDoc.data().name || result.user.displayName || 'User');
+                    // Redirect based on role
+                    if (userDoc.data().role === 'admin') {
+                        window.location.href = 'Admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }
+
+                // Log login action
+                await db.collection('activityLogs').add({
+                    type: 'login',
+                    user: result.user.email,
+                    userId: result.user.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    title: 'User Logged In',
+                    description: `${result.user.email} logged in.`
+                });
+                await window.addNotification({
+                    type: 'login',
+                    title: 'User Logged In',
+                    description: `${result.user.email} logged in.`,
+                    userId: result.user.uid
+                });
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                let errorMessage = 'Google Sign-In failed. Please try again.';
+                switch (error.code) {
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Popup blocked. Please allow popups and try again.';
+                        break;
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Sign-in cancelled. Please try again.';
+                        break;
+                    case 'auth/unauthorized-domain':
+                        errorMessage = 'This domain is not authorized for Google Sign-In.';
+                        break;
+                    case 'auth/account-exists-with-different-credential':
+                        errorMessage = 'An account already exists with the same email but different sign-in method.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showError('signin-error-2', errorMessage);
+            } finally {
+                setLoading('signin-button-2', false);
+            }
+        });
+
+        // Google Sign-Up
+        document.getElementById('google-sign-up').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearMessage('signup-error-2');
+            setLoading('signup-button-2', true);
+            
+            if (!auth) {
+                showError('signup-error-2', 'Authentication service unavailable.');
+                setLoading('signup-button-2', false);
+                return;
+            }
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('profile');
+            provider.addScope('email');
+            provider.setCustomParameters({
+                prompt: 'select_account' // Force account selection
+            });
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                console.log('Google sign-up successful:', result.user.email);
+                // For new users, set them as regular users (not admin)
+                await db.collection('users').doc(result.user.uid).set({
+                    name: result.user.displayName,
+                    email: result.user.email,
+                    role: 'user', // Default to user role for Google sign-ups
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                // --- NEW: Check if another admin exists with this email ---
+                const adminQuery = await db.collection('users')
+                    .where('email', '==', result.user.email)
+                    .where('role', '==', 'admin')
+                    .get();
+                if (adminQuery.size > 0 && document.getElementById('signup-role-2') && document.getElementById('signup-role-2').value === 'admin') {
+                    showError('signup-error-2', 'An admin account with this email already exists. Please contact support.');
+                    setLoading('signup-button-2', false);
+                    await auth.signOut();
+                    return;
+                }
+                // Store user data in localStorage
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('userName', result.user.displayName || 'User');
+                // Redirect to user dashboard
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error('Google sign-up error:', error);
+                let errorMessage = 'Google Sign-Up failed. Please try again.';
+                switch (error.code) {
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Popup blocked. Please allow popups and try again.';
+                        break;
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Sign-up cancelled. Please try again.';
+                        break;
+                    case 'auth/unauthorized-domain':
+                        errorMessage = 'This domain is not authorized for Google Sign-In.';
+                        break;
+                    case 'auth/account-exists-with-different-credential':
+                        errorMessage = 'An account already exists with the same email but different sign-in method.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showError('signup-error-2', errorMessage);
+            } finally {
+                setLoading('signup-button-2', false);
+            }
+        });
+
+        // Forgot Password
+        document.getElementById('forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            clearMessage('signin-error-2');
+            document.getElementById('password-reset-modal').style.display = 'flex';
+        });
+
+        // Cancel Password Reset
+        document.getElementById('cancel-reset-2').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('password-reset-modal').style.display = 'none';
+            clearMessage('reset-error-2');
+            clearMessage('reset-success-2');
+            document.getElementById('reset-email-2').value = '';
+        });
+
+        // Submit Password Reset
+        document.getElementById('submit-reset-2').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearMessage('reset-error-2');
+            clearMessage('reset-success-2');
+            
+            const email = document.getElementById('reset-email-2').value;
+            if (!email) {
+                showError('reset-error-2', 'Please enter your email address.');
+                return;
+            }
+
+            try {
+                await auth.sendPasswordResetEmail(email, {
+                    url: window.location.origin + '?action=reset_password', // Redirect URL after reset
+                    handleCodeInApp: true
+                });
+                showSuccess('reset-success-2', 'Password reset email sent! Check your inbox.');
+                document.getElementById('reset-email-2').value = '';
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('password-reset-modal').style.display = 'none';
+                    clearMessage('reset-error-2');
+                    clearMessage('reset-success-2');
+                }, 3000);
+
+                // Log password reset action
+                await db.collection('activityLogs').add({
+                    type: 'password_reset',
+                    user: email,
+                    userId: null,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    title: 'Password Reset',
+                    description: `${email} requested a password reset.`
+                });
+                await window.addNotification({
+                    type: 'password_reset',
+                    title: 'Password Reset',
+                    description: `${email} requested a password reset.`,
+                    userId: null
+                });
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                let errorMessage = 'Error sending password reset email.';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Please try again later.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showError('reset-error-2', errorMessage);
+            }
+        });
+
+        // Check for password reset action in URL
+        function checkUrlAction() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'reset_password') {
+                document.getElementById('password-reset-modal').style.display = 'flex';
+                showSuccess('reset-success-2', 'You can now reset your password. Enter your email above.');
+            } else if (action === 'verify_email') {
+                document.querySelector('.auth-tab[data-tab="signin"]').click();
+                showSuccess('signin-success-2', 'Email verified successfully! You can now sign in.');
+            }
+        }
+
+        // Initialize the page
+        checkUrlAction();
+    </script>
+</body>
+</html>

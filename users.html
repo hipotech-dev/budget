@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - User Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active: #4f46e5;
+            --sidebar-active-bg: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --dark: #f8fafc;
+            --dark-light: #e2e8f0;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #818cf8;
+            --sidebar-active-bg: rgba(129, 140, 248, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .admin-logo-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav-menu {
+            list-style: none;
+            margin-bottom: auto;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+            font-weight: 600;
+        }
+
+        .admin-nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .admin-nav-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 1.5rem 0;
+            opacity: 0.5;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            margin-top: auto;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .admin-main-content {
+            padding: 2rem;
+            background-color: var(--body-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .admin-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .admin-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-search {
+            position: relative;
+        }
+
+        .admin-search input {
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .admin-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .admin-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--light-gray);
+        }
+
+        .admin-user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 1rem;
+            top: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* Admin Tables */
+        .admin-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--light-gray);
+            overflow-x: auto;
+        }
+
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .admin-table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .status {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status i {
+            margin-right: 0.25rem;
+            font-size: 0.625rem;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-suspended {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-inactive {
+            background-color: rgba(148, 163, 184, 0.1);
+            color: var(--gray);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-primary {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .action-btn.danger:hover {
+            color: var(--danger);
+        }
+
+        .action-btn.success:hover {
+            color: var(--success);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Filters */
+        .filters-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--light-gray);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .filters-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .filters-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Invite User Card */
+        .invite-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invite-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .invite-content p {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .filters-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+            
+            .admin-logo-text, 
+            .admin-nav-link span,
+            .sidebar-footer span {
+                display: none;
+            }
+            
+            .admin-logo {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .admin-nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .admin-nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+            .admin-sidebar {
+                display: none;
+            }
+            .admin-main-content {
+                padding: 1rem;
+                min-height: calc(100vh - 60px);
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 60px;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%;
+                padding: 1rem;
+            }
+            .admin-user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .admin-search input {
+                width: 100%;
+            }
+            .filters-form {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                justify-content: flex-end;
+            }
+            .invite-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .admin-table-container {
+                padding: 1rem;
+            }
+            .admin-table-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-main-content {
+                padding: 0.75rem;
+            }
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Bottom Navigation for Mobile */
+        .mobile-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 1001;
+            display: none;
+            border-top: 1px solid var(--light-gray);
+        }
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-item {
+            flex: 1;
+            text-align: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.5rem 0 0.25rem 0;
+            transition: color 0.2s;
+        }
+        .mobile-nav-item.active,
+        .mobile-nav-item:active,
+        .mobile-nav-item:focus {
+            color: var(--primary);
+        }
+        .mobile-nav-item i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="admin-logo-icon"><i class="fas fa-wallet"></i></span>
+                <span class="admin-logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="admin-nav-menu">
+                <li class="admin-nav-item">
+                    <a href="Admin.html" class="admin-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="users.html" class="admin-nav-link active">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-trans.html" class="admin-nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="analytics.html" class="admin-nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="notifications.html" class="admin-nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-settings.html" class="admin-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-page-title">User Management</h1>
+                    <div class="admin-header-subtitle">Manage all users, invitations, and access controls</div>
+                </div>
+                <div class="admin-user-menu">
+                    <div class="admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="user-search" placeholder="Search users...">
+                    </div>
+                    <div class="admin-user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invite User Card -->
+            <div class="invite-card fade-in" style="animation-delay: 0.1s">
+                <div class="invite-content">
+                    <h3>Invite New Users</h3>
+                    <p>Send email invitations to new users with specific roles and permissions</p>
+                </div>
+                <button class="btn btn-primary" id="invite-user-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Invite User</span>
+                </button>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-container fade-in" style="animation-delay: 0.2s">
+                <div class="filters-header">
+                    <h3 class="filters-title">Filters</h3>
+                    <button class="btn btn-outline btn-sm" id="reset-filters">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+                <form class="filters-form" id="user-filters">
+                    <div class="form-group">
+                        <label class="form-label" for="status-filter">Status</label>
+                        <select class="form-control" id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="suspended">Suspended</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="plan-filter">Plan</label>
+                        <select class="form-control" id="plan-filter">
+                            <option value="">All Plans</option>
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="role-filter">Role</label>
+                        <select class="form-control" id="role-filter">
+                            <option value="">All Roles</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="date-filter">Date Range</label>
+                        <select class="form-control" id="date-filter">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i>
+                            <span>Apply Filters</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Users Table -->
+            <div class="admin-table-container fade-in" style="animation-delay: 0.3s">
+                <div class="admin-table-header">
+                    <h2 class="admin-table-title">All Users</h2>
+                    <div class="admin-table-actions">
+                        <button class="btn btn-outline" id="export-users-pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button class="btn btn-outline" id="export-users-excel">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                        <button class="btn btn-primary" id="add-user-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>Add User</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Plan</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="pagination-start">1</span> to <span id="pagination-end">5</span> of <span id="pagination-total">0</span> entries
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline btn-sm" id="prev-page" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="next-page" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="Admin.html" class="mobile-nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="users.html" class="mobile-nav-item active">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="admin-trans.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="admin-settings.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Invite User Modal -->
+    <div class="modal" id="invite-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Invite New User</h3>
+                <button class="modal-close" id="close-invite-modal">&times;</button>
+            </div>
+            <form id="invite-user-form">
+                <div class="form-group">
+                    <label class="form-label" for="invite-email">Email Address</label>
+                    <input type="email" class="form-control" id="invite-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="invite-name">Full Name</label>
+                    <input type="text" class="form-control" id="invite-name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="invite-role">Role</label>
+                    <select class="form-control" id="invite-role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="invite-plan">Plan</label>
+                    <select class="form-control" id="invite-plan">
+                        <option value="free">Free</option>
+                        <option value="premium">Premium</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="invite-message">Custom Message (Optional)</label>
+                    <textarea class="form-control" id="invite-message" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="invite-organization">Organization</label>
+                    <input type="text" class="form-control" id="invite-organization" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancel-invite">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New User</h3>
+                <button class="modal-close" id="close-add-modal">&times;</button>
+            </div>
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label class="form-label" for="user-first-name">First Name</label>
+                    <input type="text" class="form-control" id="user-first-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-last-name">Last Name</label>
+                    <input type="text" class="form-control" id="user-last-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-email">Email Address</label>
+                    <input type="email" class="form-control" id="user-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-password">Password</label>
+                    <input type="password" class="form-control" id="user-password" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-role">Role</label>
+                    <select class="form-control" id="user-role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-plan">Plan</label>
+                    <select class="form-control" id="user-plan">
+                        <option value="free">Free</option>
+                        <option value="premium">Premium</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancel-add-user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirm-title">Confirm Action</h3>
+                <button class="modal-close" id="close-confirm-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="cancel-confirm">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-action">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="edit-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button class="modal-close" id="close-edit-modal">&times;</button>
+            </div>
+            <form id="edit-user-form">
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-name">Name</label>
+                    <input type="text" class="form-control" id="edit-user-name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-email">Email</label>
+                    <input type="email" class="form-control" id="edit-user-email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-plan">Plan</label>
+                    <select class="form-control" id="edit-user-plan">
+                        <option value="free">Free</option>
+                        <option value="premium">Premium</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-role">Role</label>
+                    <select class="form-control" id="edit-user-role">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancel-edit-user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Permissions Modal -->
+    <div class="modal" id="permissions-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">User Permissions</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Export Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script>
+    // Get Firebase instances from centralized manager
+    let auth, db;
+    
+    // Initialize Firebase and get instances
+    async function initializeFirebase() {
+        try {
+            const firebaseInstance = await window.FirebaseManager.waitForReady();
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            console.log('Firebase initialized successfully in users page');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+    }
+
+    // --- User Management Logic ---
+    let allUsers = [];
+    let filteredUsers = [];
+    let currentPage = 1;
+    const usersPerPage = 5;
+    const tableBody = document.getElementById('users-table-body');
+    const loadingRow = '<tr><td colspan="7" style="text-align:center;color:var(--gray);">Loading users...</td></tr>';
+    let debounceTimeout;
+
+    // --- Feature Permissions ---
+    let userFeaturePermissions = {
+        allowDelete: true,
+        allowEdit: true,
+        allowExport: true
+    };
+
+    async function loadUserFeaturePermissions() {
+        try {
+            if (!db) {
+                console.warn('Firestore not initialized, using default permissions');
+                return;
+            }
+            const doc = await db.collection('settings').doc('userFeatures').get();
+            if (doc.exists) {
+                userFeaturePermissions = Object.assign(userFeaturePermissions, doc.data());
+            }
+        } catch (err) {
+            console.warn('Failed to load user feature permissions:', err);
+            // fallback to defaults
+        }
+    }
+
+    // Fetch all users for local cache (for search/filter)
+    function fetchAllUsersForSearch() {
+        if (!db) {
+            console.error('Firestore not initialized');
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Database not initialized.</td></tr>';
+            return;
+        }
+        
+        db.collection('users').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            allUsers = [];
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                user._uid = doc.id;
+                allUsers.push(user);
+            });
+            applyFilters();
+        }, err => {
+            console.error('Error fetching users:', err);
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Failed to load users.</td></tr>';
+        });
+    }
+
+    // Apply all filters and search
+    function applyFilters() {
+        let users = allUsers;
+        // Search
+        const searchTerm = document.getElementById('user-search').value.trim().toLowerCase();
+        if (searchTerm) {
+            users = users.filter(user => {
+                const name = (user.displayName || user.name || user.email || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                const plan = (user.plan || '').toLowerCase();
+                const role = (user.role || '').toLowerCase();
+                return name.includes(searchTerm) || email.includes(searchTerm) || plan.includes(searchTerm) || role.includes(searchTerm);
+            });
+        }
+        // Status
+        const status = document.getElementById('status-filter').value;
+        if (status) {
+            users = users.filter(user => (user.status || '').toLowerCase() === status);
+        }
+        // Plan
+        const plan = document.getElementById('plan-filter').value;
+        if (plan) {
+            users = users.filter(user => (user.plan || '').toLowerCase() === plan);
+        }
+        // Role
+        const role = document.getElementById('role-filter').value;
+        if (role) {
+            users = users.filter(user => (user.role || '').toLowerCase() === role);
+        }
+        // Date
+        const dateRange = document.getElementById('date-filter').value;
+        if (dateRange) {
+            const now = new Date();
+            let startDate;
+            if (dateRange === 'today') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            } else if (dateRange === 'week') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+            } else if (dateRange === 'month') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            } else if (dateRange === 'year') {
+                startDate = new Date(now.getFullYear(), 0, 1);
+            }
+            if (startDate) {
+                users = users.filter(user => {
+                    const createdAt = user.createdAt && user.createdAt.toDate ? user.createdAt.toDate() : null;
+                    return createdAt && createdAt >= startDate;
+                });
+            }
+        }
+        filteredUsers = users;
+        currentPage = 1;
+        renderUsersTable();
+    }
+
+    // Debounced search
+    const userSearchInput = document.getElementById('user-search');
+    userSearchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(applyFilters, 300);
+    });
+
+    // Filter form
+    const filterForm = document.getElementById('user-filters');
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        applyFilters();
+    });
+
+    // Reset filters
+    const resetFiltersBtn = document.getElementById('reset-filters');
+    resetFiltersBtn.addEventListener('click', function() {
+        filterForm.reset();
+        applyFilters();
+    });
+
+    // Update fetchAllUsers to use the new cache-based approach
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Initialize Firebase first
+            await initializeFirebase();
+            
+            await window.loadAdminSettings();
+            await loadUserFeaturePermissions();
+            tableBody.innerHTML = loadingRow;
+            
+            // Now auth should be available
+            if (auth) {
+                auth.onAuthStateChanged(async user => {
+                    if (!user || !user.emailVerified) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    // Set user avatar
+                    const userAvatar = document.getElementById('user-avatar');
+                    if (user.photoURL) {
+                        userAvatar.style.background = 'none';
+                        userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+                    } else {
+                        const name = user.displayName || user.email || 'U';
+                        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        userAvatar.textContent = initials;
+                    }
+                    // Check admin role
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    const userData = userDoc.data();
+                    if (!userDoc.exists || userData.role !== 'admin') {
+                        alert('Access denied: Admins only.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    fetchAllUsersForSearch();
+                });
+            } else {
+                console.error('Firebase Auth not initialized');
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Firebase initialization failed.</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error initializing users page:', error);
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Failed to initialize page.</td></tr>';
+        }
+    });
+
+    function renderUsersTable() {
+        tableBody.innerHTML = '';
+        const start = (currentPage - 1) * usersPerPage;
+        const end = start + usersPerPage;
+        const usersToRender = filteredUsers.slice(start, end);
+        if (usersToRender.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+        }
+        usersToRender.forEach(user => {
+            const initials = (user.displayName || user.name || user.email || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const joined = user.createdAt?.toDate ? user.createdAt.toDate() : new Date();
+            const status = user.status || 'Active';
+            const plan = user.plan || 'Free';
+            const statusClass = status.toLowerCase() === 'active' ? 'status-active' :
+                              status.toLowerCase() === 'suspended' ? 'status-suspended' :
+                              status.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';
+            const statusIcon = status.toLowerCase() === 'active' ? 'fa-check-circle' :
+                             status.toLowerCase() === 'suspended' ? 'fa-ban' :
+                             status.toLowerCase() === 'pending' ? 'fa-clock' : 'fa-minus-circle';
+            const lockBtnClass = status.toLowerCase() === 'active' ? 'danger' : 'success';
+            const lockBtnIcon = status.toLowerCase() === 'active' ? 'fa-lock' : 'fa-unlock';
+            const lockBtnTitle = status.toLowerCase() === 'active' ? 'Inactivate User' : 'Activate User';
+            tableBody.innerHTML += `
+                <tr data-uid="${user._uid}">
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">${initials}</div>
+                            <span>${user.displayName || user.name || user.email || 'User'}</span>
+                        </div>
+                    </td>
+                    <td>${user.email || ''}</td>
+                    <td>${joined.toLocaleDateString()}</td>
+                    <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                    <td><span class="badge ${plan.toLowerCase() === 'premium' ? 'badge-primary' : 'badge-warning'}">${plan}</span></td>
+                    <td>${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</td>
+                    <td>
+                        <button class="action-btn edit-user" ${!userFeaturePermissions.allowEdit ? 'disabled title="Editing disabled"' : ''}><i class="fas fa-edit"></i></button>
+                        <button class="action-btn ${lockBtnClass} lock-user" title="${lockBtnTitle}"><i class="fas ${lockBtnIcon}"></i></button>
+                        <button class="action-btn danger delete-user" ${!userFeaturePermissions.allowDelete ? 'disabled title="Deleting disabled"' : ''}><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        updatePaginationInfo();
+        addTableActionListeners();
+    }
+
+    function updatePaginationInfo() {
+        const start = (currentPage - 1) * usersPerPage + 1;
+        const end = Math.min(currentPage * usersPerPage, filteredUsers.length);
+        document.getElementById('pagination-start').textContent = filteredUsers.length === 0 ? 0 : start;
+        document.getElementById('pagination-end').textContent = end;
+        document.getElementById('pagination-total').textContent = filteredUsers.length;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage * usersPerPage >= filteredUsers.length;
+    }
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderUsersTable();
+        }
+    });
+    document.getElementById('next-page').addEventListener('click', () => {
+        if (currentPage * usersPerPage < filteredUsers.length) {
+            currentPage++;
+            renderUsersTable();
+        }
+    });
+
+    // --- Edit User Modal Logic ---
+    let editingUserId = null;
+    const editUserModal = document.getElementById('edit-user-modal');
+    const editUserForm = document.getElementById('edit-user-form');
+
+    function showEditUserModal(user) {
+        editingUserId = user._uid;
+        document.getElementById('edit-user-name').value = user.displayName || '';
+        document.getElementById('edit-user-email').value = user.email || '';
+        document.getElementById('edit-user-plan').value = user.plan || 'Free';
+        document.getElementById('edit-user-role').value = user.role || 'user';
+        editUserModal.style.display = 'flex';
+    }
+
+    document.getElementById('close-edit-modal').addEventListener('click', () => {
+        editUserModal.style.display = 'none';
+    });
+    document.getElementById('cancel-edit-user').addEventListener('click', () => {
+        editUserModal.style.display = 'none';
+    });
+
+    editUserForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!editingUserId) return window.showToast('error', 'No user selected.');
+        const name = document.getElementById('edit-user-name').value.trim();
+        const plan = document.getElementById('edit-user-plan').value;
+        const role = document.getElementById('edit-user-role').value;
+        if (!name) return window.showToast('error', 'Name is required.');
+        try {
+            await db.collection('users').doc(editingUserId).update({
+                displayName: name,
+                plan: plan,
+                role: role
+            });
+            editUserModal.style.display = 'none';
+            fetchAllUsersForSearch();
+            window.showToast('success', 'User updated.');
+        } catch (err) {
+            window.showToast('error', 'Failed to update user.');
+        }
+    });
+
+    // --- Improved Delete Confirmation ---
+    function showDeleteUserConfirm(onConfirm) {
+        window.showToast('info', 'Click again to confirm delete.');
+        let confirmed = false;
+        const handler = async function() {
+            if (confirmed) {
+                onConfirm();
+                document.removeEventListener('click', handler, true);
+            } else {
+                confirmed = true;
+                setTimeout(() => { confirmed = false; }, 2000);
+            }
+        };
+        document.addEventListener('click', handler, true);
+    }
+
+    // Update addTableActionListeners for edit and delete
+    function addTableActionListeners() {
+        tableBody.querySelectorAll('.edit-user').forEach(btn => {
+            if (btn.disabled) {
+                btn.addEventListener('click', () => window.showToast('warning', 'Editing users is disabled by admin.'));
+                return;
+            }
+            btn.addEventListener('click', async function() {
+                const row = this.closest('tr');
+                const uid = row.getAttribute('data-uid');
+                try {
+                    const doc = await db.collection('users').doc(uid).get();
+                    if (!doc.exists) return window.showToast('error', 'User not found.');
+                    const user = doc.data();
+                    user._uid = uid;
+                    showEditUserModal(user);
+                } catch (err) {
+                    window.showToast('error', 'Failed to load user info.');
+                }
+            });
+        });
+        tableBody.querySelectorAll('.delete-user').forEach(btn => {
+            if (btn.disabled) {
+                btn.addEventListener('click', () => window.showToast('warning', 'Deleting users is disabled by admin.'));
+                return;
+            }
+            btn.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const uid = row.getAttribute('data-uid');
+                showDeleteUserConfirm(async () => {
+                    try {
+                        await db.collection('users').doc(uid).delete();
+                        fetchAllUsersForSearch();
+                        window.showToast('success', 'User deleted.');
+                    } catch (err) {
+                        window.showToast('error', 'Failed to delete user.');
+                    }
+                });
+            });
+        });
+    }
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    
+    // Check for saved theme preference or use preferred color scheme
+    const savedTheme = localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    // Apply the saved theme
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-theme');
+        themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+    }
+    
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-theme');
+        const isDark = body.classList.contains('dark-theme');
+        
+        if (isDark) {
+            localStorage.setItem('theme', 'dark');
+            themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeToggle.innerHTML = '<span>Dark Mode</span><i class="fas fa-moon"></i>';
+        }
+    });
+    
+    // User Dropdown
+    const userAvatar = document.getElementById('user-avatar');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        dropdownMenu.classList.remove('show');
+    });
+    
+    // Modal Handling
+    const inviteUserBtn = document.getElementById('invite-user-btn');
+    const inviteUserModal = document.getElementById('invite-user-modal');
+    const closeInviteModal = document.getElementById('close-invite-modal');
+    const cancelInvite = document.getElementById('cancel-invite');
+    
+    const addUserBtn = document.getElementById('add-user-btn');
+    const addUserModal = document.getElementById('add-user-modal');
+    const closeAddModal = document.getElementById('close-add-modal');
+    const cancelAddUser = document.getElementById('cancel-add-user');
+    
+    const confirmModal = document.getElementById('confirm-modal');
+    const closeConfirmModal = document.getElementById('close-confirm-modal');
+    const cancelConfirm = document.getElementById('cancel-confirm');
+    
+    // Open modals
+    inviteUserBtn.addEventListener('click', () => {
+        inviteUserModal.style.display = 'flex';
+    });
+    
+    addUserBtn.addEventListener('click', () => {
+        addUserModal.style.display = 'flex';
+    });
+    
+    // Close modals
+    const closeModals = () => {
+        inviteUserModal.style.display = 'none';
+        addUserModal.style.display = 'none';
+        confirmModal.style.display = 'none';
+    };
+    
+    closeInviteModal.addEventListener('click', closeModals);
+    cancelInvite.addEventListener('click', closeModals);
+    
+    closeAddModal.addEventListener('click', closeModals);
+    cancelAddUser.addEventListener('click', closeModals);
+    
+    closeConfirmModal.addEventListener('click', closeModals);
+    cancelConfirm.addEventListener('click', closeModals);
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === inviteUserModal || e.target === addUserModal || e.target === confirmModal) {
+            closeModals();
+        }
+    });
+    
+    // Form Submissions
+    document.getElementById('invite-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('invite-email').value.trim();
+        const name = document.getElementById('invite-name').value.trim();
+        const role = document.getElementById('invite-role').value;
+        const plan = document.getElementById('invite-plan').value;
+        const message = document.getElementById('invite-message').value.trim();
+        const organization = document.getElementById('invite-organization').value.trim();
+        // Get admin email from current user
+        const adminUser = auth.currentUser;
+        const adminEmail = adminUser ? adminUser.email : '';
+        if (!email || !name || !role || !organization) {
+            window.showToast('error', 'Please fill in all required fields.');
+            return;
+        }
+        try {
+            // 3. Create invitation in Firestore
+            const inviteRef = await db.collection('invitations').add({
+                email,
+                name,
+                role,
+                plan,
+                message,
+                organization,
+                adminEmail,
+                status: 'Invited',
+                sentAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            // 4. Call backend/Cloud Function to send email (replace URL with your endpoint)
+            const inviteLink = `https://hipotech-dev.github.io/budget/index.html?invite=${inviteRef.id}`;
+            const emailPayload = {
+                to: email,
+                subject: `You're Invited to Join ${organization} on HipoBudget!`,
+                html: `<div style='font-family:Inter,sans-serif;font-size:16px;color:#1e293b;'>
+                    <h2>Welcome to ${organization} on HipoBudget!</h2>
+                    <p>Hello ${name},</p>
+                    <p>You have been invited by <b>${adminEmail}</b> to join <b>${organization}</b> on HipoBudget as a <b>${role}</b> (${plan} plan).</p>
+                    <p>${message ? `<i>${message}</i>` : ''}</p>
+                    <p>Click the button below to accept your invitation and set up your account:</p>
+                    <a href='${inviteLink}' style='display:inline-block;padding:12px 24px;background:#4f46e5;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;'>Accept Invitation</a>
+                    <p>If you have questions, reply to this email.</p>
+                    <p>Best regards,<br>HipoBudget Team</p>
+                </div>`,
+                from: adminEmail
+            };
+            // Example: call a Cloud Function or backend endpoint
+            await fetch('https://yourdomain.com/send-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload)
+            });
+            window.showToast('success', 'Invitation sent successfully!');
+            closeModals();
+            e.target.reset();
+        } catch (err) {
+            window.showToast('error', 'Failed to send invitation. Please try again.');
+        }
+    });
+    
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signOut().then(() => {
+            window.location.href = 'index.html';
+        });
+    });
+    
+    // Show mobile nav on small screens
+    function checkScreenSize() {
+        if (window.innerWidth <= 992) {
+            document.querySelector('.mobile-nav').style.display = 'block';
+        } else {
+            document.querySelector('.mobile-nav').style.display = 'none';
+        }
+    }
+    
+    window.addEventListener('resize', checkScreenSize);
+    checkScreenSize();
+
+    // --- Export Users Table to PDF ---
+    document.getElementById('export-users-pdf').addEventListener('click', function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text('Users Table', 14, 16);
+        const headers = [['Name', 'Email', 'Joined', 'Status', 'Plan', 'Role']];
+        const rows = filteredUsers.map(user => [
+            (user.displayName || user.name || user.email || ''),
+            (user.email || ''),
+            (user.createdAt && user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : ''),
+            (user.status || 'Active'),
+            (user.plan || 'Free'),
+            (user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User')
+        ]);
+        if (doc.autoTable) {
+            doc.autoTable({ head: headers, body: rows, startY: 22 });
+        } else {
+            let y = 24;
+            headers[0].forEach((h, i) => doc.text(h, 14 + i * 32, y));
+            y += 8;
+            rows.forEach(row => {
+                row.forEach((cell, i) => doc.text(String(cell), 14 + i * 32, y));
+                y += 8;
+            });
+        }
+        doc.save('users.pdf');
+    });
+
+    // --- Export Users Table to Excel ---
+    document.getElementById('export-users-excel').addEventListener('click', function() {
+        const wb = XLSX.utils.book_new();
+        const ws_data = [
+            ['Name', 'Email', 'Joined', 'Status', 'Plan', 'Role'],
+            ...filteredUsers.map(user => [
+                (user.displayName || user.name || user.email || ''),
+                (user.email || ''),
+                (user.createdAt && user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : ''),
+                (user.status || 'Active'),
+                (user.plan || 'Free'),
+                (user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User')
+            ])
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(wb, ws, 'Users');
+        XLSX.writeFile(wb, 'users.xlsx');
+    });
+
+    // --- Add User Functionality (Firebase Auth + Firestore) ---
+    document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('user-first-name').value.trim();
+        const lastName = document.getElementById('user-last-name').value.trim();
+        const email = document.getElementById('user-email').value.trim();
+        const password = document.getElementById('user-password').value;
+        const plan = document.getElementById('user-plan').value;
+        const role = document.getElementById('user-role').value;
+        if (!firstName || !lastName || !email || !password) {
+            window.showToast('error', 'Please fill in all required fields.');
+            return;
+        }
+        try {
+            // Create user in Firebase Auth
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const newUser = userCredential.user;
+            // Add user info to Firestore
+            await db.collection('users').doc(newUser.uid).set({
+                displayName: firstName + ' ' + lastName,
+                email: email,
+                plan: plan,
+                role: role,
+                status: 'Active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+            await applyPlanPermissionsToUser(newUser.uid, plan);
+            window.showToast('success', 'User added successfully!');
+            document.getElementById('add-user-modal').style.display = 'none';
+            e.target.reset();
+            fetchAllUsersForSearch();
+        } catch (error) {
+            let msg = 'An error occurred while adding the user.';
+            if (error.code === 'auth/email-already-in-use') {
+                msg = 'This email address is already registered. Please use a different email.';
+            } else if (error.code === 'auth/invalid-email') {
+                msg = 'The email address is invalid. Please check and try again.';
+            } else if (error.code === 'auth/weak-password') {
+                msg = 'The password is too weak. Please use a stronger password.';
+            } else if (error.message) {
+                msg = error.message;
+            }
+            window.showToast('error', msg);
+        }
+    });
+
+    // --- Plan Permissions Helper ---
+    async function applyPlanPermissionsToUser(uid, plan) {
+        try {
+            const doc = await db.collection('settings').doc('planPermissions').get();
+            if (!doc.exists) return;
+            const perms = doc.data();
+            if (perms[plan.toLowerCase()]) {
+                await db.collection('users').doc(uid).collection('permissions').doc('planFeatures').set(perms[plan.toLowerCase()], { merge: true });
+            }
+        } catch (err) { /* ignore */ }
+    }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>
