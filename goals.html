@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Goals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase scripts and config FIRST -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <!-- Theme and main scripts AFTER Firebase is initialized -->
+    <script src="theme.js"></script>
+    <script src="toast.js"></script>
+    <script src="en.json"></script>
+    <script src="fr.json"></script>
+    <script src="sw.json"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+        }
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .avatar-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 48px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 10;
+            min-width: 120px;
+        }
+
+        .avatar-dropdown.show {
+            display: block;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        /* Goals Summary */
+        .goalsSummary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: background-color 0.3s ease;
+        }
+
+        .summary-card {
+            text-align: center;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+
+        .card-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .card-description {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Goals Section */
+        .goals-section {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            margin-bottom: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .section-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+        }
+
+        .btn i {
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        /* Goals List */
+        .goals-list {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .goal-card {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid var(--light-gray);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .goal-card:hover {
+            background-color: var(--light-gray);
+            transform: scale(1.01);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .goal-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+
+        .goal-amount {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .goal-progress {
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: var(--light-gray);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        .goal-percentage {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .goal-date {
+            color: var(--gray);
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .action-btn:hover {
+            background: var(--light-gray);
+        }
+
+        .action-btn.delete-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Completed Goals */
+        .completed-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .completed-toggle:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .completed-goals {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            margin-bottom: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .completed-goals.show {
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 1rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 1rem 1rem 0 0;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            position: sticky;
+            bottom: 0;
+            background: var(--card-bg);
+        }
+
+        /* Floating Action Button */
+        .floating-action-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            z-index: 1001;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .floating-action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.25rem;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger-content {
+            display: none;
+            padding: 0.5rem 0;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .hamburger-content.active {
+            display: block;
+        }
+
+        .hamburger-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+        }
+
+        .hamburger-item:hover {
+            background: var(--light-gray);
+        }
+
+        .hamburger-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .hamburger-item.admin-link, .hamburger-item.user-management-link { display: none; }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding-bottom: 64px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 0.5rem;
+                position: sticky;
+                top: 48px;
+                background: var(--body-bg);
+                z-index: 100;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .goalsSummary {
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+                overflow-x: auto;
+                padding: 1rem 0.5rem;
+                margin-top: 0;
+                margin-bottom: 1rem;
+                background: var(--card-bg);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+                border-radius: 0.75rem;
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary) var(--card-bg);
+            }
+
+            .summary-card {
+                min-width: 160px;
+                flex: 0 0 auto;
+                text-align: center;
+                background: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.5rem 0.25rem;
+            }
+
+            .card-title {
+                font-size: 0.75rem;
+                line-height: 1.2;
+                margin-bottom: 0.15rem;
+                color: var(--gray);
+            }
+
+            .goal-card {
+                padding: 0.5rem;
+            }
+
+            .goal-title {
+                font-size: 0.875rem;
+            }
+
+            .goal-amount {
+                font-size: 0.875rem;
+            }
+
+            .goal-details {
+                font-size: 0.75rem;
+            }
+
+            .mobile-nav,
+            .hamburger-menu {
+                display: block;
+            }
+
+            #deleteSelectedBtn,
+            #selectAllBtn {
+                display: none;
+            }
+
+            .btn {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+
+            .goal-select {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .goalsSummary {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .remaining-amount {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Desktop modal style */
+        @media (min-width: 769px) {
+            .modal-overlay {
+                align-items: center;
+                justify-content: center;
+            }
+            .modal {
+                display: block;
+                min-height: unset;
+                max-height: unset;
+                width: 100%;
+                max-width: 420px;
+                margin: 0 auto;
+                border-radius: 1rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                padding-bottom: 0;
+                overflow-y: auto;
+                transform: none;
+                background: var(--card-bg);
+            }
+            .modal-header {
+                position: static;
+                padding: 1.5rem 1.5rem 1rem 1.5rem;
+            }
+            .modal-body {
+                display: block;
+                min-height: unset;
+                max-height: unset;
+                overflow-y: auto;
+                padding: 0 1.5rem 1.5rem 1.5rem;
+            }
+            #goalForm {
+                display: block;
+                min-height: unset;
+                overflow-y: visible;
+            }
+            .modal-footer {
+                position: static;
+                padding: 1.5rem;
+                box-shadow: none;
+                gap: 1rem;
+            }
+            .btn, .btn-primary, .btn-outline {
+                font-size: 0.95rem;
+                padding: 0.75rem 1.25rem;
+                border-radius: 0.5rem;
+                width: auto;
+            }
+        }
+        /* Mobile modal style */
+        @media (max-width: 768px) {
+            .modal {
+                display: flex;
+                flex-direction: column;
+                width: 96vw !important;
+                max-width: 96vw !important;
+                height: min(60vh, 400px);
+                max-height: 80vh;
+                margin: 4vh auto 90px auto;
+                min-height: 0;
+                border-radius: 1.25rem 1.25rem 0 0;
+                box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+                padding-bottom: 0;
+                overflow: hidden;
+                transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+            }
+            .modal-header {
+                position: sticky;
+                top: 0;
+                background: var(--card-bg);
+                z-index: 2;
+                padding: 1.25rem 1rem 1rem 1rem;
+                flex-shrink: 0;
+            }
+            .modal-title {
+                font-size: 1.15rem;
+            }
+            .modal-close {
+                font-size: 1.5rem;
+                padding: 0.5rem 1rem;
+            }
+            .modal-body {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                max-height: 100%;
+                overflow: hidden;
+                padding: 1rem 1rem 0.5rem 1rem;
+            }
+            #goalForm {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                overflow-y: auto;
+            }
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+            .form-label {
+                font-size: 1rem;
+            }
+            .form-control, .form-select {
+                font-size: 1.05rem;
+                padding: 1rem;
+            }
+            .modal-footer {
+                position: sticky;
+                bottom: 0;
+                background: var(--card-bg);
+                z-index: 2;
+                padding: 1rem;
+                box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+                gap: 1rem;
+                flex-shrink: 0;
+            }
+            .btn, .btn-primary, .btn-outline {
+                font-size: 1.1rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hamburger-content" id="hamburgerContent">
+                <a href="settings.html" class="hamburger-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="User management.html" class="hamburger-item user-management-link">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="Admin.html" class="hamburger-item admin-link">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
+                </a>
+                <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--light-gray);">
+                <a href="#" class="hamburger-item" id="hamburgerLogout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span data-i18n="dashboard">Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="transaction.html" class="nav-link"><i class="fas fa-exchange-alt"></i><span data-i18n="transactions">Transactions</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="budget.html" class="nav-link"><i class="fas fa-chart-pie"></i><span data-i18n="budget">Budget</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="goals.html" class="nav-link active"><i class="fas fa-bullseye"></i><span data-i18n="goals">Goals</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="Reports.html" class="nav-link"><i class="fas fa-chart-line"></i><span data-i18n="reports">Reports</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i><span data-i18n="settings">Settings</span></a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title" data-i18n="goals">Financial Goals</h1>
+                <div class="user-menu">
+                    <span id="realtime-clock"></span>
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <button class="logout-btn" id="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Goals Summary -->
+            <div class="goalsSummary">
+                <div class="summary-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="total_goals">Total Goals</span>
+                        <span class="card-icon"><i class="fas fa-bullseye"></i></span>
+                    </div>
+                    <div class="card-value" id="totalGoals">0</div>
+                    <div class="card-description" data-i18n="active_and_completed_goals">Active and completed goals</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="total_progress">Total Progress</span>
+                        <span class="card-icon"><i class="fas fa-chart-line"></i></span>
+                    </div>
+                    <div class="card-value" id="totalProgress">0.00</div>
+                    <div class="card-description" data-i18n="current_savings">Current savings across all goals</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="total_target">Total Target</span>
+                        <span class="card-icon"><i class="fas fa-flag"></i></span>
+                    </div>
+                    <div class="card-value remaining-amount" id="totalTarget">0.00</div>
+                    <div class="card-description" data-i18n="combined_target">Combined target amount</div>
+                </div>
+            </div>
+            
+            <!-- Active Goals -->
+            <div class="goals-section">
+                <h2 class="section-header" data-i18n="active_goals">Active Goals</h2>
+                <div class="section-actions">
+                    <button id="addGoalBtn" class="btn btn-primary"><i class="fas fa-plus"></i> <span data-i18n="add_goal">Add Goal</span></button>
+                    <button id="deleteSelectedBtn" class="btn btn-danger" style="display: none;"><i class="fas fa-trash"></i> <span data-i18n="delete_selected">Delete Selected</span></button>
+                    <button id="selectAllBtn" class="btn btn-outline"><i class="fas fa-check-square"></i> <span data-i18n="select_all">Select All</span></button>
+                </div>
+                <div id="budgets-loading" style="text-align: center; color: var(--primary); display: none; margin: 1rem 0;" data-i18n="loading_goals">Loading goals...</div>
+                <div id="activeGoals" class="goals-list"></div>
+            </div>
+            
+            <!-- Completed Goals -->
+            <div class="completed-toggle" style="display: none;">
+                <i class="fas fa-chevron-down"></i>
+                <span data-i18n="show_completed_goals">Show Completed Goals (<span id="completedCount">0</span>)</span>
+            </div>
+            <div id="completedGoals" class="completed-goals"></div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Goal Modal -->
+    <div class="modal-overlay" id="goalModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" data-i18n="add_new_goal">Add New Goal</h3>
+                <button class="modal-close" id="closeGoalModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="goalForm">
+                    <div class="form-group">
+                        <label for="goalTitle" class="form-label" data-i18n="goal_title">Goal Title</label>
+                        <input type="text" id="goalTitle" name="goalTitle" class="form-control" placeholder="e.g., Buy a House" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalCategory" class="form-label" data-i18n="category">Category</label>
+                        <select id="goalCategory" name="goalCategory" class="form-select" required>
+                            <option value="savings" data-i18n="savings">Savings</option>
+                            <option value="investment" data-i18n="investment">Investment</option>
+                            <option value="debt" data-i18n="debt_repayment">Debt Repayment</option>
+                            <option value="education" data-i18n="education">Education</option>
+                            <option value="travel" data-i18n="travel">Travel</option>
+                            <option value="other" data-i18n="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalAmount" class="form-label" data-i18n="target_amount">Target Amount</label>
+                        <input type="number" id="goalAmount" name="goalAmount" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="currentAmount" class="form-label" data-i18n="current_amount">Current Amount</label>
+                        <input type="number" id="currentAmount" name="currentAmount" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetDate" class="form-label" data-i18n="target_date">Target Date</label>
+                        <input type="date" id="targetDate" name="targetDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalNotes" class="form-label" data-i18n="notes_optional">Notes (Optional)</label>
+                        <textarea id="goalNotes" name="goalNotes" class="form-control" rows="3" placeholder="Add any additional notes"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelGoal" data-i18n="cancel">Cancel</button>
+                <button class="btn btn-primary" id="saveGoal" data-i18n="save_goal">Save Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-action-btn" id="fabAddGoal" aria-label="Add Goal">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item">
+                <i class="fas fa-home"></i>
+                <span data-i18n="dashboard">Home</span>
+            </a>
+            <a href="transaction.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span data-i18n="transactions">Trans.</span>
+            </a>
+            <a href="budget.html" class="mobile-nav-item">
+                <i class="fas fa-chart-pie"></i>
+                <span data-i18n="budget">Budget</span>
+            </a>
+            <a href="goals.html" class="mobile-nav-item active">
+                <i class="fas fa-bullseye"></i>
+                <span data-i18n="goals">Goals</span>
+            </a>
+            <a href="Reports.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span data-i18n="reports">Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+    // Initialize i18n
+    if (!window._i18n) window._i18n = {};
+    if (!window.i18nTranslate) {
+        window.i18nTranslate = function(key) {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            if (window._i18n[lang] && window._i18n[lang][key]) {
+                return window._i18n[lang][key];
+            }
+            // Fallback: prettify the key
+            return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        };
+    }
+    if (!window.i18nApply) {
+        window.i18nApply = function() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (key) el.textContent = window.i18nTranslate(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) el.placeholder = window.i18nTranslate(key);
+            });
+        };
+    }
+
+    // Currency initialization
+    let userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+    let currencySymbol = getCurrencySymbol(userCurrency);
+
+    function getCurrencySymbol(currencyCode) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'JPY': '¥',
+            'CAD': '$',
+            'AUD': '$',
+            'CNY': '¥',
+            'INR': '₹',
+            'TZS': 'Tsh'
+        };
+        return symbols[currencyCode] || 'Tsh';
+    }
+
+    window.formatCurrency = function(amount) {
+        try {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: userCurrency || 'TZS',
+                minimumFractionDigits: 2
+            }).format(amount);
+        } catch (e) {
+            return `${currencySymbol}${parseFloat(amount).toFixed(2)}`;
+        }
+    };
+
+    // Helper: Get category icon
+    function getCategoryIcon(category) {
+        const icons = {
+            savings: 'fa-piggy-bank',
+            investment: 'fa-chart-line',
+            debt: 'fa-credit-card',
+            education: 'fa-graduation-cap',
+            travel: 'fa-plane',
+            other: 'fa-star'
+        };
+        return icons[category] || 'fa-star';
+    }
+
+    // Get Firebase instances from centralized manager
+    let auth, db;
+    
+    // Initialize Firebase and get instances
+    async function initializeFirebase() {
+        try {
+            const firebaseInstance = await window.FirebaseManager.waitForReady();
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            console.log('Firebase initialized successfully in goals page');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+    }
+
+    let currentUser = null;
+    let goals = [];
+    let editingGoalId = null;
+
+    // Helper: Calculate progress percentage
+    function calculateProgress(current, target) {
+        if (!target || target === 0) return 0;
+        return Math.min(Math.round((current / target) * 100), 100);
+    }
+
+    // Helper: Format date
+    function formatDate(dateInput) {
+        if (!dateInput) return '';
+        const date = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    // Helper: Format relative time
+    function formatRelativeTime(dateInput) {
+        const date = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
+        const now = new Date();
+        const diffTime = date - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return window.i18nTranslate('overdue');
+        if (diffDays === 0) return window.i18nTranslate('today');
+        if (diffDays === 1) return window.i18nTranslate('tomorrow');
+        if (diffDays < 7) return `${diffDays} ${window.i18nTranslate('days_left')}`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} ${window.i18nTranslate('weeks_left')}`;
+        if (diffDays < 365) return `${Math.floor(diffDays / 30)} ${window.i18nTranslate('months_left')}`;
+        return `${Math.floor(diffDays / 365)} ${window.i18nTranslate('years_left')}`;
+    }
+
+    // Render goals
+    function renderGoals(goalsList) {
+        const activeGoalsContainer = document.getElementById('activeGoals');
+        const completedGoalsContainer = document.getElementById('completedGoals');
+        const totalGoalsElement = document.getElementById('totalGoals');
+        const totalProgressElement = document.getElementById('totalProgress');
+        const totalTargetElement = document.getElementById('totalTarget');
+        const completedCountElement = document.getElementById('completedCount');
+        const completedToggle = document.querySelector('.completed-toggle');
+        const sectionActions = document.querySelector('.section-actions');
+        
+        activeGoalsContainer.innerHTML = '';
+        completedGoalsContainer.innerHTML = '';
+        
+        if (goalsList.length === 0) {
+            activeGoalsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-bullseye fa-2x" style="color: var(--gray); margin-bottom: 0.5rem;"></i>
+                    <h3>${window.i18nTranslate('no_goals_yet')}</h3>
+                    <p>${window.i18nTranslate('start_by_adding_goal')}</p>
+                    <button class="btn btn-primary" onclick="showGoalModal()">
+                        <i class="fas fa-plus"></i> ${window.i18nTranslate('add_goal')}
+                    </button>
+                </div>
+            `;
+            completedToggle.style.display = 'none';
+            if (sectionActions) sectionActions.style.display = 'none';
+            return;
+        } else {
+            if (sectionActions) sectionActions.style.display = '';
+        }
+        
+        let totalGoals = goalsList.length;
+        let totalProgress = 0;
+        let totalTarget = 0;
+        let completedCount = 0;
+        
+        goalsList.sort((a, b) => new Date(a.targetDate) - new Date(b.targetDate));
+        
+        goalsList.forEach(goal => {
+            const progress = calculateProgress(goal.currentAmount, goal.targetAmount);
+            const isCompleted = progress >= 100;
+            
+            if (isCompleted) completedCount++;
+            
+            totalProgress += Number(goal.currentAmount) || 0;
+            totalTarget += Number(goal.targetAmount) || 0;
+            
+            // Determine progress bar color
+            let progressColor = 'var(--primary)';
+            if (progress < 40) {
+                progressColor = 'var(--danger)'; // red
+            } else if (progress < 70) {
+                progressColor = 'var(--secondary)'; // yellow
+            } else if (progress < 100) {
+                progressColor = 'var(--primary)'; // blue (default)
+            } else {
+                progressColor = 'var(--success)'; // green
+            }
+            
+            const goalElement = document.createElement('div');
+            goalElement.className = 'goal-card';
+            goalElement.innerHTML = `
+                <div class="goal-header">
+                    <div class="goal-title">
+                        <div class="goal-icon"><i class="fas ${getCategoryIcon(goal.category)}"></i></div>
+                        <span>${goal.title}</span>
+                    </div>
+                    <span class="goal-amount">${window.formatCurrency(goal.targetAmount)}</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%; background-color: ${progressColor}"></div>
+                    </div>
+                </div>
+                <div class="goal-details">
+                    <span class="goal-percentage">${progress}%</span>
+                    <span class="goal-date">${window.i18nTranslate('target')}: ${formatDate(goal.targetDate)}</span>
+                </div>
+                <div class="goal-meta">
+                    <span>${window.i18nTranslate('saved')}: ${window.formatCurrency(goal.currentAmount)}</span>
+                    <span class="remaining-amount">${window.i18nTranslate('remaining')}: ${window.formatCurrency(Math.max(0, goal.targetAmount - goal.currentAmount))}</span>
+                    <span>${isCompleted ? window.i18nTranslate('completed') : formatRelativeTime(goal.targetDate)}</span>
+                </div>
+                <div class="goal-actions">
+                    <button class="action-btn edit-btn" data-id="${goal.id}" title="${window.i18nTranslate('edit_goal')}"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="${goal.id}" title="${window.i18nTranslate('delete_goal')}"><i class="fas fa-trash"></i></button>
+                </div>
+                <input type="checkbox" class="goal-select" data-id="${goal.id}" title="${window.i18nTranslate('select_goal')}">
+            `;
+            
+            if (isCompleted) {
+                completedGoalsContainer.appendChild(goalElement);
+            } else {
+                activeGoalsContainer.appendChild(goalElement);
+            }
+        });
+        
+        totalGoalsElement.textContent = totalGoals;
+        totalProgressElement.textContent = window.formatCurrency(totalProgress);
+        totalTargetElement.textContent = window.formatCurrency(totalTarget);
+        completedCountElement.textContent = completedCount;
+        
+        completedToggle.style.display = completedCount > 0 ? 'flex' : 'none';
+        toggleGoalSelection();
+
+        // Apply i18n to any new elements
+        window.i18nApply?.();
+    }
+
+    // Load goals from Firestore
+    function loadGoals() {
+        if (!currentUser || !currentUser.uid) return;
+        
+        document.getElementById('budgets-loading').style.display = 'block';
+        db.collection('goals')
+            .where('userId', '==', currentUser.uid)
+            .onSnapshot(async snapshot => {
+                goals = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    targetDate: doc.data().targetDate?.toDate ? doc.data().targetDate : doc.data().targetDate
+                }));
+                renderGoals(goals);
+                document.getElementById('budgets-loading').style.display = 'none';
+                await checkIncomeAndToggleGoalButton();
+            }, error => {
+                console.error('Error loading goals:', error);
+                document.getElementById('budgets-loading').textContent = 'Error loading goals.';
+            });
+    }
+
+    // Show goal modal
+    function showGoalModal(isEdit = false, goal = null) {
+        const modal = document.getElementById('goalModal');
+        modal.classList.add('active');
+        const modalTitle = document.querySelector('.modal-title');
+        const saveGoalBtn = document.getElementById('saveGoal');
+        if (isEdit && goal) {
+            modalTitle.textContent = window.i18nTranslate('edit_goal');
+            document.getElementById('goalTitle').value = goal.title;
+            document.getElementById('goalCategory').value = goal.category;
+            document.getElementById('goalAmount').value = goal.targetAmount;
+            document.getElementById('currentAmount').value = goal.currentAmount;
+            document.getElementById('targetDate').value = goal.targetDate.toDate
+                ? goal.targetDate.toDate().toISOString().split('T')[0]
+                : new Date(goal.targetDate).toISOString().split('T')[0];
+            document.getElementById('goalNotes').value = goal.notes || '';
+            editingGoalId = goal.id;
+            if (saveGoalBtn) saveGoalBtn.textContent = window.i18nTranslate('save_goal');
+        } else {
+            modalTitle.textContent = window.i18nTranslate('add_new_goal');
+            document.getElementById('goalForm').reset();
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('targetDate').value = nextMonth.toISOString().split('T')[0];
+            editingGoalId = null;
+            if (saveGoalBtn) saveGoalBtn.textContent = window.i18nTranslate('save_goal');
+        }
+    }
+
+    // Hide goal modal
+    function hideGoalModal() {
+        document.getElementById('goalModal').classList.remove('active');
+    }
+
+    // Helper: Get user total income
+    async function getUserTotalIncome(uid) {
+        let total = 0;
+        const snap = await db.collection('transactions').where('userId', '==', uid).where('type', '==', 'income').get();
+        snap.forEach(doc => { total += Number(doc.data().amount) || 0; });
+        return total;
+    }
+
+    // Disable Add Goal buttons if no income
+    async function checkIncomeAndToggleGoalButton() {
+        if (!currentUser || !currentUser.uid) return;
+        const income = await getUserTotalIncome(currentUser.uid);
+        const addBtn = document.getElementById('addGoalBtn');
+        const fabBtn = document.getElementById('fabAddGoal');
+        if (addBtn) addBtn.disabled = !(income > 0);
+        if (fabBtn) fabBtn.disabled = !(income > 0);
+    }
+
+    // Save goal
+    async function saveGoal(e) {
+        e.preventDefault();
+        const canEdit = await window.checkCurrentUserPermission?.('edit-goal') ?? true;
+        if (!canEdit) {
+            showToast('error', 'You do not have permission to add or edit goals.');
+            return false;
+        }
+        // --- Income check before allowing goal creation ---
+        const income = await getUserTotalIncome(currentUser.uid);
+        if (!income || income < 0.01) {
+            showToast('info', 'You need to add at least one income transaction before creating a goal.');
+            setTimeout(() => {
+                showToast('info', 'Define your total income first so you can set realistic goals.');
+            }, 3000);
+            await checkIncomeAndToggleGoalButton();
+            return false;
+        }
+        try {
+            const title = document.getElementById('goalTitle').value;
+            const category = document.getElementById('goalCategory').value;
+            const targetAmount = parseFloat(document.getElementById('goalAmount').value);
+            const currentAmount = parseFloat(document.getElementById('currentAmount').value);
+            const targetDate = document.getElementById('targetDate').value;
+            const notes = document.getElementById('goalNotes').value;
+            if (!title) { showToast('error', 'Please enter a goal title'); return false; }
+            if (!category) { showToast('error', 'Please select a category'); return false; }
+            if (!targetAmount || isNaN(targetAmount) || targetAmount <= 0) { showToast('error', 'Please enter a valid target amount'); return false; }
+            if (!currentAmount || isNaN(currentAmount) || currentAmount < 0) { showToast('error', 'Please enter a valid current amount'); return false; }
+            if (currentAmount > targetAmount) { showToast('error', 'Current amount cannot be greater than target amount'); return false; }
+            if (!targetDate) { showToast('error', 'Please select a target date'); return false; }
+
+            // --- Prevent total goals from exceeding income ---
+            let totalOtherGoals = 0;
+            goals.forEach(goal => {
+                // Exclude the goal being edited (if editing)
+                if (!editingGoalId || goal.id !== editingGoalId) {
+                    totalOtherGoals += Number(goal.targetAmount) || 0;
+                }
+            });
+            const totalWithThisGoal = totalOtherGoals + targetAmount;
+            if (totalWithThisGoal > income) {
+                showToast('error', `Total of all goals (${window.formatCurrency(totalWithThisGoal)}) cannot exceed your total income (${window.formatCurrency(income)}).`);
+                return false;
+            }
+            const goalData = {
+                title,
+                category,
+                targetAmount: parseFloat(targetAmount.toFixed(2)),
+                currentAmount: parseFloat(currentAmount.toFixed(2)),
+                targetDate: firebase.firestore.Timestamp.fromDate(new Date(targetDate)),
+                notes,
+                userId: currentUser.uid,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (!editingGoalId) {
+                goalData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+            if (editingGoalId) {
+                await db.collection('goals').doc(editingGoalId).update(goalData);
+            } else {
+                await db.collection('goals').add(goalData);
+            }
+            await db.collection('activityLogs').add({
+                type: 'goal_edit',
+                user: currentUser.email,
+                userId: currentUser.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                title: 'Goal Edited',
+                description: `Edited a goal: ${title}.`
+            });
+            await window.addNotification({
+                type: 'goal_edit',
+                title: 'Goal Edited',
+                description: `Edited a goal: ${title}.`,
+                userId: currentUser.uid
+            });
+            hideGoalModal();
+            showToast('success', 'Goal saved successfully');
+            return true;
+        } catch (error) {
+            console.error('Error saving goal:', error);
+            showToast('error', 'Error saving goal. Please try again.');
+            return false;
+        }
+    }
+
+    // Delete goal
+    async function deleteGoal(id) {
+        const canDelete = await window.checkCurrentUserPermission?.('delete-goal') ?? true;
+        if (!canDelete) {
+            showToast('error', 'You do not have permission to delete goals.');
+            return;
+        }
+        try {
+            if (confirm('Are you sure you want to delete this goal?')) {
+                await db.collection('goals').doc(id).delete();
+                await db.collection('activityLogs').add({
+                    type: 'goal_delete',
+                    user: currentUser.email,
+                    userId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    title: 'Goal Deleted',
+                    description: `Deleted a goal.`
+                });
+                await window.addNotification({
+                    type: 'goal_delete',
+                    title: 'Goal Deleted',
+                    description: `Deleted a goal.`,
+                    userId: currentUser.uid
+                });
+                showToast('success', 'Goal deleted successfully');
+                toggleGoalSelection();
+            }
+        } catch (error) {
+            console.error('Error deleting goal:', error);
+            showToast('error', 'Error deleting goal. Please try again.');
+        }
+    }
+
+    // Delete selected goals
+    async function deleteSelectedGoals() {
+        const canDelete = await window.checkCurrentUserPermission?.('delete-goal') ?? true;
+        if (!canDelete) {
+            showToast('error', 'You do not have permission to delete goals.');
+            return;
+        }
+        const selectedGoals = Array.from(document.querySelectorAll('.goal-select:checked'))
+            .map(checkbox => checkbox.dataset.id);
+        if (selectedGoals.length === 0) {
+            showToast('info', 'Please select at least one goal to delete.');
+            return;
+        }
+        if (!confirm(`Are you sure you want to delete ${selectedGoals.length} selected goals?`)) return;
+        try {
+            const batch = db.batch();
+            selectedGoals.forEach(id => {
+                batch.delete(db.collection('goals').doc(id));
+            });
+            await batch.commit();
+            await db.collection('activityLogs').add({
+                type: 'goal_delete',
+                user: currentUser.email,
+                userId: currentUser.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                title: 'Goals Deleted',
+                description: `Deleted ${selectedGoals.length} goals.`
+            });
+            await window.addNotification({
+                type: 'goal_delete',
+                title: 'Goals Deleted',
+                description: `Deleted ${selectedGoals.length} goals.`,
+                userId: currentUser.uid
+            });
+            showToast('success', 'Goals deleted successfully');
+            toggleGoalSelection();
+        } catch (error) {
+            console.error('Error deleting selected goals:', error);
+            showToast('error', 'Error deleting goals. Please try again.');
+        }
+    }
+
+    // Toggle goal selection
+    function toggleGoalSelection() {
+        const checkboxes = document.querySelectorAll('.goal-select');
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const anyChecked = document.querySelectorAll('.goal-select:checked').length > 0;
+        deleteBtn.style.display = anyChecked ? 'inline-flex' : 'none';
+    }
+
+    // Select all goals
+    function selectAllGoals() {
+        const checkboxes = document.querySelectorAll('.goal-select');
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+        
+        deleteBtn.style.display = !allChecked ? 'inline-flex' : 'none';
+    }
+
+    // Toggle completed goals
+    function toggleCompletedGoals() {
+        const completedSection = document.getElementById('completedGoals');
+        const toggleIcon = document.querySelector('.completed-toggle i');
+        
+        if (completedSection.classList.contains('show')) {
+            completedSection.classList.remove('show');
+            toggleIcon.classList.remove('fa-chevron-up');
+            toggleIcon.classList.add('fa-chevron-down');
+        } else {
+            completedSection.classList.add('show');
+            toggleIcon.classList.remove('fa-chevron-down');
+            toggleIcon.classList.add('fa-chevron-up');
+        }
+    }
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', async function () {
+        try {
+            // Initialize Firebase
+            await initializeFirebase();
+
+            // Initialize i18n and currency
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+            currencySymbol = getCurrencySymbol(userCurrency);
+            
+            // Load translations if not already loaded
+            if (!window._i18n[lang]) {
+                try {
+                    const resp = await fetch(`${lang}.json`);
+                    if (resp.ok) {
+                        window._i18n[lang] = await resp.json();
+                        localStorage.setItem('i18n_' + lang, JSON.stringify(window._i18n[lang]));
+                    }
+                } catch (err) {
+                    console.error('Error loading translations:', err);
+                }
+            }
+
+            // Apply i18n
+            window.i18nApply?.();
+
+            // Listen for currency changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'userCurrency') {
+                    userCurrency = e.newValue || 'TZS';
+                    currencySymbol = getCurrencySymbol(userCurrency);
+                    if (typeof renderGoals === 'function' && Array.isArray(goals)) {
+                        renderGoals(goals);
+                    }
+                }
+            });
+
+            // Listen for language changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'userLanguage') {
+                    const newLang = e.newValue || 'en';
+                    if (!window._i18n[newLang]) {
+                        fetch(`${newLang}.json`)
+                            .then(resp => resp.json())
+                            .then(data => {
+                                window._i18n[newLang] = data;
+                                localStorage.setItem('i18n_' + newLang, JSON.stringify(data));
+                                window.i18nApply?.();
+                                if (typeof renderGoals === 'function' && Array.isArray(goals)) {
+                                    renderGoals(goals);
+                                }
+                            })
+                            .catch(console.error);
+                    } else {
+                        window.i18nApply?.();
+                        if (typeof renderGoals === 'function' && Array.isArray(goals)) {
+                            renderGoals(goals);
+                        }
+                    }
+                }
+            });
+
+            console.log('Hamburger menu initialized:', document.querySelector('.hamburger-menu'));
+
+            // Real-time clock
+            function updateClock() {
+                const now = new Date();
+                document.getElementById('realtime-clock').textContent = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Avatar dropdown
+            const avatar = document.getElementById('user-avatar');
+            const avatarDropdown = document.getElementById('avatarDropdown');
+            if (avatar) {
+                avatar.addEventListener('click', e => {
+                    e.stopPropagation();
+                    avatarDropdown.classList.toggle('show');
+                });
+            }
+            
+            document.addEventListener('click', e => {
+                if (!avatar.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                    avatarDropdown.classList.remove('show');
+                }
+            });
+
+            // Hamburger menu handlers
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const hamburgerContent = document.getElementById('hamburgerContent');
+            if (hamburgerBtn && hamburgerContent) {
+                hamburgerBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    console.log('Hamburger button clicked, toggling menu');
+                    hamburgerContent.classList.toggle('active');
+                    console.log('Menu active state:', hamburgerContent.classList.contains('active'));
+                    hamburgerBtn.innerHTML = hamburgerContent.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+
+                document.addEventListener('click', e => {
+                    if (!e.target.closest('.hamburger-menu') && hamburgerContent.classList.contains('active')) {
+                        console.log('Closing hamburger menu');
+                        hamburgerContent.classList.remove('active');
+                        hamburgerBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                });
+            }
+
+            // Hamburger logout
+            const hamburgerLogout = document.getElementById('hamburgerLogout');
+            if (hamburgerLogout) {
+                hamburgerLogout.addEventListener('click', e => {
+                    e.preventDefault();
+                    if (auth) {
+                        auth.signOut();
+                    }
+                });
+            }
+
+            // Event listeners
+            document.getElementById('addGoalBtn').addEventListener('click', () => showGoalModal(false));
+            document.getElementById('fabAddGoal').addEventListener('click', () => showGoalModal(false));
+            document.getElementById('closeGoalModal').addEventListener('click', hideGoalModal);
+            document.getElementById('cancelGoal').addEventListener('click', e => {
+                e.preventDefault();
+                hideGoalModal();
+            });
+            document.getElementById('saveGoal').addEventListener('click', saveGoal);
+            document.getElementById('goalForm').addEventListener('submit', saveGoal);
+            document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedGoals);
+            document.getElementById('selectAllBtn').addEventListener('click', selectAllGoals);
+            document.querySelector('.completed-toggle').addEventListener('click', toggleCompletedGoals);
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                if (auth) {
+                    auth.signOut();
+                }
+            });
+
+            // Goal card actions
+            document.getElementById('activeGoals').addEventListener('click', e => {
+                if (e.target.closest('.edit-btn')) {
+                    const id = e.target.closest('.edit-btn').dataset.id;
+                    const goal = goals.find(g => g.id === id);
+                    if (goal) showGoalModal(true, goal);
+                } else if (e.target.closest('.delete-btn')) {
+                    const id = e.target.closest('.delete-btn').dataset.id;
+                    deleteGoal(id);
+                }
+            });
+
+            document.getElementById('completedGoals').addEventListener('click', e => {
+                if (e.target.closest('.edit-btn')) {
+                    const id = e.target.closest('.edit-btn').dataset.id;
+                    const goal = goals.find(g => g.id === id);
+                    if (goal) showGoalModal(true, goal);
+                } else if (e.target.closest('.delete-btn')) {
+                    const id = e.target.closest('.delete-btn').dataset.id;
+                    deleteGoal(id);
+                }
+            });
+
+            document.getElementById('activeGoals').addEventListener('change', e => {
+                if (e.target.classList.contains('goal-select')) {
+                    toggleGoalSelection();
+                }
+            });
+
+            document.getElementById('completedGoals').addEventListener('change', e => {
+                if (e.target.classList.contains('goal-select')) {
+                    toggleGoalSelection();
+                }
+            });
+
+            // Auth state listener - now auth should be available
+            if (auth) {
+                auth.onAuthStateChanged(async user => {
+                    if (!user || !user.emailVerified) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    currentUser = user;
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            if (userData.theme || userData.themeColor) {
+                                if (userData.theme) localStorage.setItem('theme', userData.theme);
+                                if (userData.themeColor) localStorage.setItem('themeColor', userData.themeColor);
+                                if (window.applyTheme) window.applyTheme();
+                            }
+                            if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                                alert('Your account is inactive. Please contact support.');
+                                await auth.signOut();
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                            // Set user currency preference if available, but only if not already set
+                            if (!localStorage.getItem('userCurrency')) {
+                                if (userData.currency) {
+                                    userCurrency = userData.currency;
+                                    currencySymbol = getCurrencySymbol(userCurrency);
+                                    localStorage.setItem('userCurrency', userCurrency);
+                                } else {
+                                    userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+                                    currencySymbol = getCurrencySymbol(userCurrency);
+                                    localStorage.setItem('userCurrency', userCurrency);
+                                }
+                            }
+                        }
+                        
+                        const avatar = document.getElementById('user-avatar');
+                        if (user.photoURL) {
+                            avatar.style.background = 'none';
+                            avatar.innerHTML = `<img src="${user.photoURL}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                        } else {
+                            const name = user.displayName || user.email || 'U';
+                            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                            avatar.textContent = initials;
+                        }
+                        
+                        // Hide Admin hamburger item if not admin
+                        if (userDoc.exists && userDoc.data().role !== 'admin') {
+                            const adminHamburger = Array.from(document.querySelectorAll('.hamburger-item')).find(a => a.getAttribute('href') === 'Admin.html');
+                            if (adminHamburger) adminHamburger.style.display = 'none';
+                        }
+                        
+                        await checkIncomeAndToggleGoalButton();
+                        loadGoals();
+                    } catch (err) {
+                        console.error('Error loading settings:', err);
+                        loadGoals();
+                    }
+                });
+            } else {
+                console.error('Firebase Auth not initialized');
+            }
+        } catch (error) {
+            console.error('Error initializing goals page:', error);
+        }
+
+        // Swipe navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 100;
+            const diff = touchEndX - touchStartX;
+            if (Math.abs(diff) < swipeThreshold) return;
+
+            const currentPage = window.location.pathname.split('/').pop();
+            const pages = ['dashboard.html', 'transaction.html', 'budget.html', 'goals.html', 'Reports.html'];
+            const currentIndex = pages.indexOf(currentPage);
+
+            if (diff > 0 && currentIndex > 0) {
+                window.location.href = pages[currentIndex - 1];
+            } else if (diff < 0 && currentIndex < pages.length - 1) {
+                window.location.href = pages[currentIndex + 1];
+            }
+        }
+
+        // Prevent pinch zoom
+        document.addEventListener('gesturestart', e => e.preventDefault());
+        document.addEventListener('gesturechange', e => e.preventDefault());
+        document.addEventListener('gestureend', e => e.preventDefault());
+
+        // Theme change listener
+        window.addEventListener('storage', e => {
+            if (e.key === 'theme' || e.key === 'themeColor') {
+                if (window.applyTheme) window.applyTheme();
+            }
+            if (e.key === 'userCurrency') {
+                userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+                currencySymbol = getCurrencySymbol(userCurrency);
+                if (typeof renderGoals === 'function' && Array.isArray(goals)) renderGoals(goals);
+            }
+        });
+
+        // Apply theme on load
+        if (window.applyTheme) {
+            window.applyTheme();
+        }
+
+        // Listen for currency changes from other tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'userCurrency') {
+                userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+                currencySymbol = getCurrencySymbol(userCurrency);
+                if (typeof renderGoals === 'function' && Array.isArray(goals)) renderGoals(goals);
+            }
+        });
+
+        // --- i18n logic: ensure translations are loaded and applied, and respond to language changes ---
+        (function() {
+            async function ensureI18nLoadedAndApply() {
+                const lang = localStorage.getItem('userLanguage') || 'en';
+                // Try cache first
+                const cached = localStorage.getItem('i18n_' + lang);
+                if (cached) window._i18n[lang] = JSON.parse(cached);
+                if (!window._i18n[lang]) {
+                    try {
+                        const resp = await fetch(`${lang}.json`);
+                        if (resp.ok) {
+                            window._i18n[lang] = await resp.json();
+                            localStorage.setItem('i18n_' + lang, JSON.stringify(window._i18n[lang]));
+                        }
+                    } catch {}
+                }
+                if (window.i18nApply) window.i18nApply();
+                if (typeof renderGoals === 'function' && Array.isArray(goals)) renderGoals(goals);
+            }
+            document.addEventListener('DOMContentLoaded', ensureI18nLoadedAndApply);
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'userLanguage') ensureI18nLoadedAndApply();
+            });
+        })();
+    });
+    </script>
+</body>
+</html>

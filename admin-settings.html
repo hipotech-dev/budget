@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS remains identical to previous pages for consistency */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active: #4f46e5;
+            --sidebar-active-bg: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --dark: #f8fafc;
+            --dark-light: #e2e8f0;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #818cf8;
+            --sidebar-active-bg: rgba(129, 140, 248, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .admin-logo-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav-menu {
+            list-style: none;
+            margin-bottom: auto;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+            font-weight: 600;
+        }
+
+        .admin-nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            margin-top: auto;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .admin-main-content {
+            padding: 2rem;
+            background-color: var(--body-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .admin-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .admin-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-search {
+            position: relative;
+        }
+
+        .admin-search input {
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .admin-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .admin-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--light-gray);
+        }
+
+        .admin-user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 1rem;
+            top: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* Settings Sections */
+        .settings-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--light-gray);
+        }
+
+        .settings-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .settings-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+            
+            .admin-logo-text, 
+            .admin-nav-link span,
+            .sidebar-footer span {
+                display: none;
+            }
+            
+            .admin-logo {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .admin-nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .admin-nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+            .admin-sidebar {
+                display: none;
+            }
+            .admin-main-content {
+                padding: 1rem;
+                min-height: calc(100vh - 60px);
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 60px;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%;
+                padding: 1rem;
+            }
+            .admin-user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .admin-search input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-main-content {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Bottom Navigation for Mobile */
+        .mobile-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 1001;
+            display: none;
+            border-top: 1px solid var(--light-gray);
+        }
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-item {
+            flex: 1;
+            text-align: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.5rem 0 0.25rem 0;
+            transition: color 0.2s;
+        }
+        .mobile-nav-item.active,
+        .mobile-nav-item:active,
+        .mobile-nav-item:focus {
+            color: var(--primary);
+        }
+        .mobile-nav-item i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Enhanced Plan Feature Permissions Section */
+        .permissions-container {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--light-gray);
+            overflow: hidden;
+        }
+
+        .permissions-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .permissions-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .permissions-subtitle {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .permissions-content {
+            padding: 1.5rem;
+        }
+
+        .permissions-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .permissions-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .permissions-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .permissions-tab:hover:not(.active) {
+            color: var(--text-color);
+        }
+
+        .permissions-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .permissions-feature {
+            background: var(--body-bg);
+            border-radius: var(--radius);
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+        }
+
+        .permissions-feature-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .permissions-feature-title i {
+            color: var(--primary);
+        }
+
+        .permissions-feature-desc {
+            color: var(--gray);
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+
+        .permissions-plans {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .permissions-plan {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--light-gray);
+        }
+
+        .permissions-plan:last-child {
+            border-bottom: none;
+        }
+
+        .permissions-plan-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .permissions-plan-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .permissions-plan-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .permissions-plan-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: var(--transition);
+            border-radius: 24px;
+        }
+
+        .permissions-plan-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        .permissions-plan-toggle input:checked + .permissions-plan-slider {
+            background-color: var(--primary);
+        }
+
+        .permissions-plan-toggle input:checked + .permissions-plan-slider:before {
+            transform: translateX(20px);
+        }
+
+        .permissions-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+            margin-top: 1.5rem;
+        }
+
+        /* Mobile specific styles for permissions */
+        @media (max-width: 768px) {
+            .permissions-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 0.5rem;
+            }
+            
+            .permissions-tab {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .permissions-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .permissions-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Plan Badges */
+        .plan-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .plan-badge-free {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        
+        .plan-badge-premium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .plan-badge-business {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .dark-theme .plan-badge-free {
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+        
+        .dark-theme .plan-badge-premium {
+            background-color: #92400e;
+            color: #fef3c7;
+        }
+        
+        .dark-theme .plan-badge-business {
+            background-color: #1e40af;
+            color: #dbeafe;
+        }
+        
+        /* Enhanced Plan Management Styles */
+        .plan-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--light-gray);
+            transition: var(--transition);
+        }
+        
+        .plan-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .plan-stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .plan-stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        
+        .plan-stat-percentage {
+            font-size: 0.75rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .plan-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: var(--radius);
+        }
+        
+        .plan-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .plan-detail-label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .plan-detail-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .plan-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .plan-actions .btn {
+            min-width: 140px;
+        }
+        
+        /* Loading state for refresh button */
+        .btn.loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn.loading span {
+            opacity: 0;
+        }
+        
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="admin-logo-icon"><i class="fas fa-wallet"></i></span>
+                <span class="admin-logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="admin-nav-menu">
+                <li class="admin-nav-item">
+                    <a href="Admin.html" class="admin-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="users.html" class="admin-nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-trans.html" class="admin-nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="analytics.html" class="admin-nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="notifications.html" class="admin-nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-settings.html" class="admin-nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-page-title">Settings</h1>
+                    <div class="admin-header-subtitle">Manage application and user settings</div>
+                </div>
+                <div class="admin-user-menu">
+                    <div class="admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="settings-search" placeholder="Search settings...">
+                    </div>
+                    <div class="admin-user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Sections -->
+            <div class="settings-container">
+                <!-- General Settings -->
+                <div class="settings-card fade-in" style="animation-delay: 0.2s">
+                    <h2 class="settings-card-title">General Settings</h2>
+                    <form id="general-settings-form">
+                        <div class="form-group">
+                            <label class="form-label">Application Name</label>
+                            <input type="text" class="form-control" id="app-name" placeholder="Enter application name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Currency</label>
+                            <select class="form-control" id="currency">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="KES">KES (KSh)</option>
+                                <option value="TZS">TZS (Tsh)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Language</label>
+                            <select class="form-control" id="language">
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="sw">Swahili</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                <span>Save General Settings</span>
+                            </button>
+                            <button type="button" class="btn btn-outline" id="reset-general">
+                                <i class="fas fa-undo"></i>
+                                <span>Reset</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Notification Preferences -->
+                <div class="settings-card fade-in" style="animation-delay: 0.3s">
+                    <h2 class="settings-card-title">Notification Preferences</h2>
+                    <form id="notification-settings-form">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="notify-user-registered">
+                            <label class="form-check-label" for="notify-user-registered">Notify on User Registration</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="notify-transaction-created">
+                            <label class="form-check-label" for="notify-transaction-created">Notify on Transaction Creation</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="notify-transaction-updated">
+                            <label class="form-check-label" for="notify-transaction-updated">Notify on Transaction Updates</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="notify-transaction-deleted">
+                            <label class="form-check-label" for="notify-transaction-deleted">Notify on Transaction Deletion</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="notify-system-alerts">
+                            <label class="form-check-label" for="notify-system-alerts">Notify on System Alerts</label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                <span>Save Notification Settings</span>
+                            </button>
+                            <button type="button" class="btn btn-outline" id="reset-notifications">
+                                <i class="fas fa-undo"></i>
+                                <span>Reset</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Enhanced Plan Feature Permissions Section -->
+                <div class="permissions-container fade-in" style="animation-delay: 0.4s">
+                    <div class="permissions-header">
+                        <h3 class="permissions-title">Plan Feature Permissions</h3>
+                        <div class="permissions-subtitle">Control which features are available for each subscription plan</div>
+                    </div>
+                    
+                    <div class="permissions-content">
+                        <div class="permissions-tabs">
+                            <div class="permissions-tab active" data-tab="transactions">Transactions</div>
+                            <div class="permissions-tab" data-tab="budgets">Budgets</div>
+                            <div class="permissions-tab" data-tab="reports">Reports</div>
+                            <div class="permissions-tab" data-tab="integrations">Integrations</div>
+                            <div class="permissions-tab" data-tab="advanced">Advanced</div>
+                        </div>
+                        
+                        <form id="plan-feature-permissions-form">
+                            <div class="permissions-features" id="transactions-features">
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-edit"></i>
+                                        <span>Edit Transactions</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to modify existing transaction details like amount, category, date, etc.</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable the ability to edit transaction details after creation</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-edit-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-edit-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-edit-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Delete Transactions</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to permanently remove transactions from their records</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable the ability to delete transactions</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-delete-tx">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-delete-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-delete-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-file-export"></i>
+                                        <span>Export Transactions</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to download their transaction data in CSV, Excel, or PDF formats</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable transaction data export functionality</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-export-tx">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-export-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-export-tx" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="permissions-features" id="budgets-features" style="display: none;">
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-edit"></i>
+                                        <span>Edit Budgets</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to modify budget amounts, categories, and time periods</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable the ability to edit budget details</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-edit-budget">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-edit-budget" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-edit-budget" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Delete Budgets</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to permanently remove budget plans</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable the ability to delete budget entries</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-delete-budget">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-delete-budget" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-delete-budget" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="permissions-features" id="reports-features" style="display: none;">
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-chart-pie"></i>
+                                        <span>View Reports</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to access visual reports of their spending and income</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable access to financial reports</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-view-report">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-view-report" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-view-report" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="permissions-feature">
+                                    <h4 class="permissions-feature-title">
+                                        <i class="fas fa-file-export"></i>
+                                        <span>Export Reports</span>
+                                        <span class="tooltip">
+                                            <i class="fas fa-info-circle" style="color: var(--gray); font-size: 0.875rem;"></i>
+                                            <span class="tooltip-text">Allows users to download report data in various formats for external use</span>
+                                        </span>
+                                    </h4>
+                                    <p class="permissions-feature-desc">Enable/disable report export functionality</p>
+                                    <div class="permissions-plans">
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-free">Free</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="free-export-report">
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-premium">Premium</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="premium-export-report" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permissions-plan">
+                                            <span class="permissions-plan-name"><span class="plan-badge plan-badge-business">Business</span> Plan</span>
+                                            <label class="permissions-plan-toggle">
+                                                <input type="checkbox" id="business-export-report" checked>
+                                                <span class="permissions-plan-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="permissions-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span>Save Permissions</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Plan Management Section -->
+                <div class="settings-card fade-in" style="animation-delay: 0.5s">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <i class="fas fa-users-cog"></i>
+                            Plan Management
+                        </h3>
+                        <p class="settings-card-subtitle">Manage user plans and view plan distribution</p>
+                    </div>
+                    
+                    <div class="settings-card-content">
+                        <div class="plan-stats">
+                            <div class="plan-stat">
+                                <div class="plan-stat-number" id="total-users-count">0</div>
+                                <div class="plan-stat-label">Total Users</div>
+                            </div>
+                            <div class="plan-stat">
+                                <div class="plan-stat-number" id="free-users-count">0</div>
+                                <div class="plan-stat-label">Free Users</div>
+                                <div class="plan-stat-percentage" id="free-users-percentage">0%</div>
+                            </div>
+                            <div class="plan-stat">
+                                <div class="plan-stat-number" id="premium-users-count">0</div>
+                                <div class="plan-stat-label">Premium Users</div>
+                                <div class="plan-stat-percentage" id="premium-users-percentage">0%</div>
+                            </div>
+                            <div class="plan-stat">
+                                <div class="plan-stat-number" id="business-users-count">0</div>
+                                <div class="plan-stat-label">Business Users</div>
+                                <div class="plan-stat-percentage" id="business-users-percentage">0%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="plan-details">
+                            <div class="plan-detail-item">
+                                <span class="plan-detail-label">Last Updated:</span>
+                                <span class="plan-detail-value" id="last-updated-time">Never</span>
+                            </div>
+                            <div class="plan-detail-item">
+                                <span class="plan-detail-label">Active Users:</span>
+                                <span class="plan-detail-value" id="active-users-count">0</span>
+                            </div>
+                            <div class="plan-detail-item">
+                                <span class="plan-detail-label">Inactive Users:</span>
+                                <span class="plan-detail-value" id="inactive-users-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="plan-actions">
+                            <button class="btn btn-outline" id="refresh-plan-stats">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Refresh Stats</span>
+                            </button>
+                            <button class="btn btn-primary" id="export-plan-pdf">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Export PDF</span>
+                            </button>
+                            <button class="btn btn-success" id="export-plan-excel">
+                                <i class="fas fa-file-excel"></i>
+                                <span>Export Excel</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="Admin.html" class="mobile-nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="users.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="admin-trans.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="analytics.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="notifications.html" class="mobile-nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+            <a href="admin-settings.html" class="mobile-nav-item active">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    
+    <!-- PDF Export Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Excel Export Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        // Get Firebase instances from centralized manager
+        let auth, db;
+        
+        // Initialize Firebase and get instances
+        async function initializeFirebase() {
+            try {
+                const firebaseInstance = await window.FirebaseManager.waitForReady();
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                console.log('Firebase initialized successfully in admin-settings page');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+            }
+        }
+
+        // DOM Elements
+        const userAvatar = document.getElementById('user-avatar');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const settingsSearch = document.getElementById('settings-search');
+        const generalSettingsForm = document.getElementById('general-settings-form');
+        const notificationSettingsForm = document.getElementById('notification-settings-form');
+        const resetGeneralBtn = document.getElementById('reset-general');
+        const resetNotificationsBtn = document.getElementById('reset-notifications');
+        const permissionsForm = document.getElementById('plan-feature-permissions-form');
+        const permissionTabs = document.querySelectorAll('.permissions-tab');
+
+        // Initialize Admin Dashboard
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize Firebase first
+                await initializeFirebase();
+                if (!auth || !db) {
+                    alert('Firebase failed to initialize. Please refresh the page.');
+                    return;
+                }
+                await window.loadAdminSettings();
+                handleMobileNav();
+                
+                // Now auth should be available
+                if (auth) {
+                    auth.onAuthStateChanged(async user => {
+                        if (!user || !user.emailVerified) {
+                            window.location.href = 'index.html';
+                        } else {
+                            try {
+                                const userDoc = await db.collection('users').doc(user.uid).get();
+                                const userData = userDoc.data();
+                                if (!userDoc.exists || userData.role !== 'admin') {
+                                    alert('Access denied: Admins only.');
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                                    alert('Your account is inactive. Please contact support.');
+                                    await auth.signOut();
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                setupUserAvatar(user);
+                                loadSettings();
+                                setupEventListeners();
+                                setupPlanChangeListener();
+                            } catch (err) {
+                                alert('Error verifying admin access.');
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                        }
+                    });
+                } else {
+                    console.error('Firebase Auth not initialized');
+                }
+            } catch (error) {
+                console.error('Error initializing admin-settings page:', error);
+            }
+        });
+
+        function setupUserAvatar(user) {
+            if (user.photoURL) {
+                userAvatar.style.background = 'none';
+                userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+            } else {
+                const name = user.displayName || user.email || 'U';
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                userAvatar.textContent = initials;
+            }
+        }
+
+        function setupEventListeners() {
+            // User dropdown
+            userAvatar.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userAvatar.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            });
+
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                const isDark = document.body.classList.contains('dark-theme');
+                localStorage.setItem('darkMode', isDark);
+                themeToggle.innerHTML = isDark 
+                    ? '<span>Light Mode</span><i class="fas fa-sun"></i>' 
+                    : '<span>Dark Mode</span><i class="fas fa-moon"></i>';
+            });
+
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+            }
+
+            // Settings search (filter visible settings)
+            settingsSearch.addEventListener('input', debounce(() => {
+                const searchQuery = settingsSearch.value.trim().toLowerCase();
+                const cards = document.querySelectorAll('.settings-card, .permissions-container');
+                cards.forEach(card => {
+                    const title = card.querySelector('.settings-card-title, .permissions-title')?.textContent.toLowerCase() || '';
+                    const labels = card.querySelectorAll('.form-label, .permissions-feature-title');
+                    let match = title.includes(searchQuery);
+                    labels.forEach(label => {
+                        if (label.textContent.toLowerCase().includes(searchQuery)) {
+                            match = true;
+                        }
+                    });
+                    card.style.display = match ? 'block' : 'none';
+                });
+            }, 300));
+
+            // General settings form
+            generalSettingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const appName = document.getElementById('app-name').value.trim();
+                const currency = document.getElementById('currency').value;
+                const language = document.getElementById('language').value;
+                try {
+                    await db.collection('settings').doc('general').set({
+                        appName,
+                        currency,
+                        language,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedBy: auth.currentUser.uid
+                    }, { merge: true });
+                    await db.collection('activityLogs').add({
+                        type: 'settings_updated',
+                        title: 'General Settings Updated',
+                        description: `General settings updated by admin: ${appName}, ${currency}, ${language}`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: auth.currentUser.uid
+                    });
+                    await window.addNotification({
+                        type: 'settings_updated',
+                        title: 'General Settings Updated',
+                        description: `General settings updated by admin: ${appName}, ${currency}, ${language}`,
+                        userId: auth.currentUser.uid
+                    });
+                    window.showToast('success', 'General settings saved successfully.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to save general settings: ' + err.message);
+                }
+            });
+
+            resetGeneralBtn.addEventListener('click', () => {
+                loadGeneralSettings();
+            });
+
+            // Notification settings form
+            notificationSettingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const notifications = {
+                    userRegistered: document.getElementById('notify-user-registered').checked,
+                    transactionCreated: document.getElementById('notify-transaction-created').checked,
+                    transactionUpdated: document.getElementById('notify-transaction-updated').checked,
+                    transactionDeleted: document.getElementById('notify-transaction-deleted').checked,
+                    systemAlerts: document.getElementById('notify-system-alerts').checked
+                };
+                try {
+                    await db.collection('settings').doc('notifications').set({
+                        notifications,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedBy: auth.currentUser.uid
+                    }, { merge: true });
+                    await db.collection('activityLogs').add({
+                        type: 'settings_updated',
+                        title: 'Notification Settings Updated',
+                        description: `Notification settings updated by admin`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: auth.currentUser.uid
+                    });
+                    await window.addNotification({
+                        type: 'settings_updated',
+                        title: 'Notification Settings Updated',
+                        description: `Notification settings updated by admin`,
+                        userId: auth.currentUser.uid
+                    });
+                    window.showToast('success', 'Notification settings saved successfully.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to save notification settings: ' + err.message);
+                }
+            });
+
+            resetNotificationsBtn.addEventListener('click', () => {
+                loadNotificationSettings();
+            });
+
+            // Plan stats refresh button
+            const refreshPlanStatsBtn = document.getElementById('refresh-plan-stats');
+            if (refreshPlanStatsBtn) {
+                refreshPlanStatsBtn.addEventListener('click', loadPlanStats);
+            }
+
+            // Export plan data buttons
+            const exportPlanPdfBtn = document.getElementById('export-plan-pdf');
+            if (exportPlanPdfBtn) {
+                exportPlanPdfBtn.addEventListener('click', () => exportPlanData('pdf'));
+            }
+
+            const exportPlanExcelBtn = document.getElementById('export-plan-excel');
+            if (exportPlanExcelBtn) {
+                exportPlanExcelBtn.addEventListener('click', () => exportPlanData('excel'));
+            }
+
+            // Permission tabs
+            permissionTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    permissionTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all feature sections
+                    document.querySelectorAll('.permissions-features').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show the selected feature section
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-features`).style.display = 'grid';
+                });
+            });
+
+            // Plan permissions form
+            permissionsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const plans = ['free','premium','business'];
+                const features = ['edit-tx','delete-tx','export-tx','view-report','export-report','edit-budget','delete-budget'];
+                const perms = {};
+                plans.forEach(plan => {
+                    perms[plan] = {};
+                    features.forEach(f => {
+                        perms[plan][f] = document.getElementById(`${plan}-${f}`).checked;
+                    });
+                });
+                try {
+                    await db.collection('settings').doc('planPermissions').set(perms, { merge: true });
+                    await db.collection('activityLogs').add({
+                        type: 'settings_updated',
+                        title: 'Plan Permissions Updated',
+                        description: `Plan feature permissions updated by admin`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: auth.currentUser.uid
+                    });
+                    await window.addNotification({
+                        type: 'settings_updated',
+                        title: 'Plan Permissions Updated',
+                        description: `Plan feature permissions updated by admin`,
+                        userId: auth.currentUser.uid
+                    });
+                    window.showToast('success', 'Plan feature permissions updated successfully.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to update plan permissions: ' + err.message);
+                }
+            });
+        }
+
+        async function loadSettings() {
+            await loadGeneralSettings();
+            await loadNotificationSettings();
+            await loadPlanFeaturePermissions();
+            await loadPlanStats();
+        }
+
+        async function loadGeneralSettings() {
+            try {
+                const doc = await db.collection('settings').doc('general').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('app-name').value = data.appName || 'HipoBudget';
+                    document.getElementById('currency').value = data.currency || 'USD';
+                    document.getElementById('language').value = data.language || 'en';
+                } else {
+                    document.getElementById('app-name').value = 'HipoBudget';
+                    document.getElementById('currency').value = 'USD';
+                    document.getElementById('language').value = 'en';
+                }
+            } catch (err) {
+                console.error('Error loading general settings:', err);
+                window.showToast('error', 'Failed to load general settings.');
+            }
+        }
+
+        async function loadNotificationSettings() {
+            try {
+                const doc = await db.collection('settings').doc('notifications').get();
+                if (doc.exists) {
+                    const { notifications } = doc.data();
+                    document.getElementById('notify-user-registered').checked = notifications?.userRegistered || true;
+                    document.getElementById('notify-transaction-created').checked = notifications?.transactionCreated || true;
+                    document.getElementById('notify-transaction-updated').checked = notifications?.transactionUpdated || false;
+                    document.getElementById('notify-transaction-deleted').checked = notifications?.transactionDeleted || false;
+                    document.getElementById('notify-system-alerts').checked = notifications?.systemAlerts || true;
+                } else {
+                    document.getElementById('notify-user-registered').checked = true;
+                    document.getElementById('notify-transaction-created').checked = true;
+                    document.getElementById('notify-transaction-updated').checked = false;
+                    document.getElementById('notify-transaction-deleted').checked = false;
+                    document.getElementById('notify-system-alerts').checked = true;
+                }
+            } catch (err) {
+                console.error('Error loading notification settings:', err);
+                window.showToast('error', 'Failed to load notification settings.');
+            }
+        }
+
+        async function loadPlanFeaturePermissions() {
+            try {
+                const doc = await db.collection('settings').doc('planPermissions').get();
+                const perms = doc.exists ? doc.data() : {};
+                const plans = ['free','premium','business'];
+                const features = ['edit-tx','delete-tx','export-tx','view-report','export-report','edit-budget','delete-budget'];
+                plans.forEach(plan => {
+                    features.forEach(f => {
+                        const id = `${plan}-${f}`;
+                        const checkbox = document.getElementById(id);
+                        if (checkbox) {
+                            checkbox.checked = perms[plan]?.[f] !== false;
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('Error loading plan permissions:', err);
+                window.showToast('error', 'Failed to load plan permissions.');
+            }
+        }
+
+        async function loadPlanStats() {
+            try {
+                // Show loading state
+                const refreshBtn = document.getElementById('refresh-plan-stats');
+                const originalText = refreshBtn.innerHTML;
+                refreshBtn.classList.add('loading');
+                refreshBtn.innerHTML = '<span>Loading...</span>';
+                
+                const usersSnapshot = await db.collection('users').get();
+                const planCounts = { free: 0, premium: 0, business: 0 };
+                let activeUsers = 0;
+                let inactiveUsers = 0;
+                let totalUsers = 0;
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    const plan = userData.plan || 'free';
+                    planCounts[plan]++;
+                    totalUsers++;
+                    
+                    // Count active/inactive users
+                    if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                        inactiveUsers++;
+                    } else {
+                        activeUsers++;
+                    }
+                });
+                
+                // Calculate percentages
+                const freePercentage = totalUsers > 0 ? ((planCounts.free / totalUsers) * 100).toFixed(1) : '0';
+                const premiumPercentage = totalUsers > 0 ? ((planCounts.premium / totalUsers) * 100).toFixed(1) : '0';
+                const businessPercentage = totalUsers > 0 ? ((planCounts.business / totalUsers) * 100).toFixed(1) : '0';
+                
+                // Update UI with real data
+                document.getElementById('total-users-count').textContent = totalUsers;
+                document.getElementById('free-users-count').textContent = planCounts.free;
+                document.getElementById('premium-users-count').textContent = planCounts.premium;
+                document.getElementById('business-users-count').textContent = planCounts.business;
+                
+                // Update percentages
+                document.getElementById('free-users-percentage').textContent = `${freePercentage}%`;
+                document.getElementById('premium-users-percentage').textContent = `${premiumPercentage}%`;
+                document.getElementById('business-users-percentage').textContent = `${businessPercentage}%`;
+                
+                // Update additional details
+                document.getElementById('active-users-count').textContent = activeUsers;
+                document.getElementById('inactive-users-count').textContent = inactiveUsers;
+                document.getElementById('last-updated-time').textContent = new Date().toLocaleString();
+                
+                // Update analytics
+                await updatePlanAnalytics();
+                
+                // Log activity
+                await db.collection('activityLogs').add({
+                    type: 'plan_stats_refreshed',
+                    title: 'Plan Statistics Refreshed',
+                    description: `Plan statistics refreshed: ${totalUsers} total users, ${planCounts.free} free, ${planCounts.premium} premium, ${planCounts.business} business`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: auth.currentUser.uid
+                });
+                
+                window.showToast('success', 'Plan statistics updated successfully.');
+                
+            } catch (err) {
+                console.error('Error loading plan stats:', err);
+                window.showToast('error', 'Failed to load plan statistics: ' + err.message);
+            } finally {
+                // Remove loading state
+                const refreshBtn = document.getElementById('refresh-plan-stats');
+                refreshBtn.classList.remove('loading');
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i><span>Refresh Stats</span>';
+            }
+        }
+
+        // Set up real-time listener for plan changes
+        function setupPlanChangeListener() {
+            db.collection('users').onSnapshot(snapshot => {
+                // Only update if the page is visible and user is admin
+                if (document.visibilityState === 'visible' && auth.currentUser) {
+                    const userDoc = db.collection('users').doc(auth.currentUser.uid);
+                    userDoc.get().then(doc => {
+                        if (doc.exists && doc.data().role === 'admin') {
+                            // Update stats automatically when users collection changes
+                            loadPlanStats();
+                        }
+                    });
+                }
+            }, error => {
+                console.error('Error setting up plan change listener:', error);
+            });
+        }
+
+        async function exportPlanData(format = 'excel') {
+            try {
+                // Show loading state
+                const exportBtn = format === 'pdf' ? 
+                    document.getElementById('export-plan-pdf') : 
+                    document.getElementById('export-plan-excel');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.classList.add('loading');
+                exportBtn.innerHTML = '<span>Generating...</span>';
+                
+                const usersSnapshot = await db.collection('users').get();
+                const planData = [];
+                const planCounts = { free: 0, premium: 0, business: 0 };
+                let totalUsers = 0;
+                let activeUsers = 0;
+                let inactiveUsers = 0;
+                
+                // Add header row
+                planData.push(['User ID', 'Email', 'Name', 'Plan', 'Status', 'Role', 'Created Date', 'Last Login']);
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    const plan = userData.plan || 'free';
+                    planCounts[plan]++;
+                    totalUsers++;
+                    
+                    if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                        inactiveUsers++;
+                    } else {
+                        activeUsers++;
+                    }
+                    
+                    planData.push([
+                        doc.id,
+                        userData.email || 'N/A',
+                        userData.name || userData.displayName || 'N/A',
+                        plan.toUpperCase(),
+                        userData.status || 'active',
+                        userData.role || 'user',
+                        userData.createdAt ? userData.createdAt.toDate().toLocaleDateString() : 'N/A',
+                        userData.lastLoginAt ? userData.lastLoginAt.toDate().toLocaleDateString() : 'N/A'
+                    ]);
+                });
+                
+                // Calculate percentages
+                const freePercentage = totalUsers > 0 ? ((planCounts.free / totalUsers) * 100).toFixed(1) : '0';
+                const premiumPercentage = totalUsers > 0 ? ((planCounts.premium / totalUsers) * 100).toFixed(1) : '0';
+                const businessPercentage = totalUsers > 0 ? ((planCounts.business / totalUsers) * 100).toFixed(1) : '0';
+                
+                if (format === 'pdf') {
+                    await exportPlanDataPDF(planData, planCounts, totalUsers, activeUsers, inactiveUsers, freePercentage, premiumPercentage, businessPercentage);
+                } else {
+                    await exportPlanDataExcel(planData, planCounts, totalUsers, activeUsers, inactiveUsers, freePercentage, premiumPercentage, businessPercentage);
+                }
+                
+                // Log activity
+                await db.collection('activityLogs').add({
+                    type: 'plan_data_exported',
+                    title: `Plan Data Exported (${format.toUpperCase()})`,
+                    description: `Plan data exported in ${format.toUpperCase()} format with ${planData.length - 1} users`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: auth.currentUser.uid
+                });
+                
+                window.showToast('success', `Plan data exported successfully in ${format.toUpperCase()} format.`);
+                
+            } catch (err) {
+                console.error('Error exporting plan data:', err);
+                window.showToast('error', `Failed to export plan data in ${format.toUpperCase()} format: ` + err.message);
+            } finally {
+                // Remove loading state
+                const exportBtn = format === 'pdf' ? 
+                    document.getElementById('export-plan-pdf') : 
+                    document.getElementById('export-plan-excel');
+                exportBtn.classList.remove('loading');
+                exportBtn.innerHTML = originalText;
+            }
+        }
+
+        async function exportPlanDataPDF(planData, planCounts, totalUsers, activeUsers, inactiveUsers, freePercentage, premiumPercentage, businessPercentage) {
+            if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
+                throw new Error('PDF export requires jsPDF library');
+            }
+            
+            const { jsPDF } = window.jspdf || window.jsPDF;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(20);
+            doc.setTextColor(79, 70, 229);
+            doc.text('HipoBudget - Plan Management Report', 20, 20);
+            
+            // Date
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+            
+            // Summary Statistics
+            doc.setFontSize(16);
+            doc.setTextColor(30, 30, 30);
+            doc.text('Summary Statistics', 20, 45);
+            
+            doc.setFontSize(10);
+            doc.text(`Total Users: ${totalUsers}`, 20, 55);
+            doc.text(`Active Users: ${activeUsers}`, 20, 62);
+            doc.text(`Inactive Users: ${inactiveUsers}`, 20, 69);
+            
+            // Plan Distribution
+            doc.setFontSize(16);
+            doc.text('Plan Distribution', 20, 85);
+            
+            doc.setFontSize(10);
+            doc.text(`Free Plan: ${planCounts.free} users (${freePercentage}%)`, 20, 95);
+            doc.text(`Premium Plan: ${planCounts.premium} users (${premiumPercentage}%)`, 20, 102);
+            doc.text(`Business Plan: ${planCounts.business} users (${businessPercentage}%)`, 20, 109);
+            
+            // User Data Table
+            doc.setFontSize(16);
+            doc.text('User Details', 20, 130);
+            
+            const headers = ['Email', 'Name', 'Plan', 'Status', 'Role'];
+            const data = planData.slice(1).map(row => [row[1], row[2], row[3], row[4], row[5]]);
+            
+            if (doc.autoTable) {
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 140,
+                    styles: { fontSize: 8 },
+                    headStyles: { 
+                        fillColor: [79, 70, 229],
+                        textColor: [255, 255, 255]
+                    },
+                    alternateRowStyles: { fillColor: [245, 245, 245] }
+                });
+            } else {
+                // Fallback for older jsPDF versions
+                let y = 150;
+                headers.forEach((header, i) => doc.text(header, 20 + i * 35, y));
+                y += 10;
+                data.forEach(row => {
+                    row.forEach((cell, i) => doc.text(cell, 20 + i * 35, y));
+                    y += 8;
+                });
+            }
+            
+            doc.save(`plan-management-report-${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        async function exportPlanDataExcel(planData, planCounts, totalUsers, activeUsers, inactiveUsers, freePercentage, premiumPercentage, businessPercentage) {
+            if (typeof XLSX === 'undefined') {
+                throw new Error('Excel export requires XLSX library');
+            }
+            
+            const wb = XLSX.utils.book_new();
+            
+            // Summary Sheet
+            const summaryData = [
+                ['HipoBudget - Plan Management Report'],
+                [''],
+                ['Summary Statistics'],
+                ['Total Users', totalUsers],
+                ['Active Users', activeUsers],
+                ['Inactive Users', inactiveUsers],
+                [''],
+                ['Plan Distribution'],
+                ['Plan', 'Count', 'Percentage'],
+                ['Free', planCounts.free, `${freePercentage}%`],
+                ['Premium', planCounts.premium, `${premiumPercentage}%`],
+                ['Business', planCounts.business, `${businessPercentage}%`],
+                [''],
+                ['Report Generated', new Date().toLocaleString()]
+            ];
+            
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+            
+            // User Details Sheet
+            const userDetailsSheet = XLSX.utils.aoa_to_sheet(planData);
+            XLSX.utils.book_append_sheet(wb, userDetailsSheet, 'User Details');
+            
+            // Plan Analytics Sheet
+            const analyticsData = [
+                ['Plan Analytics'],
+                [''],
+                ['Conversion Rate', `${((planCounts.premium + planCounts.business) / totalUsers * 100).toFixed(1)}%`],
+                ['Free to Paid Ratio', `${((planCounts.premium + planCounts.business) / planCounts.free).toFixed(2)}:1`],
+                [''],
+                ['Plan Performance'],
+                ['Plan', 'Users', 'Percentage', 'Revenue Potential'],
+                ['Free', planCounts.free, `${freePercentage}%`, 'Low'],
+                ['Premium', planCounts.premium, `${premiumPercentage}%`, 'Medium'],
+                ['Business', planCounts.business, `${businessPercentage}%`, 'High']
+            ];
+            
+            const analyticsSheet = XLSX.utils.aoa_to_sheet(analyticsData);
+            XLSX.utils.book_append_sheet(wb, analyticsSheet, 'Analytics');
+            
+            XLSX.writeFile(wb, `plan-management-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Show mobile nav on small screens
+        function handleMobileNav() {
+            const nav = document.querySelector('.mobile-nav');
+            if (window.innerWidth <= 768) {
+                nav.style.display = 'block';
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', handleMobileNav);
+
+        // Permission checking utility functions
+        window.checkUserPermission = async function(userId, feature) {
+            try {
+                // Get user's plan
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) return false;
+                
+                const userData = userDoc.data();
+                const userPlan = userData.plan || 'free'; // Default to free plan
+                
+                // Get plan permissions
+                const permissionsDoc = await db.collection('settings').doc('planPermissions').get();
+                if (!permissionsDoc.exists) return true; // If no permissions set, allow everything
+                
+                const permissions = permissionsDoc.data();
+                return permissions[userPlan]?.[feature] !== false; // Default to true if not explicitly set
+            } catch (error) {
+                console.error('Error checking permission:', error);
+                return false; // Fail safe - deny access on error
+            }
+        };
+
+        window.checkCurrentUserPermission = async function(feature) {
+            const user = auth.currentUser;
+            if (!user) return false;
+            return await window.checkUserPermission(user.uid, feature);
+        };
+
+        // Permission enforcement functions for specific features
+        window.enforceTransactionPermissions = async function() {
+            const canEdit = await window.checkCurrentUserPermission('edit-tx');
+            const canDelete = await window.checkCurrentUserPermission('delete-tx');
+            const canExport = await window.checkCurrentUserPermission('export-tx');
+            
+            // Hide/show edit buttons
+            document.querySelectorAll('.edit-btn, .action-btn[onclick*="editTransaction"]').forEach(btn => {
+                btn.style.display = canEdit ? 'inline-flex' : 'none';
+            });
+            
+            // Hide/show delete buttons
+            document.querySelectorAll('.delete-btn, .action-btn[onclick*="deleteTransaction"]').forEach(btn => {
+                btn.style.display = canDelete ? 'inline-flex' : 'none';
+            });
+            
+            // Hide/show export buttons
+            const exportBtn = document.getElementById('exportTransactions');
+            if (exportBtn) {
+                exportBtn.style.display = canExport ? 'inline-flex' : 'none';
+            }
+        };
+
+        window.enforceBudgetPermissions = async function() {
+            const canEdit = await window.checkCurrentUserPermission('edit-budget');
+            const canDelete = await window.checkCurrentUserPermission('delete-budget');
+            
+            // Hide/show edit buttons
+            document.querySelectorAll('.edit-btn[data-id]').forEach(btn => {
+                btn.style.display = canEdit ? 'inline-flex' : 'none';
+            });
+            
+            // Hide/show delete buttons
+            document.querySelectorAll('.delete-btn[data-id]').forEach(btn => {
+                btn.style.display = canDelete ? 'inline-flex' : 'none';
+            });
+        };
+
+        window.enforceReportPermissions = async function() {
+            const canView = await window.checkCurrentUserPermission('view-report');
+            const canExport = await window.checkCurrentUserPermission('export-report');
+            
+            if (!canView) {
+                // Redirect to home page if user can't view reports
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Hide/show export buttons
+            const exportBtn = document.getElementById('exportReportBtn');
+            if (exportBtn) {
+                exportBtn.style.display = canExport ? 'inline-flex' : 'none';
+            }
+        };
+
+        async function getPlanAnalytics() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                const analytics = {
+                    totalUsers: 0,
+                    planDistribution: { free: 0, premium: 0, business: 0 },
+                    statusDistribution: { active: 0, inactive: 0 },
+                    recentSignups: 0,
+                    conversionRate: 0
+                };
+                
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    analytics.totalUsers++;
+                    
+                    // Plan distribution
+                    const plan = userData.plan || 'free';
+                    analytics.planDistribution[plan]++;
+                    
+                    // Status distribution
+                    const status = (userData.status && userData.status.toLowerCase() === 'inactive') ? 'inactive' : 'active';
+                    analytics.statusDistribution[status]++;
+                    
+                    // Recent signups (last 30 days)
+                    if (userData.createdAt && userData.createdAt.toDate() > thirtyDaysAgo) {
+                        analytics.recentSignups++;
+                    }
+                });
+                
+                // Calculate conversion rate (non-free users / total users)
+                const nonFreeUsers = analytics.planDistribution.premium + analytics.planDistribution.business;
+                analytics.conversionRate = analytics.totalUsers > 0 ? ((nonFreeUsers / analytics.totalUsers) * 100).toFixed(1) : '0';
+                
+                return analytics;
+            } catch (err) {
+                console.error('Error getting plan analytics:', err);
+                return null;
+            }
+        }
+
+        async function updatePlanAnalytics() {
+            const analytics = await getPlanAnalytics();
+            if (analytics) {
+                // Update conversion rate display if element exists
+                const conversionElement = document.getElementById('conversion-rate');
+                if (conversionElement) {
+                    conversionElement.textContent = `${analytics.conversionRate}%`;
+                }
+                
+                // Update recent signups if element exists
+                const recentSignupsElement = document.getElementById('recent-signups');
+                if (recentSignupsElement) {
+                    recentSignupsElement.textContent = analytics.recentSignups;
+                }
+            }
+        }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

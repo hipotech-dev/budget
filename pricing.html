@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Pricing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="theme.js"></script>
+    <script src="toast.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+        }
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            transition: background-color 0.3s ease;
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            border-radius: 2rem;
+            padding: 0.25rem;
+        }
+
+        .language-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .language-btn:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 0;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .pricing-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pricing-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .pricing-card.popular {
+            border: 3px solid var(--primary);
+            background: linear-gradient(180deg, var(--card-bg), var(--primary-dark) 300%);
+        }
+
+        .pricing-card.popular::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0 0 0.5rem 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .plan-period {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+            min-height: 180px;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9375rem;
+            line-height: 1.4;
+        }
+
+        .plan-features li i {
+            margin-right: 0.75rem;
+            color: var(--success);
+            font-size: 1.125rem;
+        }
+
+        .plan-features li.unavailable i {
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        .plan-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .plan-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .plan-btn.free {
+            background: var(--gray);
+        }
+
+        .plan-btn.free:hover {
+            background: var(--light-gray);
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        .pricing-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .pricing-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .pricing-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.25rem;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger-content {
+            display: none;
+            padding: 0.5rem 0;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .hamburger-content.active {
+            display: block;
+        }
+
+        .hamburger-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+        }
+
+        .hamburger-item:hover {
+            background: var(--light-gray);
+        }
+
+        .hamburger-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .hamburger-item.admin-link, .hamburger-item.user-management-link {
+            display: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding-bottom: 64px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+                padding-top: 64px;
+                padding-bottom: 80px;
+            }
+
+            .header {
+                padding: 0.5rem;
+                position: sticky;
+                top: 0;
+                background: var(--body-bg);
+                z-index: 100;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                padding: 0 0.5rem;
+            }
+
+            .pricing-card {
+                padding: 1.5rem;
+            }
+
+            .pricing-title {
+                font-size: 1.75rem;
+            }
+
+            .pricing-subtitle {
+                font-size: 1rem;
+            }
+
+            .plan-name {
+                font-size: 1.5rem;
+            }
+
+            .plan-price {
+                font-size: 2rem;
+            }
+
+            .mobile-nav,
+            .hamburger-menu {
+                display: block;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .hamburger-menu, .hamburger-backdrop {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hamburger-content" id="hamburgerContent">
+                <a href="dashboard.html" class="hamburger-item"><i class="fas fa-home"></i><span data-i18n="dashboard">Dashboard</span></a>
+                <a href="transaction.html" class="hamburger-item"><i class="fas fa-exchange-alt"></i><span data-i18n="transactions">Transactions</span></a>
+                <a href="budget.html" class="hamburger-item"><i class="fas fa-chart-pie"></i><span data-i18n="budget">Budget</span></a>
+                <a href="goals.html" class="hamburger-item"><i class="fas fa-bullseye"></i><span data-i18n="goals">Goals</span></a>
+                <a href="Reports.html" class="hamburger-item"><i class="fas fa-chart-line"></i><span data-i18n="reports">Reports</span></a>
+                <a href="settings.html" class="hamburger-item"><i class="fas fa-cog"></i><span data-i18n="settings_title">Settings</span></a>
+                <a href="pricing.html" class="hamburger-item"><i class="fas fa-tags"></i><span data-i18n="pricing">Pricing</span></a>
+                <a href="User management.html" class="hamburger-item user-management-link"><i class="fas fa-users"></i><span data-i18n="user_management">User Management</span></a>
+                <a href="Admin.html" class="hamburger-item admin-link"><i class="fas fa-user-shield"></i><span data-i18n="admin">Admin</span></a>
+                <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--light-gray);">
+                <a href="#" class="hamburger-item" id="hamburgerLogout"><i class="fas fa-sign-out-alt"></i><span data-i18n="logout">Logout</span></a>
+            </div>
+        </div>
+        <div class="hamburger-backdrop" id="hamburgerBackdrop"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span data-i18n="dashboard">Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="transaction.html" class="nav-link"><i class="fas fa-exchange-alt"></i><span data-i18n="transactions">Transactions</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="budget.html" class="nav-link"><i class="fas fa-chart-pie"></i><span data-i18n="budget">Budget</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="goals.html" class="nav-link"><i class="fas fa-bullseye"></i><span data-i18n="goals">Goals</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="Reports.html" class="nav-link"><i class="fas fa-chart-line"></i><span data-i18n="reports">Reports</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i><span data-i18n="settings_title">Settings</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="pricing.html" class="nav-link active"><i class="fas fa-tags"></i><span data-i18n="pricing">Pricing</span></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title" data-i18n="pricing">Pricing</h1>
+                <div class="user-menu">
+                    <div class="language-toggle">
+                        <button class="language-btn active" data-lang="en">English</button>
+                        <button class="language-btn" data-lang="sw">Swahili</button>
+                    </div>
+                    <span id="realtime-clock"></span>
+                    <div class="user-avatar" id="user-avatar" aria-label="User Menu"></div>
+                    <div id="avatar-dropdown" style="display:none;position:absolute;right:0.5rem;top:48px;background:var(--card-bg);border:1px solid var(--light-gray);border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);z-index:10;">
+                        <button id="logout-btn" style="padding:0.75rem 1.5rem;width:100%;background:none;border:none;color:var(--danger);font-weight:500;cursor:pointer;" data-i18n="logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <section class="pricing-section">
+                <div class="pricing-header">
+                    <h2 class="pricing-title" data-i18n="pricing_title">Unlock Your Financial Potential</h2>
+                    <p class="pricing-subtitle" data-i18n="pricing_subtitle">Choose a plan tailored to your budgeting needs, from free basics to premium features for ultimate control.</p>
+                </div>
+                <div class="pricing-cards">
+                    <div class="pricing-card">
+                        <h3 class="plan-name" data-i18n="free_plan">Free</h3>
+                        <div class="plan-price" data-i18n="[html]free_price">0 <span class="plan-period">/ month</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_budgeting">Basic Budgeting</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="transaction_tracking">Transaction Tracking</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_reports">Basic Reports</span></li>
+                            <li><i class="fas fa-times unavailable"></i><span data-i18n="advanced_reports">Advanced Reports</span></li>
+                            <li><i class="fas fa-times unavailable"></i><span data-i18n="export_data">Export Data</span></li>
+                            <li><i class="fas fa-times unavailable"></i><span data-i18n="priority_support">Priority Support</span></li>
+                            <li><i class="fas fa-times unavailable"></i><span data-i18n="multi_user">Multi-User Collaboration</span></li>
+                        </ul>
+                        <button class="plan-btn free" data-i18n="get_started">Get Started</button>
+                    </div>
+                    <div class="pricing-card popular">
+                        <h3 class="plan-name" data-i18n="business_plan">Business</h3>
+                        <div class="plan-price" id="business-price"></div>
+                        <div class="plan-period" data-i18n="per_month">per month</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_budgeting">Basic Budgeting</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="transaction_tracking">Transaction Tracking</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_reports">Basic Reports</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="advanced_reports">Advanced Reports</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="export_data">Export Data</span></li>
+                            <li><i class="fas fa-times unavailable"></i><span data-i18n="priority_support">Priority Support</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="multi_user">Multi-User Collaboration</span></li>
+                        </ul>
+                        <button class="plan-btn" data-i18n="subscribe_now">Subscribe Now</button>
+                    </div>
+                    <div class="pricing-card">
+                        <h3 class="plan-name" data-i18n="premium_plan">Premium</h3>
+                        <div class="plan-price" id="premium-price"></div>
+                        <div class="plan-period" data-i18n="per_month">per month</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_budgeting">Basic Budgeting</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="transaction_tracking">Transaction Tracking</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="basic_reports">Basic Reports</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="advanced_reports">Advanced Reports</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="export_data">Export Data</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="priority_support">Priority Support</span></li>
+                            <li><i class="fas fa-check"></i><span data-i18n="multi_user">Multi-User Collaboration</span></li>
+                        </ul>
+                        <button class="plan-btn" data-i18n="subscribe_now">Subscribe Now</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item">
+                <i class="fas fa-home"></i>
+                <span data-i18n="dashboard">Home</span>
+            </a>
+            <a href="transaction.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span data-i18n="transactions">Trans.</span>
+            </a>
+            <a href="budget.html" class="mobile-nav-item">
+                <i class="fas fa-chart-pie"></i>
+                <span data-i18n="budget">Budget</span>
+            </a>
+            <a href="goals.html" class="mobile-nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span data-i18n="goals">Goals</span>
+            </a>
+            <a href="Reports.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span data-i18n="reports">Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // Translation dictionaries
+        const translations = {
+            en: {
+                dashboard: "Dashboard",
+                transactions: "Transactions",
+                budget: "Budget",
+                goals: "Goals",
+                reports: "Reports",
+                settings_title: "Settings",
+                user_management: "User Management",
+                admin: "Admin",
+                logout: "Logout",
+                pricing: "Pricing",
+                pricing_title: "Unlock Your Financial Potential",
+                pricing_subtitle: "Choose a plan tailored to your budgeting needs, from free basics to premium features for ultimate control.",
+                free_plan: "Free",
+                business_plan: "Business",
+                premium_plan: "Premium",
+                free_price: "0 <span class=\"plan-period\">/ month</span>",
+                per_month: "per month",
+                basic_budgeting: "Basic Budgeting",
+                transaction_tracking: "Transaction Tracking",
+                basic_reports: "Basic Reports",
+                advanced_reports: "Advanced Reports",
+                export_data: "Export Data",
+                priority_support: "Priority Support",
+                multi_user: "Multi-User Collaboration",
+                get_started: "Get Started",
+                subscribe_now: "Subscribe Now"
+            },
+            sw: {
+                dashboard: "Dashibodi",
+                transactions: "Miamala",
+                budget: "Bajeti",
+                goals: "Malengo",
+                reports: "Ripoti",
+                settings_title: "Mipangilio",
+                user_management: "Usimamizi wa Watumiaji",
+                admin: "Admin",
+                logout: "Toka",
+                pricing: "Bei",
+                pricing_title: "Fungua Uwezo Wako wa Kifedha",
+                pricing_subtitle: "Chagua mpango unaofaa mahitaji yako ya bajeti, kutoka bure hadi vipengele vya premium kwa udhibiti wa hali ya juu.",
+                free_plan: "Bure",
+                business_plan: "Biashara",
+                premium_plan: "Premium",
+                free_price: "0 <span class=\"plan-period\">/ mwezi</span>",
+                per_month: "kwa mwezi",
+                basic_budgeting: "Bajeti ya Msingi",
+                transaction_tracking: "Ufuatiliaji wa Miamala",
+                basic_reports: "Ripoti za Msingi",
+                advanced_reports: "Ripoti za Juu",
+                export_data: "Toa Data",
+                priority_support: "Msaada wa Kwanza",
+                multi_user: "Ushirikiano wa Watumiaji Wengi",
+                get_started: "Anza",
+                subscribe_now: "Jiandikishe Sasa"
+            }
+        };
+
+        // Get Firebase instances and initialize variables
+        let auth, db;
+        let currentUser = null;
+        let userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        // Initialize Firebase and app
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const firebaseInstance = await window.FirebaseManager?.waitForReady?.();
+                if (!firebaseInstance) {
+                    throw new Error('FirebaseManager not available');
+                }
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                console.log('Firebase initialized successfully in pricing page');
+
+                // Real-time clock
+                function updateClock() {
+                    const now = new Date();
+                    document.getElementById('realtime-clock').textContent = now.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    });
+                }
+                updateClock();
+                setInterval(updateClock, 1000);
+
+                // Avatar dropdown
+                const avatar = document.getElementById('user-avatar');
+                const avatarDropdown = document.getElementById('avatar-dropdown');
+                if (avatar) {
+                    avatar.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        avatarDropdown.style.display = avatarDropdown.style.display === 'block' ? 'none' : 'block';
+                    });
+                }
+                document.addEventListener('click', (e) => {
+                    if (!avatar.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                        avatarDropdown.style.display = 'none';
+                    }
+                });
+
+                // Hamburger menu handlers
+                const hamburgerBtn = document.getElementById('hamburgerBtn');
+                const hamburgerContent = document.getElementById('hamburgerContent');
+                const hamburgerBackdrop = document.getElementById('hamburgerBackdrop');
+                if (hamburgerBtn && hamburgerContent && hamburgerBackdrop) {
+                    hamburgerBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isActive = hamburgerContent.classList.toggle('active');
+                        hamburgerBackdrop.classList.toggle('active', isActive);
+                        hamburgerBtn.innerHTML = isActive ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                    });
+                    hamburgerBackdrop.addEventListener('click', () => {
+                        hamburgerContent.classList.remove('active');
+                        hamburgerBackdrop.classList.remove('active');
+                        hamburgerBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    });
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.hamburger-menu') && hamburgerContent.classList.contains('active')) {
+                            hamburgerContent.classList.remove('active');
+                            hamburgerBackdrop.classList.remove('active');
+                            hamburgerBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    });
+                }
+
+                // Hamburger menu logout
+                const hamburgerLogout = document.getElementById('hamburgerLogout');
+                if (hamburgerLogout) {
+                    hamburgerLogout.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (auth) {
+                            auth.signOut().then(() => {
+                                window.location.href = 'index.html';
+                            }).catch((error) => {
+                                showToast('error', 'Error signing out. Please try again.');
+                                console.error('Logout error:', error);
+                            });
+                        }
+                    });
+                }
+
+                // Logout
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    if (auth) {
+                        auth.signOut().then(() => {
+                            window.location.href = 'index.html';
+                        }).catch((error) => {
+                            showToast('error', 'Error signing out. Please try again.');
+                            console.error('Logout error:', error);
+                        });
+                    }
+                });
+
+                // Auth state listener
+                if (auth) {
+                    auth.onAuthStateChanged(async user => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                        if (!user.emailVerified) {
+                            showToast('error', 'Please verify your email to continue.');
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                        try {
+                            const userDoc = await db.collection('users').doc(user.uid).get();
+                            let userData;
+                            if (!userDoc.exists) {
+                                await db.collection('users').doc(user.uid).set({
+                                    email: user.email,
+                                    displayName: user.displayName || user.email,
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                    status: 'active',
+                                    role: 'user',
+                                    currency: 'TZS',
+                                    theme: 'light',
+                                    language: 'en'
+                                });
+                                userData = {
+                                    email: user.email,
+                                    displayName: user.displayName || user.email,
+                                    status: 'active',
+                                    role: 'user',
+                                    currency: 'TZS',
+                                    theme: 'light',
+                                    language: 'en'
+                                };
+                            } else {
+                                userData = userDoc.data();
+                            }
+
+                            if (userData.status?.toLowerCase() === 'inactive') {
+                                showToast('error', 'Your account is inactive. Please contact support.');
+                                await auth.signOut();
+                                window.location.href = 'index.html';
+                                return;
+                            }
+
+                            userCurrency = userData.currency || 'TZS';
+                            currentLanguage = userData.language || 'en';
+                            localStorage.setItem('userCurrency', userCurrency);
+                            localStorage.setItem('language', currentLanguage);
+
+                            if (userData.theme || userData.themeColor) {
+                                if (userData.theme) localStorage.setItem('theme', userData.theme);
+                                if (userData.themeColor) localStorage.setItem('themeColor', userData.themeColor);
+                                if (window.applyTheme) window.applyTheme();
+                            }
+
+                            const avatar = document.getElementById('user-avatar');
+                            if (user.photoURL) {
+                                avatar.style.background = 'none';
+                                avatar.innerHTML = `<img src="${user.photoURL}" alt="User Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            } else {
+                                avatar.textContent = user.email.charAt(0).toUpperCase();
+                            }
+
+                            if (userData.role !== 'admin') {
+                                document.querySelectorAll('.hamburger-item.admin-link, .hamburger-item.user-management-link').forEach(item => {
+                                    item.style.display = 'none';
+                                });
+                            } else {
+                                document.querySelectorAll('.hamburger-item.admin-link, .hamburger-item.user-management-link').forEach(item => {
+                                    item.style.display = '';
+                                });
+                            }
+
+                            currentUser = user;
+                            updateLanguage(currentLanguage);
+                            updatePricing();
+                        } catch (error) {
+                            showToast('error', 'Error loading user data. Please try again.');
+                            console.error('Error loading user document:', error);
+                        }
+                    });
+                } else {
+                    showToast('error', 'Firebase authentication not initialized. Please refresh.');
+                }
+
+                // Language toggle
+                document.querySelectorAll('.language-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const lang = btn.getAttribute('data-lang');
+                        updateLanguage(lang);
+                        if (currentUser && db) {
+                            db.collection('users').doc(currentUser.uid).update({ language: lang });
+                        }
+                        localStorage.setItem('language', lang);
+                        document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+
+                // Update pricing on currency change
+                window.addEventListener('currencyChanged', updatePricing);
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'userCurrency') {
+                        userCurrency = localStorage.getItem('userCurrency') || 'TZS';
+                        updatePricing();
+                    }
+                    if (e.key === 'language') {
+                        currentLanguage = localStorage.getItem('language') || 'en';
+                        updateLanguage(currentLanguage);
+                    }
+                });
+
+                // Plan button handlers
+                document.querySelectorAll('.plan-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const plan = btn.parentElement.querySelector('.plan-name').textContent;
+                        showToast('info', `Redirecting to subscription for ${plan} plan...`);
+                        if (currentUser && db) {
+                            await db.collection('activityLogs').add({
+                                type: 'plan_selection',
+                                user: currentUser.email,
+                                userId: currentUser.uid,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                title: 'Plan Selection Attempt',
+                                description: `User attempted to subscribe to ${plan} plan.`
+                            });
+                        }
+                        // Redirect to xAI pricing page as per guidelines
+                        window.location.href = 'https://x.ai/grok';
+                    });
+                });
+            } catch (error) {
+                showToast('error', 'Failed to initialize the application. Please refresh.');
+                console.error('Error initializing pricing page:', error);
+            }
+        });
+
+        // Update language
+        function updateLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (key.startsWith('[html]')) {
+                    const cleanKey = key.replace('[html]', '');
+                    elem.innerHTML = translations[lang][cleanKey] || translations.en[cleanKey];
+                } else {
+                    elem.textContent = translations[lang][key] || translations.en[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        // Update pricing based on currency
+        function updatePricing() {
+            // Sample prices in TZS (base currency)
+            const prices = {
+                TZS: { business: 25000, premium: 50000 },
+                USD: { business: 10, premium: 20 },
+                EUR: { business: 9, premium: 18 },
+                GBP: { business: 8, premium: 16 },
+                JPY: { business: 1500, premium: 3000 },
+                CAD: { business: 13, premium: 26 },
+                AUD: { business: 14, premium: 28 },
+                CNY: { business: 70, premium: 140 },
+                INR: { business: 800, premium: 1600 }
+            };
+
+            const businessPrice = prices[userCurrency]?.business || prices.TZS.business;
+            const premiumPrice = prices[userCurrency]?.premium || prices.TZS.premium;
+
+            document.getElementById('business-price').textContent = window.formatCurrency(businessPrice);
+            document.getElementById('premium-price').textContent = window.formatCurrency(premiumPrice);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Transactions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS remains identical to users.html for consistency */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active: #4f46e5;
+            --sidebar-active-bg: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --dark: #f8fafc;
+            --dark-light: #e2e8f0;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #818cf8;
+            --sidebar-active-bg: rgba(129, 140, 248, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .admin-logo-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav-menu {
+            list-style: none;
+            margin-bottom: auto;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+            font-weight: 600;
+        }
+
+        .admin-nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .admin-nav-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 1.5rem 0;
+            opacity: 0.5;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            margin-top: auto;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .admin-main-content {
+            padding: 2rem;
+            background-color: var(--body-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .admin-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .admin-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-search {
+            position: relative;
+        }
+
+        .admin-search input {
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .admin-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .admin-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--light-gray);
+        }
+
+        .admin-user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 1rem;
+            top: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* Admin Tables */
+        .admin-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--light-gray);
+            overflow-x: auto;
+        }
+
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .admin-table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status i {
+            margin-right: 0.25rem;
+            font-size: 0.625rem;
+        }
+
+        .status-completed {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-income {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-expense {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .action-btn.danger:hover {
+            color: var(--danger);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Filters */
+        .filters-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--light-gray);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .filters-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .filters-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .filters-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+            
+            .admin-logo-text, 
+            .admin-nav-link span,
+            .sidebar-footer span {
+                display: none;
+            }
+            
+            .admin-logo {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .admin-nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .admin-nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+            .admin-sidebar {
+                display: none;
+            }
+            .admin-main-content {
+                padding: 1rem;
+                min-height: calc(100vh - 60px);
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 60px;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%;
+                padding: 1rem;
+            }
+            .admin-user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .admin-search input {
+                width: 100%;
+            }
+            .filters-form {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                justify-content: flex-end;
+            }
+            .admin-table-container {
+                padding: 1rem;
+            }
+            .admin-table-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-main-content {
+                padding: 0.75rem;
+            }
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Bottom Navigation for Mobile */
+        .mobile-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 1001;
+            display: none;
+            border-top: 1px solid var(--light-gray);
+        }
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-item {
+            flex: 1;
+            text-align: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.5rem 0 0.25rem 0;
+            transition: color 0.2s;
+        }
+        .mobile-nav-item.active,
+        .mobile-nav-item:active,
+        .mobile-nav-item:focus {
+            color: var(--primary);
+        }
+        .mobile-nav-item i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="admin-logo-icon"><i class="fas fa-wallet"></i></span>
+                <span class="admin-logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="admin-nav-menu">
+                <li class="admin-nav-item">
+                    <a href="Admin.html" class="admin-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="users.html" class="admin-nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-trans.html" class="admin-nav-link active">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="analytics.html" class="admin-nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="notifications.html" class="admin-nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-settings.html" class="admin-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-page-title">Transactions</h1>
+                    <div class="admin-header-subtitle">View and manage all user transactions</div>
+                </div>
+                <div class="admin-user-menu">
+                    <div class="admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="transaction-search" placeholder="Search transactions...">
+                    </div>
+                    <div class="admin-user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-container fade-in" style="animation-delay: 0.2s">
+                <div class="filters-header">
+                    <h3 class="filters-title">Filters</h3>
+                    <button class="btn btn-outline btn-sm" id="reset-filters">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+                <form class="filters-form" id="transaction-filters">
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-control" id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-control" id="type-filter">
+                            <option value="">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Plan</label>
+                        <select class="form-control" id="plan-filter">
+                            <option value="">All Plans</option>
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-control" id="role-filter">
+                            <option value="">All Roles</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" id="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="food">Food</option>
+                            <option value="housing">Housing</option>
+                            <option value="transportation">Transportation</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="salary">Salary</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <select class="form-control" id="date-filter">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i>
+                            <span>Apply Filters</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Transactions Table -->
+            <div class="admin-table-container fade-in" style="animation-delay: 0.3s">
+                <div class="admin-table-header">
+                    <h2 class="admin-table-title">All Transactions</h2>
+                    <div class="admin-table-actions">
+                        <button class="btn btn-outline" id="export-transactions-pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button class="btn btn-outline" id="export-transactions-excel">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table-body">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="pagination-start">1</span> to <span id="pagination-end">5</span> of <span id="pagination-total">0</span> entries
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline btn-sm" id="prev-page" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="next-page" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="Admin.html" class="mobile-nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="users.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="transactions.html" class="mobile-nav-item active">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="admin-settings.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Edit Transaction Modal -->
+    <div id="edit-transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Transaction</h3>
+                <button id="close-edit-modal" class="modal-close">×</button>
+            </div>
+            <form id="edit-transaction-form">
+                <input type="hidden" id="edit-transaction-id">
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" step="0.01" id="edit-transaction-amount" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select id="edit-transaction-type" class="form-control">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="edit-transaction-category" class="form-control">
+                        <option value="salary">Salary</option>
+                        <option value="bill">Bill</option>
+                        <option value="subscription">Subscription</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="edit-transaction-status" class="form-control">
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="edit-transaction-description" class="form-control"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-edit-transaction" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+
+    <script>
+        // Get Firebase instances from centralized manager
+        let auth, db;
+        
+        // Initialize Firebase and get instances
+        async function initializeFirebase() {
+            try {
+                const firebaseInstance = await window.FirebaseManager.waitForReady();
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                console.log('Firebase initialized successfully in admin-trans page');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+            }
+        }
+
+        // DOM Elements
+        const userAvatar = document.getElementById('user-avatar');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const transactionSearch = document.getElementById('transaction-search');
+        const transactionFilters = document.getElementById('transaction-filters');
+        const resetFilters = document.getElementById('reset-filters');
+        const editTransactionModal = document.getElementById('edit-transaction-modal');
+        const closeEditModal = document.getElementById('close-edit-modal');
+        const cancelEditTransaction = document.getElementById('cancel-edit-transaction');
+        const editTransactionForm = document.getElementById('edit-transaction-form');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+
+        // Pagination variables
+        let currentPage = 1;
+        const transactionsPerPage = 5;
+        let lastVisible = null;
+        let firstVisible = null;
+        let totalTransactions = 0;
+
+        // Initialize Admin Dashboard
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize Firebase first
+                await initializeFirebase();
+                
+                await window.loadAdminSettings();
+                handleMobileNav();
+                
+                // Now auth should be available
+                if (auth) {
+                    auth.onAuthStateChanged(async user => {
+                        if (!user || !user.emailVerified) {
+                            window.location.href = 'index.html';
+                        } else {
+                            try {
+                                const userDoc = await db.collection('users').doc(user.uid).get();
+                                const userData = userDoc.data();
+                                if (!userDoc.exists || userData.role !== 'admin') {
+                                    alert('Access denied: Admins only.');
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                                    alert('Your account is inactive. Please contact support.');
+                                    await auth.signOut();
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                setupUserAvatar(user);
+                                fetchTransactions();
+                                setupEventListeners();
+                            } catch (err) {
+                                alert('Error verifying admin access.');
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                        }
+                    });
+                } else {
+                    console.error('Firebase Auth not initialized');
+                }
+                
+                // Export Transactions Table to PDF
+                document.getElementById('export-transactions-pdf').addEventListener('click', function() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    doc.setFontSize(16);
+                    doc.text('Transactions Table', 14, 16);
+                    const headers = [['User', 'Amount', 'Type', 'Category', 'Date', 'Status', 'Description']];
+                    const rows = Array.from(document.querySelectorAll('#transactions-table-body tr')).map(tr => {
+                        const tds = tr.querySelectorAll('td');
+                        return [
+                            tds[0]?.innerText.trim() || '',
+                            tds[1]?.innerText.trim() || '',
+                            tds[2]?.innerText.trim() || '',
+                            tds[3]?.innerText.trim() || '',
+                            tds[4]?.innerText.trim() || '',
+                            tds[5]?.innerText.trim() || '',
+                            tds[6]?.innerText.trim() || ''
+                        ];
+                    });
+                    if (doc.autoTable) {
+                        doc.autoTable({ head: headers, body: rows, startY: 22 });
+                    } else {
+                        let y = 24;
+                        headers[0].forEach((h, i) => doc.text(h, 14 + i * 30, y));
+                        y += 8;
+                        rows.forEach(row => {
+                            row.forEach((cell, i) => doc.text(String(cell), 14 + i * 30, y));
+                            y += 8;
+                        });
+                    }
+                    doc.save('transactions.pdf');
+                });
+
+                // Export Transactions Table to Excel
+                document.getElementById('export-transactions-excel').addEventListener('click', function() {
+                    const wb = XLSX.utils.book_new();
+                    const ws_data = [
+                        ['User', 'Amount', 'Type', 'Category', 'Date', 'Status', 'Description'],
+                        ...Array.from(document.querySelectorAll('#transactions-table-body tr')).map(tr => {
+                            const tds = tr.querySelectorAll('td');
+                            return [
+                                tds[0]?.innerText.trim() || '',
+                                tds[1]?.innerText.trim() || '',
+                                tds[2]?.innerText.trim() || '',
+                                tds[3]?.innerText.trim() || '',
+                                tds[4]?.innerText.trim() || '',
+                                tds[5]?.innerText.trim() || '',
+                                tds[6]?.innerText.trim() || ''
+                            ];
+                        })
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+                    XLSX.writeFile(wb, 'transactions.xlsx');
+                });
+            } catch (error) {
+                console.error('Error initializing admin-trans page:', error);
+            }
+        });
+
+        function setupUserAvatar(user) {
+            if (user.photoURL) {
+                userAvatar.style.background = 'none';
+                userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+            } else {
+                const name = user.displayName || user.email || 'U';
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                userAvatar.textContent = initials;
+            }
+        }
+
+        function setupEventListeners() {
+            // User dropdown
+            userAvatar.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userAvatar.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            });
+
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                const isDark = document.body.classList.contains('dark-theme');
+                localStorage.setItem('darkMode', isDark);
+                themeToggle.innerHTML = isDark 
+                    ? '<span>Light Mode</span><i class="fas fa-sun"></i>' 
+                    : '<span>Dark Mode</span><i class="fas fa-moon"></i>';
+            });
+
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+            }
+
+            // Edit transaction modal
+            closeEditModal.addEventListener('click', () => {
+                editTransactionModal.style.display = 'none';
+            });
+
+            cancelEditTransaction.addEventListener('click', () => {
+                editTransactionModal.style.display = 'none';
+            });
+
+            editTransactionModal.addEventListener('click', (e) => {
+                if (e.target === editTransactionModal) {
+                    editTransactionModal.style.display = 'none';
+                }
+            });
+
+            // Edit transaction form submission
+            editTransactionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const transactionId = document.getElementById('edit-transaction-id').value;
+                const amount = parseFloat(document.getElementById('edit-transaction-amount').value);
+                const type = document.getElementById('edit-transaction-type').value;
+                const category = document.getElementById('edit-transaction-category').value;
+                const status = document.getElementById('edit-transaction-status').value;
+                const description = document.getElementById('edit-transaction-description').value.trim();
+                if (!transactionId || isNaN(amount) || amount <= 0) {
+                    alert('Valid transaction ID and amount are required.');
+                    return;
+                }
+                try {
+                    await db.collection('transactions').doc(transactionId).update({
+                        amount: amount,
+                        type: type,
+                        category: category,
+                        status: status,
+                        description: description,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    await db.collection('activityLogs').add({
+                        type: 'transaction_updated',
+                        title: 'Transaction Updated',
+                        description: `Transaction ${transactionId} updated by admin`,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    await window.addNotification({
+                        type: 'transaction_updated',
+                        title: 'Transaction Updated',
+                        description: `Transaction ${transactionId} updated by admin`
+                    });
+                    editTransactionModal.style.display = 'none';
+                    fetchTransactions();
+                    window.showToast('success', 'Transaction updated successfully.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to update transaction: ' + err.message);
+                }
+            });
+
+            // Transaction search
+            transactionSearch.addEventListener('input', debounce(() => {
+                currentPage = 1;
+                fetchTransactions();
+            }, 300));
+
+            // Filters
+            transactionFilters.addEventListener('submit', (e) => {
+                e.preventDefault();
+                currentPage = 1;
+                fetchTransactions();
+            });
+
+            resetFilters.addEventListener('click', () => {
+                transactionFilters.reset();
+                transactionSearch.value = '';
+                currentPage = 1;
+                fetchTransactions();
+            });
+
+            // Pagination
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchTransactions(true);
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                currentPage++;
+                fetchTransactions();
+            });
+        }
+
+        // Fetch Transactions with Filters and Pagination
+        async function fetchTransactions(isPrev = false) {
+            const tbody = document.getElementById('transactions-table-body');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem;">Loading...</td></tr>';
+
+            let query = db.collection('transactions').orderBy('createdAt', 'desc');
+            
+            // Apply filters
+            const statusFilter = document.getElementById('status-filter').value;
+            const typeFilter = document.getElementById('type-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const searchQuery = transactionSearch.value.trim().toLowerCase();
+            const planFilter = document.getElementById('plan-filter').value;
+            const roleFilter = document.getElementById('role-filter').value;
+
+            // --- NEW: Query users by plan/role if needed ---
+            let userIds = null;
+            if (planFilter || roleFilter) {
+                let userQuery = db.collection('users');
+                if (planFilter) userQuery = userQuery.where('plan', '==', planFilter.charAt(0).toUpperCase() + planFilter.slice(1));
+                if (roleFilter) userQuery = userQuery.where('role', '==', roleFilter);
+                const userSnapshot = await userQuery.get();
+                userIds = userSnapshot.docs.map(doc => doc.id);
+                if (userIds.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem;">No transactions found</td></tr>';
+                    updatePagination(0);
+                    return;
+                }
+            }
+
+            if (statusFilter) {
+                query = query.where('status', '==', statusFilter);
+            }
+            if (typeFilter) {
+                query = query.where('type', '==', typeFilter);
+            }
+            if (categoryFilter) {
+                query = query.where('category', '==', categoryFilter);
+            }
+            if (dateFilter) {
+                const now = new Date();
+                let startDate;
+                if (dateFilter === 'today') {
+                    startDate = new Date(now.setHours(0, 0, 0, 0));
+                } else if (dateFilter === 'week') {
+                    startDate = new Date(now.setDate(now.getDate() - 7));
+                } else if (dateFilter === 'month') {
+                    startDate = new Date(now.setMonth(now.getMonth() - 1));
+                } else if (dateFilter === 'year') {
+                    startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+                }
+                if (startDate) {
+                    query = query.where('createdAt', '>=', startDate);
+                }
+            }
+
+            // --- NEW: If userIds is set, use 'in' query (batch if >10) ---
+            let transactionDocs = [];
+            if (userIds) {
+                // Firestore 'in' query supports up to 10 values per query
+                const batchSize = 10;
+                for (let i = 0; i < userIds.length; i += batchSize) {
+                    let batchIds = userIds.slice(i, i + batchSize);
+                    let batchQuery = query.where('userId', 'in', batchIds);
+                    // Apply pagination only to the first batch (for simplicity)
+                    if (i === 0) {
+                        if (isPrev && firstVisible) {
+                            batchQuery = batchQuery.endBefore(firstVisible).limitToLast(transactionsPerPage);
+                        } else {
+                            if (lastVisible && !isPrev) {
+                                batchQuery = batchQuery.startAfter(lastVisible);
+                            }
+                            batchQuery = batchQuery.limit(transactionsPerPage);
+                        }
+                    }
+                    const batchSnapshot = await batchQuery.get();
+                    transactionDocs = transactionDocs.concat(batchSnapshot.docs);
+                }
+                totalTransactions = transactionDocs.length;
+            } else {
+                // Get total count for pagination
+                const totalSnapshot = await query.get();
+                totalTransactions = totalSnapshot.size;
+                if (isPrev && firstVisible) {
+                    query = query.endBefore(firstVisible).limitToLast(transactionsPerPage);
+                } else {
+                    if (lastVisible && !isPrev) {
+                        query = query.startAfter(lastVisible);
+                    }
+                    query = query.limit(transactionsPerPage);
+                }
+                const snapshot = await query.get();
+                transactionDocs = snapshot.docs;
+            }
+
+            if (transactionDocs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem;">No transactions found</td></tr>';
+                updatePagination(0);
+                return;
+            }
+
+            const transactionRows = [];
+            firstVisible = transactionDocs[0];
+            lastVisible = transactionDocs[transactionDocs.length - 1];
+
+            for (const doc of transactionDocs) {
+                const transaction = doc.data();
+                const transactionId = doc.id;
+                const userId = transaction.userId;
+                let userName = 'Unknown';
+                try {
+                    const userDoc = await db.collection('users').doc(userId).get();
+                    if (userDoc.exists) {
+                        userName = userDoc.data().displayName || userDoc.data().email || 'User';
+                    }
+                } catch (err) {
+                    console.warn(`Failed to fetch user ${userId}:`, err);
+                }
+                if (searchQuery && !userName.toLowerCase().includes(searchQuery) && 
+                    !transaction.description?.toLowerCase().includes(searchQuery)) {
+                    continue;
+                }
+                const amount = transaction.amount || 0;
+                const type = transaction.type || 'income';
+                const category = transaction.category || 'other';
+                const status = transaction.status || 'completed';
+                const description = transaction.description || '-';
+                const date = transaction.createdAt?.toDate ? transaction.createdAt.toDate() : new Date();
+                const statusClass = status.toLowerCase() === 'completed' ? 'status-completed' :
+                                  status.toLowerCase() === 'pending' ? 'status-pending' : 'status-failed';
+                const statusIcon = status.toLowerCase() === 'completed' ? 'fa-check-circle' :
+                                 status.toLowerCase() === 'pending' ? 'fa-clock' : 'fa-exclamation-circle';
+                const typeClass = type.toLowerCase() === 'income' ? 'badge-income' : 'badge-expense';
+                transactionRows.push(`
+                    <tr data-transaction-id="${transactionId}">
+                        <td>${userName}</td>
+                        <td>${window.formatCurrency(amount)}</td>
+                        <td><span class="badge ${typeClass}">${type.charAt(0).toUpperCase() + type.slice(1)}</span></td>
+                        <td>${category.charAt(0).toUpperCase() + category.slice(1)}</td>
+                        <td>${date.toLocaleDateString()}</td>
+                        <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                        <td>${description}</td>
+                        <td>
+                            <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn danger delete-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            }
+
+            tbody.innerHTML = transactionRows.length ? transactionRows.join('') : '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem;">No transactions found</td></tr>';
+
+            // Add event listeners for action buttons
+            tbody.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const row = this.closest('tr');
+                    const transactionId = row.getAttribute('data-transaction-id');
+                    try {
+                        const doc = await db.collection('transactions').doc(transactionId).get();
+                        if (!doc.exists) return alert('Transaction not found.');
+                        const transaction = doc.data();
+                        document.getElementById('edit-transaction-id').value = transactionId;
+                        document.getElementById('edit-transaction-amount').value = transaction.amount || '';
+                        document.getElementById('edit-transaction-type').value = transaction.type || 'income';
+                        document.getElementById('edit-transaction-category').value = transaction.category || 'other';
+                        document.getElementById('edit-transaction-status').value = transaction.status || 'completed';
+                        document.getElementById('edit-transaction-description').value = transaction.description || '';
+                        editTransactionModal.style.display = 'flex';
+                    } catch (err) {
+                        alert('Failed to load transaction info: ' + err.message);
+                    }
+                });
+            });
+
+            tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const row = this.closest('tr');
+                    const transactionId = row.getAttribute('data-transaction-id');
+                    if (!confirm('Are you sure you want to delete this transaction? This cannot be undone.')) return;
+                    try {
+                        await db.collection('transactions').doc(transactionId).delete();
+                        await db.collection('activityLogs').add({
+                            type: 'transaction_deleted',
+                            title: 'Transaction Deleted',
+                            description: `Transaction ${transactionId} was deleted by admin`,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        await window.addNotification({
+                            type: 'transaction_deleted',
+                            title: 'Transaction Deleted',
+                            description: `Transaction ${transactionId} was deleted by admin`
+                        });
+                        fetchTransactions();
+                        window.showToast('success', 'Transaction deleted successfully.');
+                    } catch (err) {
+                        window.showToast('error', 'Failed to delete transaction: ' + err.message);
+                    }
+                });
+            });
+
+            updatePagination(transactionRows.length);
+        }
+
+        function updatePagination(currentCount) {
+            const start = currentCount === 0 ? 0 : (currentPage - 1) * transactionsPerPage + 1;
+            const end = currentCount === 0 ? 0 : start + currentCount - 1;
+            document.getElementById('pagination-start').textContent = start;
+            document.getElementById('pagination-end').textContent = end;
+            document.getElementById('pagination-total').textContent = totalTransactions;
+            prevPageBtn.disabled = currentPage <= 1;
+            nextPageBtn.disabled = end >= totalTransactions || currentCount < transactionsPerPage;
+        }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Show mobile nav on small screens
+        function handleMobileNav() {
+            const nav = document.querySelector('.mobile-nav');
+            if (window.innerWidth <= 768) {
+                nav.style.display = 'block';
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', handleMobileNav);
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

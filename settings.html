@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="theme.js"></script>
+    <script src="toast.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+        }
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .avatar-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 48px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 10;
+            min-width: 120px;
+        }
+
+        .avatar-dropdown.show {
+            display: block;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .settings-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .section-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .theme-colors {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .theme-color {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .theme-color.selected {
+            border-color: var(--text-color);
+            transform: scale(1.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray);
+            color: white;
+        }
+
+        .btn i {
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.25rem;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger-content {
+            display: none;
+            padding: 0.5rem 0;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .hamburger-content.active {
+            display: block;
+        }
+
+        .hamburger-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+        }
+
+        .hamburger-item:hover {
+            background: var(--light-gray);
+        }
+
+        .hamburger-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-body {
+            margin-bottom: 1rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .notification-description {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding-bottom: 64px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 0.5rem;
+                position: sticky;
+                top: 48px;
+                background: var(--body-bg);
+                z-index: 100;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .settings-container {
+                padding: 0.5rem;
+            }
+
+            .settings-section {
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.125rem;
+            }
+
+            .form-group {
+                margin-bottom: 0.75rem;
+            }
+
+            .form-control, .form-select {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .btn {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+
+            .mobile-nav,
+            .hamburger-menu {
+                display: block;
+            }
+
+            .modal-content {
+                width: 96vw !important;
+                max-width: 96vw !important;
+                border-radius: 1rem 1rem 0 0 !important;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                margin: 0;
+                padding: 1rem;
+            }
+
+            .modal {
+                align-items: flex-end !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .theme-colors {
+                gap: 0.25rem;
+            }
+
+            .theme-color {
+                width: 28px;
+                height: 28px;
+            }
+
+            .mobile-nav-item {
+                padding: 0.5rem;
+            }
+
+            .mobile-nav-item i {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hamburger-content" id="hamburgerContent">
+                <a href="dashboard.html" class="hamburger-item">
+                    <i class="fas fa-home"></i>
+                    <span data-i18n="dashboard">Dashboard</span>
+                </a>
+                <a href="transaction.html" class="hamburger-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span data-i18n="transactions">Transactions</span>
+                </a>
+                <a href="budget.html" class="hamburger-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span data-i18n="budget">Budget</span>
+                </a>
+                <a href="goals.html" class="hamburger-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span data-i18n="goals">Goals</span>
+                </a>
+                <a href="Reports.html" class="hamburger-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span data-i18n="reports">Reports</span>
+                </a>
+                <a href="settings.html" class="hamburger-item active">
+                    <i class="fas fa-cog"></i>
+                    <span data-i18n="settings_title">Settings</span>
+                </a>
+                <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--light-gray);">
+                <a href="#" class="hamburger-item" id="hamburgerLogout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-i18n="logout">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span data-i18n="dashboard">Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="transaction.html" class="nav-link"><i class="fas fa-exchange-alt"></i><span data-i18n="transactions">Transactions</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="budget.html" class="nav-link"><i class="fas fa-chart-pie"></i><span data-i18n="budget">Budget</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="goals.html" class="nav-link"><i class="fas fa-bullseye"></i><span data-i18n="goals">Goals</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="Reports.html" class="nav-link"><i class="fas fa-chart-line"></i><span data-i18n="reports">Reports</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link active"><i class="fas fa-cog"></i><span data-i18n="settings_title">Settings</span></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title" data-i18n="settings_title">Settings</h1>
+                <div class="user-menu">
+                    <span id="realtime-clock"></span>
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <button class="logout-btn" id="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <!-- Theme Settings -->
+                <div class="settings-section">
+                    <h2 class="section-title" data-i18n="appearance">Appearance</h2>
+                    <div class="section-description" data-i18n="appearance_desc">Customize how HipoBudget looks and feels to match your preferences.</div>
+                    <div class="form-group">
+                        <div class="switch-container">
+                            <div>
+                                <label class="form-label" data-i18n="dark_mode">Dark Mode</label>
+                                <div class="section-description" data-i18n="dark_mode_desc">Toggle between light and dark theme</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="primary_color">Primary Color</label>
+                        <div class="section-description" data-i18n="primary_color_desc">Choose your preferred accent color</div>
+                        <div class="theme-colors">
+                            <div class="theme-color selected" style="background-color: #6366f1;" data-color="indigo"></div>
+                            <div class="theme-color" style="background-color: #10b981;" data-color="emerald"></div>
+                            <div class="theme-color" style="background-color: #f59e0b;" data-color="amber"></div>
+                            <div class="theme-color" style="background-color: #ef4444;" data-color="red"></div>
+                            <div class="theme-color" style="background-color: #8b5cf6;" data-color="violet"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <h2 class="section-title" data-i18n="account_settings">Account Settings</h2>
+                    <div class="form-group">
+                        <label for="name" class="form-label" data-i18n="full_name">Full Name</label>
+                        <input type="text" id="name" class="form-control" value="" data-i18n-placeholder="loading" placeholder="Loading...">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label" data-i18n="email_address">Email Address</label>
+                        <input type="email" id="email" class="form-control" value="" data-i18n-placeholder="loading" placeholder="Loading..." readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency" class="form-label" data-i18n="currency">Currency</label>
+                        <select id="currency" class="form-select">
+                            <option value="USD" data-i18n="usd">US Dollar ($)</option>
+                            <option value="EUR" data-i18n="eur">Euro (€)</option>
+                            <option value="GBP" data-i18n="gbp">British Pound (£)</option>
+                            <option value="JPY" data-i18n="jpy">Japanese Yen (¥)</option>
+                            <option value="CAD" data-i18n="cad">Canadian Dollar (CAD)</option>
+                            <option value="TZS" data-i18n="tzs">Tanzanian Shilling (Tsh)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="language" class="form-label" data-i18n="language">Language</label>
+                        <select id="language" class="form-select">
+                            <option value="en" data-i18n="english">English</option>
+                            <option value="fr" data-i18n="french">Français</option>
+                            <option value="sw" data-i18n="swahili">Kiswahili</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="saveAccountBtn">
+                        <i class="fas fa-save"></i>
+                        <span id="saveBtnText" data-i18n="save_changes">Save Changes</span>
+                        <span id="saveSpinner" style="display:none;margin-left:8px;"><i class="fas fa-spinner fa-spin"></i></span>
+                    </button>
+                    <div id="saveMsg" style="margin-top:1rem;font-size:0.875rem;"></div>
+                </div>
+
+                <!-- Email Notifications -->
+                <div class="settings-section">
+                    <h2 class="section-title" data-i18n="email_notifications">Email Notifications</h2>
+                    <div class="section-description" data-i18n="email_notifications_desc">Choose which notifications you'd like to receive via email.</div>
+                    <div style="color: var(--danger); font-size: 0.875rem; margin-bottom: 0.75rem;" data-i18n="email_notifications_note">Note: To receive real email notifications, please contact support or enable notifications in your account. These toggles only save your preferences.</div>
+                    <div class="notification-settings">
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label" data-i18n="budget_alerts">Budget Alerts</div>
+                                <div class="notification-description" data-i18n="budget_alerts_desc">Get notified when you're close to your budget limits</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="budgetNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label" data-i18n="goal_updates">Goal Updates</div>
+                                <div class="notification-description" data-i18n="goal_updates_desc">Receive updates about your savings goals progress</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="goalNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label" data-i18n="monthly_reports">Monthly Reports</div>
+                                <div class="notification-description" data-i18n="monthly_reports_desc">Get monthly summary of your spending and saving</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="reportNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Data -->
+                <div class="settings-section">
+                    <h2 class="section-title" data-i18n="export_data">Export Data</h2>
+                    <div class="section-description" data-i18n="export_data_desc">Download your financial data in different formats</div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary" id="exportJSON"><i class="fas fa-file-code"></i> <span data-i18n="export_json">Export as JSON</span></button>
+                        <button class="btn btn-secondary" id="exportCSV"><i class="fas fa-file-csv"></i> <span data-i18n="export_csv">Export as CSV</span></button>
+                        <button class="btn btn-secondary" id="exportPDF"><i class="fas fa-file-pdf"></i> <span data-i18n="export_pdf">Export as PDF</span></button>
+                    </div>
+                </div>
+
+                <!-- Delete Account -->
+                <div class="settings-section">
+                    <h2 class="section-title" data-i18n="delete_account">Delete Account</h2>
+                    <div class="section-description" data-i18n="delete_account_desc">Permanently delete your account and all associated data</div>
+                    <div class="form-group">
+                        <button class="btn btn-danger" id="deleteAccount">
+                            <i class="fas fa-trash"></i>
+                            <span data-i18n="delete_account">Delete Account</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Save Button -->
+    <button class="floating-action-btn" id="fabSettings">
+        <i class="fas fa-save"></i>
+    </button>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item">
+                <i class="fas fa-home"></i>
+                <span data-i18n="dashboard">Home</span>
+            </a>
+            <a href="transaction.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span data-i18n="transactions">Trans.</span>
+            </a>
+            <a href="budget.html" class="mobile-nav-item">
+                <i class="fas fa-chart-pie"></i>
+                <span data-i18n="budget">Budget</span>
+            </a>
+            <a href="goals.html" class="mobile-nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span data-i18n="goals">Goals</span>
+            </a>
+            <a href="Reports.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span data-i18n="reports">Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Delete Account Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="color:#ef4444;"><i class="fas fa-exclamation-triangle" style="color:#ef4444;margin-right:0.5rem;"></i><span data-i18n="delete_account">Delete Account</span></h3>
+                <button class="modal-close" id="closeDeleteModal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#ef4444;font-weight:bold;" data-i18n="delete_warning">Warning: This action is <u>permanent</u> and cannot be undone. All your data will be deleted!</p>
+                <div class="form-group">
+                    <label class="form-label" for="deletePassword" style="color:#ef4444;" data-i18n="enter_password_confirm">Enter your password to confirm:</label>
+                    <input type="password" class="form-control" id="deletePassword" data-i18n-placeholder="enter_password" placeholder="Enter your password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelDelete" data-i18n="cancel">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete" disabled data-i18n="delete_account">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let auth;
+        let db;
+
+        // Initialize i18n
+        if (!window._i18n) window._i18n = {};
+        if (!window.i18nTranslate) {
+            window.i18nTranslate = function(key) {
+                const lang = localStorage.getItem('userLanguage') || 'en';
+                if (window._i18n[lang] && window._i18n[lang][key]) {
+                    return window._i18n[lang][key];
+                }
+                // Fallback: prettify the key
+                return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            };
+        }
+        if (!window.i18nApply) {
+            window.i18nApply = function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (key) el.textContent = window.i18nTranslate(key);
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (key) el.placeholder = window.i18nTranslate(key);
+                });
+            };
+        }
+
+        // Toast notification utility
+        function showToast(type, message) {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.padding = '1rem 1.5rem';
+            toast.style.borderRadius = '0.5rem';
+            toast.style.color = 'white';
+            toast.style.zIndex = '10000';
+            toast.style.maxWidth = '300px';
+            toast.style.fontSize = '0.875rem';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            toast.style.backgroundColor = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s ease';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Debounce utility
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Theme management
+        window.applyTheme = debounce(function () {
+            const theme = localStorage.getItem('theme') || 'light';
+            const themeColor = localStorage.getItem('themeColor') || 'indigo';
+
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+
+            let primaryColor, primaryDarkColor;
+            switch (themeColor) {
+                case 'emerald':
+                    primaryColor = '#10b981';
+                    primaryDarkColor = '#059669';
+                    break;
+                case 'amber':
+                    primaryColor = '#f59e0b';
+                    primaryDarkColor = '#d97706';
+                    break;
+                case 'red':
+                    primaryColor = '#ef4444';
+                    primaryDarkColor = '#dc2626';
+                    break;
+                case 'violet':
+                    primaryColor = '#8b5cf6';
+                    primaryDarkColor = '#7c3aed';
+                    break;
+                default:
+                    primaryColor = '#6366f1';
+                    primaryDarkColor = '#4f46e5';
+            }
+
+            document.documentElement.style.setProperty('--primary', primaryColor);
+            document.documentElement.style.setProperty('--primary-dark', primaryDarkColor);
+
+            document.getElementById('darkModeToggle').checked = theme === 'dark';
+            const themeColors = document.querySelectorAll('.theme-color');
+            themeColors.forEach(color => color.classList.remove('selected'));
+            const selectedColor = document.querySelector(`.theme-color[data-color="${themeColor}"]`);
+            if (selectedColor) selectedColor.classList.add('selected');
+
+            // Update modal colors
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+                deleteModal.querySelector('.modal-content').style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+            }
+        }, 100);
+
+        // Initialize Firebase
+        async function initializeFirebase() {
+            try {
+                const firebaseInstance = await window.FirebaseManager.waitForReady();
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                console.log('Firebase initialized successfully in settings page');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showToast('error', 'Failed to initialize Firebase. Please refresh the page.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                await initializeFirebase();
+                if (!auth || !db) return;
+
+                // Real-time clock
+                function updateClock() {
+                    const now = new Date();
+                    document.getElementById('realtime-clock').textContent = now.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+                updateClock();
+                setInterval(updateClock, 1000);
+
+                // Load translations
+                const lang = localStorage.getItem('userLanguage') || 'en';
+                if (!window._i18n[lang]) {
+                    try {
+                        const resp = await fetch(`./${lang}.json`);
+                        if (resp.ok) {
+                            window._i18n[lang] = await resp.json();
+                            localStorage.setItem('i18n_' + lang, JSON.stringify(window._i18n[lang]));
+                        }
+                    } catch (err) {
+                        console.error('Error loading translations:', err);
+                    }
+                }
+                window.i18nApply?.();
+
+                auth.onAuthStateChanged(async user => {
+                    if (!user || !user.emailVerified) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    try {
+                        // Set user avatar
+                        const avatar = document.getElementById('user-avatar');
+                        const avatarDropdown = document.getElementById('avatarDropdown');
+                        const logoutBtn = document.getElementById('logout-btn');
+
+                        if (user.photoURL) {
+                            avatar.style.background = 'none';
+                            avatar.innerHTML = `<img src="${user.photoURL}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                        } else {
+                            const name = user.displayName || user.email || 'U';
+                            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                            avatar.textContent = initials;
+                        }
+
+                        // Avatar click handler
+                        avatar.addEventListener('click', e => {
+                            e.stopPropagation();
+                            avatarDropdown.classList.toggle('show');
+                        });
+
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', e => {
+                            if (!avatar.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                                avatarDropdown.classList.remove('show');
+                            }
+                        });
+
+                        // Logout handler
+                        if (logoutBtn) {
+                            logoutBtn.addEventListener('click', async () => {
+                                try {
+                                    await auth.signOut();
+                                    window.location.href = 'index.html';
+                                } catch (error) {
+                                    showToast('error', 'Failed to logout. Please try again.');
+                                }
+                            });
+                        }
+
+                        // Hamburger menu
+                        const hamburgerBtn = document.getElementById('hamburgerBtn');
+                        const hamburgerContent = document.getElementById('hamburgerContent');
+                        if (hamburgerBtn && hamburgerContent) {
+                            hamburgerBtn.addEventListener('click', e => {
+                                e.stopPropagation();
+                                hamburgerContent.classList.toggle('active');
+                                hamburgerBtn.innerHTML = hamburgerContent.classList.contains('active')
+                                    ? '<i class="fas fa-times"></i>'
+                                    : '<i class="fas fa-bars"></i>';
+                            });
+
+                            document.addEventListener('click', e => {
+                                if (!e.target.closest('.hamburger-menu') && hamburgerContent.classList.contains('active')) {
+                                    hamburgerContent.classList.remove('active');
+                                    hamburgerBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                                }
+                            });
+                        }
+
+                        // Hamburger logout
+                        const hamburgerLogout = document.getElementById('hamburgerLogout');
+                        if (hamburgerLogout) {
+                            hamburgerLogout.addEventListener('click', e => {
+                                e.preventDefault();
+                                if (auth) {
+                                    auth.signOut();
+                                }
+                            });
+                        }
+
+                        // Load user data
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        let userData = userDoc.exists ? userDoc.data() : {};
+                        const nameVal = userData.displayName || user.displayName || '';
+                        const emailVal = userData.email || user.email || '';
+                        const currencyVal = userData.currency || 'TZS';
+                        const languageVal = userData.language || 'en';
+
+                        document.getElementById('name').value = nameVal;
+                        document.getElementById('email').value = emailVal;
+                        document.getElementById('currency').value = currencyVal;
+                        document.getElementById('language').value = languageVal;
+
+                        const notif = userData.notifications || {};
+                        document.getElementById('budgetNotifications').checked = !!notif.budget;
+                        document.getElementById('goalNotifications').checked = !!notif.goal;
+                        document.getElementById('reportNotifications').checked = !!notif.report;
+
+                        // Floating save button
+                        const fabSettings = document.getElementById('fabSettings');
+                        if (fabSettings) {
+                            fabSettings.addEventListener('click', () => {
+                                document.getElementById('saveAccountBtn').click();
+                            });
+                        }
+
+                        // Save account settings
+                        const saveBtn = document.getElementById('saveAccountBtn');
+                        const saveMsg = document.getElementById('saveMsg');
+                        const saveSpinner = document.getElementById('saveSpinner');
+                        const saveBtnText = document.getElementById('saveBtnText');
+                        if (saveBtn) {
+                            saveBtn.addEventListener('click', async () => {
+                                saveBtn.disabled = true;
+                                saveSpinner.style.display = 'inline-block';
+                                saveBtnText.textContent = window.i18nTranslate('saving');
+                                saveMsg.textContent = '';
+                                try {
+                                    const newName = document.getElementById('name').value.trim();
+                                    const newCurrency = document.getElementById('currency').value;
+                                    const newLanguage = document.getElementById('language').value;
+                                    await db.collection('users').doc(user.uid).update({
+                                        displayName: newName,
+                                        currency: newCurrency,
+                                        language: newLanguage
+                                    });
+                                    localStorage.setItem('userCurrency', newCurrency);
+                                    localStorage.setItem('userLanguage', newLanguage);
+                                    window.dispatchEvent(new StorageEvent('storage', { key: 'userCurrency', newValue: newCurrency }));
+                                    window.dispatchEvent(new StorageEvent('storage', { key: 'userLanguage', newValue: newLanguage }));
+                                    saveMsg.textContent = window.i18nTranslate('account_updated');
+                                    saveMsg.style.color = 'var(--success)';
+                                    showToast('success', window.i18nTranslate('account_updated'));
+                                    setTimeout(() => window.location.reload(), 1000);
+                                } catch (err) {
+                                    saveMsg.textContent = window.i18nTranslate('failed_update');
+                                    saveMsg.style.color = 'var(--danger)';
+                                    showToast('error', window.i18nTranslate('failed_update'));
+                                } finally {
+                                    saveBtn.disabled = false;
+                                    saveSpinner.style.display = 'none';
+                                    saveBtnText.textContent = window.i18nTranslate('save_changes');
+                                }
+                            });
+                        }
+
+                        // Delete account modal
+                        const deleteAccountBtn = document.getElementById('deleteAccount');
+                        const deleteModal = document.getElementById('deleteModal');
+                        const closeDeleteModalBtn = document.getElementById('closeDeleteModal');
+                        const cancelDeleteBtn = document.getElementById('cancelDelete');
+                        const confirmDeleteBtn = document.getElementById('confirmDelete');
+                        const deletePasswordInput = document.getElementById('deletePassword');
+
+                        if (deleteAccountBtn && deleteModal) {
+                            deleteAccountBtn.addEventListener('click', () => {
+                                deleteModal.style.display = 'flex';
+                                deletePasswordInput.value = '';
+                                confirmDeleteBtn.disabled = true;
+                            });
+                        }
+
+                        if (closeDeleteModalBtn && deleteModal) {
+                            closeDeleteModalBtn.addEventListener('click', () => {
+                                deleteModal.style.display = 'none';
+                            });
+                        }
+
+                        if (cancelDeleteBtn && deleteModal) {
+                            cancelDeleteBtn.addEventListener('click', () => {
+                                deleteModal.style.display = 'none';
+                            });
+                        }
+
+                        if (deletePasswordInput && confirmDeleteBtn) {
+                            deletePasswordInput.addEventListener('input', () => {
+                                confirmDeleteBtn.disabled = deletePasswordInput.value.trim().length < 6;
+                            });
+                        }
+
+                        if (confirmDeleteBtn) {
+                            confirmDeleteBtn.addEventListener('click', async () => {
+                                confirmDeleteBtn.disabled = true;
+                                confirmDeleteBtn.textContent = window.i18nTranslate('deleting');
+                                try {
+                                    const user = auth.currentUser;
+                                    const password = deletePasswordInput.value;
+                                    if (!user || !password) {
+                                        showToast('error', window.i18nTranslate('enter_password'));
+                                        confirmDeleteBtn.disabled = false;
+                                        confirmDeleteBtn.textContent = window.i18nTranslate('delete_account');
+                                        return;
+                                    }
+                                    const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                                    await user.reauthenticateWithCredential(cred);
+                                    await db.collection('users').doc(user.uid).delete();
+                                    await user.delete();
+                                    showToast('success', window.i18nTranslate('account_deleted'));
+                                    setTimeout(() => {
+                                        window.location.href = 'index.html';
+                                    }, 1800);
+                                } catch (err) {
+                                    let msg = window.i18nTranslate('failed_delete');
+                                    if (err?.code === 'auth/wrong-password') {
+                                        msg = window.i18nTranslate('wrong_password');
+                                    }
+                                    showToast('error', msg);
+                                    confirmDeleteBtn.disabled = false;
+                                    confirmDeleteBtn.textContent = window.i18nTranslate('delete_account');
+                                }
+                            });
+                        }
+
+                    } catch (err) {
+                        document.getElementById('name').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('currency').value = 'TZS';
+                        document.getElementById('language').value = 'en';
+                        document.getElementById('saveMsg').textContent = window.i18nTranslate('failed_load');
+                        document.getElementById('saveMsg').style.color = 'var(--danger)';
+                        showToast('error', window.i18nTranslate('failed_load'));
+                    }
+                });
+
+                // Theme handling
+                const darkModeToggle = document.getElementById('darkModeToggle');
+                if (darkModeToggle) {
+                    darkModeToggle.checked = (localStorage.getItem('theme') || 'light') === 'dark';
+                    darkModeToggle.addEventListener('change', () => {
+                        const mode = darkModeToggle.checked ? 'dark' : 'light';
+                        localStorage.setItem('theme', mode);
+                        window.applyTheme();
+                        window.dispatchEvent(new StorageEvent('storage', { key: 'theme', newValue: mode }));
+                    });
+                }
+
+                document.querySelectorAll('.theme-color').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.theme-color').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        const color = btn.getAttribute('data-color');
+                        localStorage.setItem('themeColor', color);
+                        window.applyTheme();
+                        window.dispatchEvent(new StorageEvent('storage', { key: 'themeColor', newValue: color }));
+                    });
+                });
+
+                window.addEventListener('storage', e => {
+                    if (e.key === 'theme' || e.key === 'themeColor') {
+                        window.applyTheme();
+                    }
+                    if (e.key === 'userLanguage') {
+                        window.i18nApply?.();
+                    }
+                });
+
+                window.applyTheme();
+
+                // Swipe navigation
+                let touchStartX = 0;
+                let touchEndX = 0;
+
+                document.addEventListener('touchstart', e => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, false);
+
+                document.addEventListener('touchend', e => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, false);
+
+                function handleSwipe() {
+                    const swipeThreshold = 100;
+                    const diff = touchEndX - touchStartX;
+                    if (Math.abs(diff) < swipeThreshold) return;
+
+                    const currentPage = window.location.pathname.split('/').pop();
+                    const pages = ['dashboard.html', 'transaction.html', 'budget.html', 'goals.html', 'Reports.html', 'settings.html'];
+                    const currentIndex = pages.indexOf(currentPage);
+
+                    if (diff > 0 && currentIndex > 0) {
+                        window.location.href = pages[currentIndex - 1];
+                    } else if (diff < 0 && currentIndex < pages.length - 1) {
+                        window.location.href = pages[currentIndex + 1];
+                    }
+                }
+
+                // Prevent pinch zoom
+                document.addEventListener('gesturestart', e => e.preventDefault());
+                document.addEventListener('gesturechange', e => e.preventDefault());
+                document.addEventListener('gestureend', e => e.preventDefault());
+            } catch (error) {
+                showToast('error', window.i18nTranslate('init_error'));
+                console.error('Error initializing settings page:', error);
+            }
+        });
+
+        // --- i18n logic: ensure translations are loaded and applied, and respond to language changes ---
+        (function() {
+            if (!window._i18n) window._i18n = {};
+            if (!window.i18nTranslate) {
+                window.i18nTranslate = function(key) {
+                    const lang = localStorage.getItem('userLanguage') || 'en';
+                    if (window._i18n[lang] && window._i18n[lang][key]) {
+                        return window._i18n[lang][key];
+                    }
+                    // Fallback: prettify the key
+                    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                };
+            }
+            if (!window.i18nApply) {
+                window.i18nApply = function() {
+                    document.querySelectorAll('[data-i18n]').forEach(el => {
+                        const key = el.getAttribute('data-i18n');
+                        if (key) el.textContent = window.i18nTranslate(key);
+                    });
+                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                        const key = el.getAttribute('data-i18n-placeholder');
+                        if (key) el.placeholder = window.i18nTranslate(key);
+                    });
+                };
+            }
+            async function ensureI18nLoadedAndApply() {
+                const lang = localStorage.getItem('userLanguage') || 'en';
+                // Try cache first
+                const cached = localStorage.getItem('i18n_' + lang);
+                if (cached) window._i18n[lang] = JSON.parse(cached);
+                if (!window._i18n[lang]) {
+                    try {
+                        const resp = await fetch(`./${lang}.json`);
+                        if (resp.ok) {
+                            window._i18n[lang] = await resp.json();
+                            localStorage.setItem('i18n_' + lang, JSON.stringify(window._i18n[lang]));
+                        }
+                    } catch {}
+                }
+                if (window.i18nApply) window.i18nApply();
+            }
+            document.addEventListener('DOMContentLoaded', ensureI18nLoadedAndApply);
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'userLanguage') ensureI18nLoadedAndApply();
+            });
+        })();
+    </script>
+</body>
+</html>

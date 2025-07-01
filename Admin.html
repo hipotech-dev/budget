@@ -1,0 +1,2536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active: #4f46e5;
+            --sidebar-active-bg: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --dark: #f8fafc;
+            --dark-light: #e2e8f0;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #818cf8;
+            --sidebar-active-bg: rgba(129, 140, 248, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .admin-logo-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav-menu {
+            list-style: none;
+            margin-bottom: auto;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+            font-weight: 600;
+        }
+
+        .admin-nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .admin-nav-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 1.5rem 0;
+            opacity: 0.5;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            margin-top: auto;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .admin-main-content {
+            padding: 2rem;
+            background-color: var(--body-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .admin-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .admin-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-search {
+            position: relative;
+        }
+
+        .admin-search input {
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .admin-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .admin-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--light-gray);
+        }
+
+        .admin-user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 1rem;
+            top: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* Admin Cards */
+        .admin-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .admin-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .admin-card-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .admin-card-icon.users {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .admin-card-icon.transactions {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .admin-card-icon.revenue {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .admin-card-icon.health {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .admin-card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .admin-card-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .neutral {
+            color: var(--gray);
+        }
+
+        .admin-card-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--light-gray);
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Charts */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--light-gray);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-select {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--light-gray);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .chart-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        #mainChart {
+            height: 350px;
+            width: 100%;
+        }
+
+        #revenueChart {
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Mini Cards */
+        .mini-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mini-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--light-gray);
+        }
+
+        .mini-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .mini-card-content {
+            flex: 1;
+        }
+
+        .mini-card-title {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mini-card-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--light-gray);
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Admin Tables */
+        .admin-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--light-gray);
+            overflow-x: auto;
+        }
+
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .admin-table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .status {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status i {
+            margin-right: 0.25rem;
+            font-size: 0.625rem;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-suspended {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-inactive {
+            background-color: rgba(148, 163, 184, 0.1);
+            color: var(--gray);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-primary {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .action-btn.danger:hover {
+            color: var(--danger);
+        }
+
+        .action-btn.success:hover {
+            color: var(--success);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .admin-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mini-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+            
+            .admin-logo-text, 
+            .admin-nav-link span,
+            .sidebar-footer span {
+                display: none;
+            }
+            
+            .admin-logo {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .admin-nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .admin-nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+            .admin-sidebar {
+                display: none;
+            }
+            .admin-main-content {
+                padding: 1rem;
+                min-height: calc(100vh - 60px);
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 60px;
+            }
+            .admin-cards,
+            .mini-cards {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%;
+                padding: 1rem;
+            }
+            .admin-user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .admin-search input {
+                width: 100%;
+            }
+            .admin-table-container {
+                padding: 1rem;
+            }
+            .chart-container {
+                padding: 1rem;
+            }
+            #mainChart, #revenueChart {
+                height: 300px;
+            }
+        }
+        @media (max-width: 576px) {
+            .admin-main-content {
+                padding: 0.75rem;
+            }
+            .admin-table-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .btn {
+                width: 100%;
+            }
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .admin-card {
+                padding: 1rem;
+            }
+            .admin-card-value {
+                font-size: 1.5rem;
+            }
+        }
+        /* Bottom Navigation for Mobile */
+        .mobile-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 1001;
+            display: none;
+            border-top: 1px solid var(--light-gray);
+        }
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-item {
+            flex: 1;
+            text-align: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.5rem 0 0.25rem 0;
+            transition: color 0.2s;
+        }
+        .mobile-nav-item.active,
+        .mobile-nav-item:active,
+        .mobile-nav-item:focus {
+            color: var(--primary);
+        }
+        .mobile-nav-item i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="admin-logo-icon"><i class="fas fa-wallet"></i></span>
+                <span class="admin-logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="admin-nav-menu">
+                <li class="admin-nav-item">
+                    <a href="#" class="admin-nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="users.html" class="admin-nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-trans.html" class="admin-nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="analytics.html" class="admin-nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="notifications.html" class="admin-nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-settings.html" class="admin-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-page-title">Dashboard Overview</h1>
+                    <div class="admin-header-subtitle">Welcome back, Admin! Here's what's happening with your app today.</div>
+                </div>
+                <div class="admin-user-menu">
+                    <div class="admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <div class="admin-user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Cards -->
+            <div class="admin-cards">
+                <div class="admin-card fade-in" style="animation-delay: 0.1s">
+                    <div class="admin-card-header">
+                        <span class="admin-card-title">Total Users</span>
+                        <div class="admin-card-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="admin-card-value" id="total-users">0</div>
+                    <div class="admin-card-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="users-change">12.5% from last month</span>
+                    </div>
+                    <div class="admin-card-footer">
+                        <i class="fas fa-info-circle"></i> <span id="users-active">0</span> active users
+                    </div>
+                </div>
+                
+                <div class="admin-card fade-in" style="animation-delay: 0.2s">
+                    <div class="admin-card-header">
+                        <span class="admin-card-title">Total Transactions</span>
+                        <div class="admin-card-icon transactions">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="admin-card-value" id="total-transactions">0</div>
+                    <div class="admin-card-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="transactions-change">15.2% from last month</span>
+                    </div>
+                    <div class="admin-card-footer">
+                        <i class="fas fa-info-circle"></i> <span id="transactions-today">0</span> today
+                    </div>
+                </div>
+                
+                <div class="admin-card fade-in" style="animation-delay: 0.3s">
+                    <div class="admin-card-header">
+                        <span class="admin-card-title">Total Revenue</span>
+                        <div class="admin-card-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="admin-card-value" id="total-revenue">0</div>
+                    <div class="admin-card-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="revenue-change">8.3% from last month</span>
+                    </div>
+                    <div class="admin-card-footer">
+                        <i class="fas fa-info-circle"></i> <span id="revenue-today">0</span> today
+                    </div>
+                </div>
+                
+                <div class="admin-card fade-in" style="animation-delay: 0.4s">
+                    <div class="admin-card-header">
+                        <span class="admin-card-title">System Health</span>
+                        <div class="admin-card-icon health">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="admin-card-value">100%</div>
+                    <div class="admin-card-change positive">
+                        <i class="fas fa-check-circle"></i>
+                        <span>All systems operational</span>
+                    </div>
+                    <div class="admin-card-footer">
+                        <i class="fas fa-info-circle"></i> Last checked: <span id="last-checked">just now</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <!-- Main Chart -->
+                <div class="chart-container fade-in" style="animation-delay: 0.2s">
+                    <div class="chart-header">
+                        <h3 class="chart-title">User Growth & Activity</h3>
+                        <div class="chart-actions">
+                            <select class="chart-select" id="chart-range">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="90">Last 90 Days</option>
+                                <option value="365">Last Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="mainChart"></div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="activity-list fade-in" style="animation-delay: 0.3s">
+                    <h3 class="chart-title">Recent Activity</h3>
+                    <div id="activity-feed">
+                        <!-- Real activity items will be rendered here by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mini Cards -->
+            <div class="mini-cards fade-in" style="animation-delay: 0.4s">
+                <div class="mini-card">
+                    <div class="mini-card-icon" style="background-color: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="mini-card-content">
+                        <div class="mini-card-title">New Users</div>
+                        <div class="mini-card-value" id="new-users">0</div>
+                    </div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-card-icon" style="background-color: rgba(16, 185, 129, 0.1); color: var(--success);">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="mini-card-content">
+                        <div class="mini-card-title">Income</div>
+                        <div class="mini-card-value" id="income">0</div>
+                    </div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-card-icon" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="mini-card-content">
+                        <div class="mini-card-title">Expenses</div>
+                        <div class="mini-card-value" id="expenses">$0</div>
+                    </div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-card-icon" style="background-color: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="mini-card-content">
+                        <div class="mini-card-title">Conversion</div>
+                        <div class="mini-card-value" id="conversion">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Revenue Chart -->
+            <div class="chart-container fade-in" style="animation-delay: 0.5s">
+                <div class="chart-header">
+                    <h3 class="chart-title">Revenue Breakdown</h3>
+                    <div class="chart-actions">
+                        <select class="chart-select" id="revenue-range">
+                            <option value="month">This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year" selected>This Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="revenueChart"></div>
+            </div>
+            
+            <!-- Recent Users Table -->
+            <div class="admin-table-container fade-in" style="animation-delay: 0.6s">
+                <div class="admin-table-header">
+                    <h2 class="admin-table-title">Recent Users</h2>
+                    <div class="admin-table-actions">
+                        <button class="btn btn-outline" id="export-users-pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button class="btn btn-outline" id="export-users-excel">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                        <button class="btn btn-primary" id="add-user-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>Add User</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Plan</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="pagination-start">1</span> to <span id="pagination-end">5</span> of <span id="pagination-total">0</span> entries
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline btn-sm" id="prev-page" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="next-page" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="Admin.html" class="mobile-nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="users.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="admin-trans.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="admin-settings.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New User</h3>
+                <button id="close-modal" class="modal-close">&times;</button>
+            </div>
+            <form id="user-form">
+                <div class="form-group">
+                    <label class="form-label" for="add-user-name">Full Name</label>
+                    <input type="text" class="form-control" id="add-user-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="add-user-email">Email</label>
+                    <input type="email" class="form-control" id="add-user-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="add-user-password">Password</label>
+                    <input type="password" class="form-control" id="add-user-password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="add-user-plan">Plan</label>
+                    <select class="form-control" id="add-user-plan">
+                        <option>Free</option>
+                        <option>Premium</option>
+                        <option>Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-role">Role</label>
+                    <select id="user-role" class="form-control">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-add-user" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button id="close-edit-modal" class="modal-close">&times;</button>
+            </div>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-uid">
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-name">Full Name</label>
+                    <input type="text" id="edit-user-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-email">Email</label>
+                    <input type="email" id="edit-user-email" class="form-control" required disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-plan">Plan</label>
+                    <select id="edit-user-plan" class="form-control">
+                        <option>Free</option>
+                        <option>Premium</option>
+                        <option>Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-user-role">Role</label>
+                    <select id="edit-user-role" class="form-control">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-edit-user" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+
+    <script>
+    // Get Firebase instances from centralized manager
+    let auth, db;
+    
+    // Initialize Firebase and get instances
+    async function initializeFirebase() {
+        try {
+            const firebaseInstance = await window.FirebaseManager.waitForReady();
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            console.log('Firebase initialized successfully in admin page');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+    }
+
+    // DOM Elements
+    const userAvatar = document.getElementById('user-avatar');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const logoutBtn = document.getElementById('logout-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+    const addUserBtn = document.getElementById('add-user-btn');
+    const addUserModal = document.getElementById('add-user-modal');
+    const closeModal = document.getElementById('close-modal');
+    const cancelAddUser = document.getElementById('cancel-add-user');
+    const userForm = document.getElementById('user-form');
+    const userSearchInput = document.querySelector('.admin-search input');
+    const clearSearchBtn = document.createElement('button'); // New clear button
+    
+    // Chart variables
+    let mainChart, revenueChart;
+    let currentPage = 1;
+    const usersPerPage = 5;
+    let allUsersCache = [];
+    let isSearching = false;
+    
+    // --- Initialize Admin Dashboard ---
+    window.addEventListener('DOMContentLoaded', async () => {
+        // Initialize Firebase first
+        await initializeFirebase();
+        if (!auth || !db) {
+            alert('Firebase failed to initialize. Please refresh the page.');
+            return;
+        }
+        // Load admin settings (currency, language)
+        await window.loadAdminSettings();
+        
+        // Handle mobile nav visibility
+        handleMobileNav();
+        
+        // Add clear button to search
+        clearSearchBtn.innerHTML = '<i class="fas fa-times"></i>';
+        clearSearchBtn.classList.add('action-btn');
+        clearSearchBtn.style.position = 'absolute';
+        clearSearchBtn.style.right = '1rem';
+        clearSearchBtn.style.top = '50%';
+        clearSearchBtn.style.transform = 'translateY(-50%)';
+        clearSearchBtn.style.display = 'none';
+        document.querySelector('.admin-search').appendChild(clearSearchBtn);
+        
+        auth.onAuthStateChanged(async user => {
+            if (!user || !user.emailVerified) {
+                window.location.href = 'auth.html';
+            } else {
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    const userData = userDoc.data();
+                    if (!userDoc.exists || userData.role !== 'admin') {
+                        alert('Access denied: Admins only. Redirecting to user dashboard.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                        alert('Your account is inactive. Please contact support.');
+                        await auth.signOut();
+                        window.location.href = 'auth.html';
+                        return;
+                    }
+                    setupUserAvatar(user);
+                    fetchDashboardData();
+                    fetchRecentUsers();
+                    initCharts();
+                    fetchRecentActivities();
+                    setupEventListeners();
+                    fetchAllUsersForSearch();
+                } catch (err) {
+                    alert('Error verifying admin access.');
+                    window.location.href = 'auth.html';
+                    return;
+                }
+            }
+        });
+        
+        // Export Users Table to PDF
+        document.getElementById('export-users-pdf').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text('Users Table', 14, 16);
+            const headers = [['Name', 'Email', 'Joined', 'Status', 'Plan', 'Role']];
+            const rows = Array.from(document.querySelectorAll('#users-table-body tr')).map(tr => {
+                const tds = tr.querySelectorAll('td');
+                return [
+                    tds[0]?.innerText.trim() || '',
+                    tds[1]?.innerText.trim() || '',
+                    tds[2]?.innerText.trim() || '',
+                    tds[3]?.innerText.trim() || '',
+                    tds[4]?.innerText.trim() || '',
+                    tds[5]?.innerText.trim() || ''
+                ];
+            });
+            if (doc.autoTable) {
+                doc.autoTable({ head: headers, body: rows, startY: 22 });
+            } else {
+                let y = 24;
+                headers[0].forEach((h, i) => doc.text(h, 14 + i * 32, y));
+                y += 8;
+                rows.forEach(row => {
+                    row.forEach((cell, i) => doc.text(String(cell), 14 + i * 32, y));
+                    y += 8;
+                });
+            }
+            doc.save('users.pdf');
+        });
+        
+        // Export Users Table to Excel
+        document.getElementById('export-users-excel').addEventListener('click', function() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ['Name', 'Email', 'Joined', 'Status', 'Plan', 'Role'],
+                ...Array.from(document.querySelectorAll('#users-table-body tr')).map(tr => {
+                    const tds = tr.querySelectorAll('td');
+                    return [
+                        tds[0]?.innerText.trim() || '',
+                        tds[1]?.innerText.trim() || '',
+                        tds[2]?.innerText.trim() || '',
+                        tds[3]?.innerText.trim() || '',
+                        tds[4]?.innerText.trim() || '',
+                        tds[5]?.innerText.trim() || ''
+                    ];
+                })
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Users');
+            XLSX.writeFile(wb, 'users.xlsx');
+        });
+        
+        // --- Search Functionality ---
+        setupSearch();
+    });
+    
+    // --- Search Functionality ---
+    function fetchAllUsersForSearch() {
+        db.collection('users').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            allUsersCache = [];
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                user._uid = doc.id;
+                allUsersCache.push(user);
+            });
+        }, err => {
+            console.error('Error fetching users for search:', err);
+            document.getElementById('users-table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Failed to load users.</td></tr>';
+        });
+    }
+    
+    let debounceTimeout;
+    function setupSearch() {
+        userSearchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimeout);
+            clearSearchBtn.style.display = this.value.trim() ? 'block' : 'none';
+            debounceTimeout = setTimeout(() => {
+                const searchTerm = this.value.trim().toLowerCase();
+                const tbody = document.getElementById('users-table-body');
+                if (!searchTerm) {
+                    isSearching = false;
+                    currentPage = 1;
+                    fetchRecentUsers();
+                    return;
+                }
+                isSearching = true;
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);">Searching...</td></tr>';
+                const filtered = allUsersCache.filter(user => {
+                    const name = (user.displayName || user.name || user.email || '').toLowerCase();
+                    const email = (user.email || '').toLowerCase();
+                    const plan = (user.plan || '').toLowerCase();
+                    const role = (user.role || '').toLowerCase();
+                    return name.includes(searchTerm) || email.includes(searchTerm) || plan.includes(searchTerm) || role.includes(searchTerm);
+                });
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+                    updatePagination(0, 0, 0);
+                    return;
+                }
+                const start = (currentPage - 1) * usersPerPage;
+                const end = start + usersPerPage;
+                const paginatedUsers = filtered.slice(start, end);
+                renderUsersTable(paginatedUsers);
+                updatePagination(start + 1, Math.min(end, filtered.length), filtered.length);
+            }, 300); // 300ms debounce
+        });
+        
+        clearSearchBtn.addEventListener('click', () => {
+            userSearchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            isSearching = false;
+            currentPage = 1;
+            fetchRecentUsers();
+        });
+    }
+    
+    function setupUserAvatar(user) {
+        if (user.photoURL) {
+            userAvatar.style.background = 'none';
+            userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+        } else {
+            const name = user.displayName || user.email || 'U';
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            userAvatar.textContent = initials;
+        }
+    }
+    
+    function setupEventListeners() {
+        // User dropdown
+        userAvatar.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!userAvatar.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = 'auth.html';
+            });
+        });
+        
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('darkMode', isDark);
+            themeToggle.innerHTML = isDark 
+                ? '<span>Light Mode</span><i class="fas fa-sun"></i>' 
+                : '<span>Dark Mode</span><i class="fas fa-moon"></i>';
+            
+            // Update charts for theme change
+            if (mainChart) {
+                mainChart.updateOptions({
+                    theme: {
+                        mode: isDark ? 'dark' : 'light'
+                    }
+                });
+            }
+            if (revenueChart) {
+                revenueChart.updateOptions({
+                    theme: {
+                        mode: isDark ? 'dark' : 'light'
+                    }
+                });
+            }
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-theme');
+            themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+        }
+        
+        // Add user modal
+        addUserBtn.addEventListener('click', () => {
+            addUserModal.style.display = 'flex';
+        });
+        
+        closeModal.addEventListener('click', () => {
+            addUserModal.style.display = 'none';
+        });
+        
+        cancelAddUser.addEventListener('click', () => {
+            addUserModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        addUserModal.addEventListener('click', (e) => {
+            if (e.target === addUserModal) {
+                addUserModal.style.display = 'none';
+            }
+        });
+        
+        // User form submission
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const name = form.querySelector('input[type="text"]').value.trim();
+            const email = form.querySelector('input[type="email"]').value.trim();
+            const password = form.querySelector('input[type="password"]').value;
+            const plan = form.querySelector('select').value;
+            const role = form.querySelector('#user-role').value;
+            if (!name || !email || !password) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const newUser = userCredential.user;
+                // Add user info to Firestore
+                await db.collection('users').doc(newUser.uid).set({
+                    displayName: name,
+                    email: email,
+                    plan: plan,
+                    role: role,
+                    status: 'Active',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                window.showToast('success', 'User added successfully!');
+                addUserModal.style.display = 'none';
+                userForm.reset();
+                fetchRecentUsers();
+            } catch (error) {
+                let msg = 'An error occurred while adding the user.';
+                if (error.code === 'auth/email-already-in-use') {
+                    msg = 'This email address is already registered. Please use a different email.';
+                } else if (error.code === 'auth/invalid-email') {
+                    msg = 'The email address is invalid. Please check and try again.';
+                } else if (error.code === 'auth/weak-password') {
+                    msg = 'The password is too weak. Please use a stronger password.';
+                } else if (error.message) {
+                    msg = error.message;
+                }
+                window.showToast('error', msg);
+            }
+        });
+        
+        // Pagination controls
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchRecentUsers();
+            }
+        });
+        
+        document.getElementById('next-page').addEventListener('click', () => {
+            currentPage++;
+            fetchRecentUsers();
+        });
+        
+        // Chart range selectors
+        document.getElementById('chart-range').addEventListener('change', () => {
+            initMainChart();
+        });
+        
+        document.getElementById('revenue-range').addEventListener('change', () => {
+            initRevenueChart();
+        });
+        
+        // Edit User Modal
+        document.getElementById('close-edit-modal').addEventListener('click', () => {
+            document.getElementById('edit-user-modal').style.display = 'none';
+        });
+        document.getElementById('cancel-edit-user').addEventListener('click', () => {
+            document.getElementById('edit-user-modal').style.display = 'none';
+        });
+        document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const uid = document.getElementById('edit-user-uid').value;
+            const name = document.getElementById('edit-user-name').value.trim();
+            const plan = document.getElementById('edit-user-plan').value;
+            const role = document.getElementById('edit-user-role').value;
+            if (!uid || !name) {
+                alert('Name is required.');
+                return;
+            }
+            try {
+                await db.collection('users').doc(uid).update({
+                    displayName: name,
+                    plan: plan,
+                    role: role
+                });
+                document.getElementById('edit-user-modal').style.display = 'none';
+                fetchRecentUsers();
+                window.showToast('success', 'User updated.');
+            } catch (err) {
+                window.showToast('error', 'Failed to update user.');
+            }
+        });
+    }
+    
+    // --- Data Fetching Functions ---
+    function fetchDashboardData() {
+        if (!db) {
+            console.error('Firestore not initialized');
+            return;
+        }
+        // Total Users & Active Users
+        db.collection('users').onSnapshot(snapshot => {
+            let totalUsers = 0;
+            let activeUsers = 0;
+            let newUsers = 0;
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            snapshot.forEach(doc => {
+                totalUsers++;
+                if (doc.data().status === 'active' || doc.data().status === 'Active') activeUsers++;
+                
+                const userDate = doc.data().createdAt?.toDate() || new Date();
+                if (userDate > oneWeekAgo) newUsers++;
+            });
+            
+            document.getElementById('total-users').textContent = totalUsers.toLocaleString();
+            document.getElementById('users-active').textContent = activeUsers.toLocaleString();
+            document.getElementById('new-users').textContent = newUsers;
+            
+            // Calculate percentage change (mock data)
+            const changePercent = (Math.random() * 15 + 5).toFixed(1);
+            document.getElementById('users-change').textContent = `${changePercent}% from last month`;
+        });
+        
+        // Total Transactions & Revenue/Expenses
+        db.collection('transactions').onSnapshot(snapshot => {
+            let totalTransactions = 0;
+            let todayTransactions = 0;
+            let totalRevenue = 0; // This will now be total income of all users
+            let totalExpenses = 0;
+            let revenueToday = 0;
+            let expensesToday = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            snapshot.forEach(doc => {
+                totalTransactions++;
+                const tx = doc.data();
+                const txDate = tx.date?.toDate ? tx.date.toDate() : new Date();
+                if (txDate >= today) todayTransactions++;
+                if ((tx.type || '').toLowerCase() === 'income') {
+                    totalRevenue += Number(tx.amount) || 0;
+                    if (txDate >= today) revenueToday += Number(tx.amount) || 0;
+                }
+                if ((tx.type || '').toLowerCase() === 'expense') {
+                    totalExpenses += Number(tx.amount) || 0;
+                    if (txDate >= today) expensesToday += Number(tx.amount) || 0;
+                }
+            });
+            document.getElementById('total-transactions').textContent = totalTransactions.toLocaleString();
+            document.getElementById('transactions-today').textContent = todayTransactions;
+            document.getElementById('total-revenue').textContent = window.formatCurrency(totalRevenue);
+            document.getElementById('revenue-today').textContent = window.formatCurrency(revenueToday);
+            document.getElementById('income').textContent = window.formatCurrency(totalRevenue);
+            document.getElementById('expenses').textContent = window.formatCurrency(totalExpenses);
+            document.getElementById('conversion').textContent = totalRevenue > 0 ? `${((totalRevenue - totalExpenses) / totalRevenue * 100).toFixed(1)}%` : '0%';
+            // Calculate percentage change (mock data)
+            const changePercent = (Math.random() * 20 + 5).toFixed(1);
+            document.getElementById('transactions-change').textContent = `${changePercent}% from last month`;
+            document.getElementById('revenue-change').textContent = `${changePercent}% from last month`;
+        });
+        
+        // Update last checked time
+        document.getElementById('last-checked').textContent = new Date().toLocaleTimeString();
+    }
+    
+    function fetchRecentUsers() {
+        db.collection('users')
+            .orderBy('createdAt', 'desc')
+            .limit(usersPerPage)
+            .get()
+            .then(snapshot => {
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = '';
+                const userRows = [];
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const uid = doc.id;
+                    const initials = (user.displayName || user.name || user.email || 'U')
+                        .split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    const joined = user.createdAt?.toDate ? user.createdAt.toDate() : new Date();
+                    const status = user.status || 'Active';
+                    const plan = user.plan || 'Free';
+                    const statusClass = status.toLowerCase() === 'active' ? 'status-active' :
+                                      status.toLowerCase() === 'suspended' ? 'status-suspended' :
+                                      status.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';
+                    const statusIcon = status.toLowerCase() === 'active' ? 'fa-check-circle' :
+                                     status.toLowerCase() === 'suspended' ? 'fa-ban' :
+                                     status.toLowerCase() === 'pending' ? 'fa-clock' : 'fa-minus-circle';
+                    const lockBtnClass = status.toLowerCase() === 'active' ? 'danger' : 'success';
+                    const lockBtnIcon = status.toLowerCase() === 'active' ? 'fa-lock' : 'fa-unlock';
+                    const lockBtnTitle = status.toLowerCase() === 'active' ? 'Inactivate User' : 'Activate User';
+                    userRows.push(`
+                        <tr data-uid="${uid}">
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">${initials}</div>
+                                    <span>${user.displayName || user.name || user.email || 'User'}</span>
+                                </div>
+                            </td>
+                            <td>${user.email || ''}</td>
+                            <td>${joined.toLocaleDateString()}</td>
+                            <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                            <td><span class="badge ${plan.toLowerCase() === 'premium' ? 'badge-primary' : 'badge-warning'}">${plan}</span></td>
+                            <td>${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</td>
+                            <td>
+                                <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn ${lockBtnClass} lock-btn" title="${lockBtnTitle}">
+                                    <i class="fas ${lockBtnIcon}"></i>
+                                </button>
+                                <button class="action-btn danger delete-btn"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+                tbody.innerHTML = userRows.join('');
+                // Add event listeners for lock/unlock buttons
+                tbody.querySelectorAll('.lock-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const row = this.closest('tr');
+                        const uid = row.getAttribute('data-uid');
+                        const statusSpan = row.querySelector('.status');
+                        const icon = this.querySelector('i');
+                        // Get current status
+                        const isActive = icon.classList.contains('fa-lock');
+                        try {
+                            await db.collection('users').doc(uid).update({
+                                status: isActive ? 'Inactive' : 'Active'
+                            });
+                            fetchRecentUsers();
+                        } catch (err) {
+                            window.showToast('error', 'Failed to update user status.');
+                        }
+                    });
+                });
+                // Add event listeners for edit buttons
+                tbody.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const row = this.closest('tr');
+                        const uid = row.getAttribute('data-uid');
+                        try {
+                            const doc = await db.collection('users').doc(uid).get();
+                            if (!doc.exists) return alert('User not found.');
+                            const user = doc.data();
+                            document.getElementById('edit-user-uid').value = uid;
+                            document.getElementById('edit-user-name').value = user.displayName || '';
+                            document.getElementById('edit-user-email').value = user.email || '';
+                            document.getElementById('edit-user-plan').value = user.plan || 'Free';
+                            document.getElementById('edit-user-role').value = user.role || 'user';
+                            document.getElementById('edit-user-modal').style.display = 'flex';
+                        } catch (err) {
+                            alert('Failed to load user info.');
+                        }
+                    });
+                });
+                // Add event listeners for delete buttons
+                tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const row = this.closest('tr');
+                        const uid = row.getAttribute('data-uid');
+                        if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
+                        try {
+                            await db.collection('users').doc(uid).delete();
+                            // Try to delete from Auth (will only work if admin has sufficient privileges)
+                            if (auth.currentUser && auth.currentUser.uid !== uid) {
+                                try {
+                                    await auth.deleteUser(uid);
+                                } catch (e) { /* ignore if not allowed */ }
+                            }
+                            fetchRecentUsers();
+                            window.showToast('success', 'User deleted.');
+                        } catch (err) {
+                            window.showToast('error', 'Failed to delete user.');
+                        }
+                    });
+                });
+                // Update pagination info
+                updatePagination(snapshot.size);
+            });
+    }
+    
+    function updatePagination(currentCount) {
+        const start = (currentPage - 1) * usersPerPage + 1;
+        const end = start + currentCount - 1;
+        
+        // Get total count (this is inefficient for large collections - in production use a separate count)
+        db.collection('users').get().then(snap => {
+            const total = snap.size;
+            
+            document.getElementById('pagination-start').textContent = start;
+            document.getElementById('pagination-end').textContent = end;
+            document.getElementById('pagination-total').textContent = total;
+            
+            // Enable/disable pagination buttons
+            document.getElementById('prev-page').disabled = currentPage <= 1;
+            document.getElementById('next-page').disabled = end >= total;
+        });
+    }
+    
+    // --- Chart Functions ---
+    function initCharts() {
+        initMainChart();
+        initRevenueChart();
+    }
+    
+    function initMainChart() {
+        const range = parseInt(document.getElementById('chart-range').value);
+        const isDark = document.body.classList.contains('dark-theme');
+        const categories = [];
+        const usersData = [];
+        const transactionsData = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        // Prepare date buckets
+        for (let i = range - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            categories.push(date.toLocaleDateString('default', { day: 'numeric', month: 'short' }));
+            usersData.push(0);
+            transactionsData.push(0);
+        }
+        // Show loading state
+        const chartNode = document.querySelector('#mainChart');
+        if (chartNode) chartNode.innerHTML = '<div style="text-align:center;color:var(--gray);padding:2rem;">Loading...</div>';
+        // Fetch users and transactions in parallel
+        Promise.all([
+            db.collection('users')
+                .where('createdAt', '>=', new Date(today.getTime() - (range - 1) * 24 * 60 * 60 * 1000))
+                .get(),
+            db.collection('transactions')
+                .where('date', '>=', new Date(today.getTime() - (range - 1) * 24 * 60 * 60 * 1000))
+                .get()
+        ]).then(([userSnap, txSnap]) => {
+            userSnap.forEach(doc => {
+                const createdAt = doc.data().createdAt?.toDate?.() || null;
+                if (!createdAt) return;
+                const diff = Math.floor((createdAt - today) / (24 * 60 * 60 * 1000)) + range - 1;
+                if (diff >= 0 && diff < range) usersData[diff]++;
+            });
+            txSnap.forEach(doc => {
+                const txDate = doc.data().date?.toDate?.() || null;
+                if (!txDate) return;
+                const diff = Math.floor((txDate - today) / (24 * 60 * 60 * 1000)) + range - 1;
+                if (diff >= 0 && diff < range) transactionsData[diff]++;
+            });
+            // Remove loading state
+            if (chartNode) chartNode.innerHTML = '';
+            if (mainChart) {
+                mainChart.updateSeries([
+                    { name: 'New Users', data: usersData },
+                    { name: 'Transactions', data: transactionsData }
+                ]);
+                mainChart.updateOptions({
+                    xaxis: { categories },
+                    theme: { mode: isDark ? 'dark' : 'light' }
+                });
+            } else {
+                mainChart = new ApexCharts(chartNode, {
+                    series: [
+                        { name: 'New Users', data: usersData },
+                        { name: 'Transactions', data: transactionsData }
+                    ],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: { show: true },
+                        zoom: { enabled: true },
+                        foreColor: isDark ? '#94a3b8' : '#64748b'
+                    },
+                    colors: ['#6366f1', '#10b981'],
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth', width: 2 },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.7,
+                            opacityTo: 0.3,
+                        }
+                    },
+                    xaxis: { categories },
+                    yaxis: { labels: { formatter: val => val.toFixed(0) } },
+                    tooltip: {
+                        theme: isDark ? 'dark' : 'light',
+                        y: { formatter: val => val.toFixed(0) }
+                    },
+                    legend: { position: 'top' }
+                });
+                mainChart.render();
+            }
+        }).catch(() => {
+            if (chartNode) chartNode.innerHTML = '<div style="text-align:center;color:var(--danger);padding:2rem;">Failed to load chart data</div>';
+        });
+    }
+    
+    function initRevenueChart() {
+        const range = document.getElementById('revenue-range').value;
+        const isDark = document.body.classList.contains('dark-theme');
+        let categories, seriesData;
+        if (range === 'month') {
+            categories = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            seriesData = [
+                Math.random() * 10000 + 5000,
+                Math.random() * 10000 + 5000,
+                Math.random() * 10000 + 5000,
+                Math.random() * 10000 + 5000
+            ];
+            renderRevenueChart(categories, seriesData, isDark);
+        } else if (range === 'quarter') {
+            categories = ['Month 1', 'Month 2', 'Month 3'];
+            seriesData = [
+                Math.random() * 30000 + 15000,
+                Math.random() * 30000 + 15000,
+                Math.random() * 30000 + 15000
+            ];
+            renderRevenueChart(categories, seriesData, isDark);
+        } else {
+            // Real Firestore data for 'year' range
+            categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            seriesData = Array(12).fill(0);
+            document.getElementById('revenueChart').innerHTML = '<div style="text-align:center;color:var(--gray);padding:2rem;">Loading...</div>';
+            db.collection('transactions').where('type', '==', 'income').get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    const tx = doc.data();
+                    let date = tx.date && tx.date.toDate ? tx.date.toDate() : null;
+                    if (!date) return;
+                    const month = date.getMonth(); // 0 = Jan
+                    seriesData[month] += Number(tx.amount) || 0;
+                });
+                renderRevenueChart(categories, seriesData, isDark);
+            }).catch(() => {
+                document.getElementById('revenueChart').innerHTML = '<div style="text-align:center;color:var(--danger);padding:2rem;">Failed to load revenue data</div>';
+            });
+        }
+    }
+
+    function renderRevenueChart(categories, seriesData, isDark) {
+        const chartNode = document.querySelector("#revenueChart");
+        if (!chartNode) {
+            console.error("Revenue chart node not found!");
+            return;
+        }
+        // Only destroy if the method exists
+        if (window.revenueChart && typeof window.revenueChart.destroy === 'function') {
+            window.revenueChart.destroy();
+            window.revenueChart = null;
+        }
+        window.revenueChart = new ApexCharts(chartNode, {
+            series: [{ name: 'Revenue', data: seriesData }],
+            chart: {
+                type: 'bar',
+                height: 250,
+                toolbar: { show: false },
+                foreColor: isDark ? '#94a3b8' : '#64748b'
+            },
+            colors: ['#6366f1'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: '55%',
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: { show: false },
+            xaxis: { categories },
+            yaxis: { labels: { formatter: val => window.formatCurrency(val) } },
+            fill: { opacity: 1 },
+            tooltip: {
+                theme: isDark ? 'dark' : 'light',
+                y: { formatter: val => window.formatCurrency(val) }
+            }
+        });
+        window.revenueChart.render();
+    }
+    
+    // Simulate real-time data updates
+    setInterval(() => {
+        fetchDashboardData();
+        
+        if (mainChart) {
+            const lastUserData = mainChart.w.globals.series[0][mainChart.w.globals.series[0].length - 1];
+            const lastTxData = mainChart.w.globals.series[1][mainChart.w.globals.series[1].length - 1];
+            
+            mainChart.appendData([
+                { data: [Math.max(0, lastUserData + Math.floor(Math.random() * 10 - 3))] },
+                { data: [Math.max(0, lastTxData + Math.floor(Math.random() * 50 - 15))] }
+            ]);
+        }
+    }, 5000);
+
+    // Fetch and render recent activities
+    function fetchRecentActivities() {
+        const feed = document.getElementById('activity-feed');
+        feed.innerHTML = '<div style="text-align:center;color:var(--gray);padding:1rem;">Loading...</div>';
+        db.collection('activityLogs').orderBy('timestamp', 'desc').limit(6).get().then(snapshot => {
+            if (snapshot.empty) {
+                feed.innerHTML = '<div style="text-align:center;color:var(--gray);padding:1rem;">No recent activity</div>';
+                return;
+            }
+            const iconMap = {
+                'user_registered': 'fa-user-plus',
+                'transaction': 'fa-exchange-alt',
+                'notification': 'fa-bell',
+                'feedback': 'fa-comment',
+                'login': 'fa-sign-in-alt',
+                'logout': 'fa-sign-out-alt',
+                'update': 'fa-edit',
+                'delete': 'fa-trash',
+                'system': 'fa-cogs',
+                'default': 'fa-info-circle'
+            };
+            const colorMap = {
+                'user_registered': 'var(--primary)',
+                'transaction': 'var(--warning)',
+                'notification': 'var(--info)',
+                'feedback': 'var(--success)',
+                'login': 'var(--success)',
+                'logout': 'var(--danger)',
+                'update': 'var(--primary)',
+                'delete': 'var(--danger)',
+                'system': 'var(--gray)',
+                'default': 'var(--gray)'
+            };
+            feed.innerHTML = '';
+            snapshot.forEach(doc => {
+                const log = doc.data();
+                const type = log.type || 'default';
+                const icon = iconMap[type] || iconMap['default'];
+                const color = colorMap[type] || colorMap['default'];
+                const title = log.title || (type === 'user_registered' ? 'New User Registered' : type.charAt(0).toUpperCase() + type.slice(1));
+                const desc = log.description || log.action || '';
+                const time = log.timestamp && log.timestamp.toDate ? log.timestamp.toDate() : new Date();
+                const relTime = timeAgo(time);
+                feed.innerHTML += `
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background-color:rgba(99,102,241,0.1);color:${color};">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="activity-title">${title}</h4>
+                            <p class="activity-desc">${desc}</p>
+                            <div class="activity-time">${relTime}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }).catch(() => {
+            feed.innerHTML = '<div style="text-align:center;color:var(--gray);padding:1rem;">Failed to load activity</div>';
+        });
+    }
+    
+    // Helper: Relative time
+    function timeAgo(date) {
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        if (seconds < 60) return `${seconds}s ago`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+        return date.toLocaleDateString();
+    }
+
+    // Show mobile nav on small screens
+    function handleMobileNav() {
+        const nav = document.querySelector('.mobile-nav');
+        if (window.innerWidth <= 768) {
+            nav.style.display = 'block';
+        } else {
+            nav.style.display = 'none';
+        }
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', handleMobileNav);
+
+    // Add at the top of your script section (after Firebase config):
+    let systemCurrency = 'USD'; // Default, can be set from Firestore if you have a settings doc
+    function formatCurrency(amount, currency = systemCurrency) {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: currency
+        }).format(amount);
+    }
+
+    function renderUsersTable(usersArr) {
+        const tbody = document.getElementById('users-table-body');
+        tbody.innerHTML = '';
+        usersArr.forEach(user => {
+            const uid = user._uid || '';
+            const initials = (user.displayName || user.name || user.email || 'U')
+                .split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const joined = user.createdAt?.toDate ? user.createdAt.toDate() : new Date();
+            const status = user.status || 'Active';
+            const plan = user.plan || 'Free';
+            const statusClass = status.toLowerCase() === 'active' ? 'status-active' :
+                              status.toLowerCase() === 'suspended' ? 'status-suspended' :
+                              status.toLowerCase() === 'pending' ? 'status-pending' : 'status-inactive';
+            const statusIcon = status.toLowerCase() === 'active' ? 'fa-check-circle' :
+                             status.toLowerCase() === 'suspended' ? 'fa-ban' :
+                             status.toLowerCase() === 'pending' ? 'fa-clock' : 'fa-minus-circle';
+            const lockBtnClass = status.toLowerCase() === 'active' ? 'danger' : 'success';
+            const lockBtnIcon = status.toLowerCase() === 'active' ? 'fa-lock' : 'fa-unlock';
+            const lockBtnTitle = status.toLowerCase() === 'active' ? 'Inactivate User' : 'Activate User';
+            tbody.innerHTML += `
+                <tr data-uid="${uid}">
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">${initials}</div>
+                            <span>${user.displayName || user.name || user.email || 'User'}</span>
+                        </div>
+                    </td>
+                    <td>${user.email || ''}</td>
+                    <td>${joined.toLocaleDateString()}</td>
+                    <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                    <td><span class="badge ${plan.toLowerCase() === 'premium' ? 'badge-primary' : 'badge-warning'}">${plan}</span></td>
+                    <td>${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</td>
+                    <td>
+                        <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn ${lockBtnClass} lock-btn" title="${lockBtnTitle}">
+                            <i class="fas ${lockBtnIcon}"></i>
+                        </button>
+                        <button class="action-btn danger delete-btn"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        // Add event listeners for lock/edit/delete
+        tbody.querySelectorAll('.lock-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const row = this.closest('tr');
+                const uid = row.getAttribute('data-uid');
+                const icon = this.querySelector('i');
+                const isActive = icon.classList.contains('fa-lock');
+                try {
+                    await db.collection('users').doc(uid).update({
+                        status: isActive ? 'Inactive' : 'Active'
+                    });
+                    fetchAllUsersForSearch();
+                    if (isSearching) {
+                        userSearchInput.dispatchEvent(new Event('input'));
+                    } else {
+                        fetchRecentUsers();
+                    }
+                } catch (err) {
+                    window.showToast('error', 'Failed to update user status.');
+                }
+            });
+        });
+        tbody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const row = this.closest('tr');
+                const uid = row.getAttribute('data-uid');
+                try {
+                    const doc = await db.collection('users').doc(uid).get();
+                    if (!doc.exists) return alert('User not found.');
+                    const user = doc.data();
+                    document.getElementById('edit-user-uid').value = uid;
+                    document.getElementById('edit-user-name').value = user.displayName || '';
+                    document.getElementById('edit-user-email').value = user.email || '';
+                    document.getElementById('edit-user-plan').value = user.plan || 'Free';
+                    document.getElementById('edit-user-role').value = user.role || 'user';
+                    document.getElementById('edit-user-modal').style.display = 'flex';
+                } catch (err) {
+                    alert('Failed to load user info.');
+                }
+            });
+        });
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const row = this.closest('tr');
+                const uid = row.getAttribute('data-uid');
+                if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
+                try {
+                    await db.collection('users').doc(uid).delete();
+                    fetchAllUsersForSearch();
+                    if (isSearching) {
+                        userSearchInput.dispatchEvent(new Event('input'));
+                    } else {
+                        fetchRecentUsers();
+                    }
+                    window.showToast('success', 'User deleted.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to delete user.');
+                }
+            });
+        });
+    }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

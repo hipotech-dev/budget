@@ -1,0 +1,14 @@
+{
+  "name": "hipobudget-app",
+  "version": "1.0.0",
+  "description": "HipoBudget - Personal Finance Web App",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+} 

@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Notifications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS remains identical to previous pages for consistency */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active: #4f46e5;
+            --sidebar-active-bg: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --dark: #f8fafc;
+            --dark-light: #e2e8f0;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #818cf8;
+            --sidebar-active-bg: rgba(129, 140, 248, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .admin-logo-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav-menu {
+            list-style: none;
+            margin-bottom: auto;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+            font-weight: 600;
+        }
+
+        .admin-nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            margin-top: auto;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .admin-main-content {
+            padding: 2rem;
+            background-color: var(--body-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .admin-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .admin-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-search {
+            position: relative;
+        }
+
+        .admin-search input {
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .admin-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .admin-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--light-gray);
+        }
+
+        .admin-user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 1rem;
+            top: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* Notifications Table */
+        .admin-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--light-gray);
+            overflow-x: auto;
+        }
+
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .admin-table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Notification Type Display */
+        .notification-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .notification-type i {
+            font-size: 0.875rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .status-badge.status-read {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-badge.status-unread {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* Notification Row Styling */
+        .notification-unread {
+            background-color: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .notification-unread:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Table Improvements */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background-color: var(--light-gray);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .action-btn.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .action-btn.success:hover {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .action-btn.danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .action-btn.danger:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Filters */
+        .filters-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--light-gray);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .filters-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .filters-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .filters-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+            
+            .admin-logo-text, 
+            .admin-nav-link span,
+            .sidebar-footer span {
+                display: none;
+            }
+            
+            .admin-logo {
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .admin-nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .admin-nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+            
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+            .admin-sidebar {
+                display: none;
+            }
+            .admin-main-content {
+                padding: 1rem;
+                min-height: calc(100vh - 60px);
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 60px;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                width: 100%;
+                padding: 1rem;
+            }
+            .admin-user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .admin-search input {
+                width: 100%;
+            }
+            .filters-form {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                justify-content: flex-end;
+            }
+            .admin-table-container {
+                padding: 1rem;
+            }
+            .admin-table-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-main-content {
+                padding: 0.75rem;
+            }
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Bottom Navigation for Mobile */
+        .mobile-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 1001;
+            display: none;
+            border-top: 1px solid var(--light-gray);
+        }
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-item {
+            flex: 1;
+            text-align: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.5rem 0 0.25rem 0;
+            transition: color 0.2s;
+        }
+        .mobile-nav-item.active,
+        .mobile-nav-item:active,
+        .mobile-nav-item:focus {
+            color: var(--primary);
+        }
+        .mobile-nav-item i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Export Dropdown Styles */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            min-width: 180px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .export-dropdown-menu.show {
+            display: block;
+        }
+
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .export-option:hover {
+            background-color: var(--light-gray);
+        }
+
+        .export-option i {
+            width: 16px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .export-option[data-format="csv"] i {
+            color: #10b981;
+        }
+
+        .export-option[data-format="pdf"] i {
+            color: #ef4444;
+        }
+
+        /* Close dropdown when clicking outside */
+        .export-dropdown-menu {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="admin-logo-icon"><i class="fas fa-wallet"></i></span>
+                <span class="admin-logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="admin-nav-menu">
+                <li class="admin-nav-item">
+                    <a href="Admin.html" class="admin-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="users.html" class="admin-nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-trans.html" class="admin-nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="analytics.html" class="admin-nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="notifications.html" class="admin-nav-link active">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="admin-settings.html" class="admin-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-page-title">Notifications</h1>
+                    <div class="admin-header-subtitle">View and manage system notifications</div>
+                </div>
+                <div class="admin-user-menu">
+                    <div class="admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="notification-search" placeholder="Search notifications...">
+                    </div>
+                    <div class="admin-user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-container fade-in" style="animation-delay: 0.2s">
+                <div class="filters-header">
+                    <h3 class="filters-title">Filters</h3>
+                    <button class="btn btn-outline btn-sm" id="reset-filters">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+                <form class="filters-form" id="notification-filters">
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-control" id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="read">Read</option>
+                            <option value="unread">Unread</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-control" id="type-filter">
+                            <option value="">All Types</option>
+                            <option value="user_registered">User Registration</option>
+                            <option value="login">User Login</option>
+                            <option value="transaction">Transaction Created</option>
+                            <option value="transaction_updated">Transaction Updated</option>
+                            <option value="transaction_delete">Transaction Deleted</option>
+                            <option value="budget_add">Budget Added</option>
+                            <option value="budget_edit">Budget Edited</option>
+                            <option value="budget_delete">Budget Deleted</option>
+                            <option value="goal_add">Goal Added</option>
+                            <option value="goal_edit">Goal Edited</option>
+                            <option value="goal_delete">Goal Deleted</option>
+                            <option value="password_reset">Password Reset</option>
+                            <option value="system_alert">System Alert</option>
+                            <option value="notification_marked_read">Notification Read</option>
+                            <option value="notification_deleted">Notification Deleted</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <select class="form-control" id="date-filter">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i>
+                            <span>Apply Filters</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Notifications Table -->
+            <div class="admin-table-container fade-in" style="animation-delay: 0.3s">
+                <div class="admin-table-header">
+                    <h2 class="admin-table-title">All Notifications</h2>
+                    <div class="admin-table-actions">
+                        <div class="export-dropdown">
+                            <button class="btn btn-outline" id="export-dropdown-btn" title="Export notifications">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="export-dropdown-menu" id="export-dropdown-menu">
+                                <button class="export-option" data-format="csv">
+                                    <i class="fas fa-file-csv"></i>
+                                    <span>Export as CSV</span>
+                                </button>
+                                <button class="export-option" data-format="pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Export as PDF</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" id="test-system-alert" title="Create test system alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Test Alert</span>
+                        </button>
+                        <button class="btn btn-success" id="mark-all-read">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Mark All Read</span>
+                        </button>
+                        <button class="btn btn-danger" id="delete-all">
+                            <i class="fas fa-trash"></i>
+                            <span>Delete All</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notifications-table-body">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="pagination-start">1</span> to <span id="pagination-end">5</span> of <span id="pagination-total">0</span> entries
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline btn-sm" id="prev-page" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="next-page" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="Admin.html" class="mobile-nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="users.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="admin-trans.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="analytics.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="notifications.html" class="mobile-nav-item active">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        // Get Firebase instances from centralized manager
+        let auth, db;
+        
+        // Initialize Firebase and get instances
+        async function initializeFirebase() {
+            try {
+                const firebaseInstance = await window.FirebaseManager.waitForReady();
+                auth = firebaseInstance.auth;
+                db = firebaseInstance.firestore;
+                console.log('Firebase initialized successfully in notifications page');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+            }
+        }
+
+        // DOM Elements
+        const userAvatar = document.getElementById('user-avatar');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const notificationSearch = document.getElementById('notification-search');
+        const notificationFilters = document.getElementById('notification-filters');
+        const resetFilters = document.getElementById('reset-filters');
+        const markAllReadBtn = document.getElementById('mark-all-read');
+        const deleteAllBtn = document.getElementById('delete-all');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+
+        // Pagination variables
+        let currentPage = 1;
+        const notificationsPerPage = 5;
+        let lastVisible = null;
+        let firstVisible = null;
+        let totalNotifications = 0;
+
+        // Initialize Admin Dashboard
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize Firebase first
+                await initializeFirebase();
+                
+                await window.loadAdminSettings();
+                handleMobileNav();
+                
+                // Now auth should be available
+                if (auth) {
+                    auth.onAuthStateChanged(async user => {
+                        if (!user || !user.emailVerified) {
+                            window.location.href = 'index.html';
+                        } else {
+                            try {
+                                const userDoc = await db.collection('users').doc(user.uid).get();
+                                const userData = userDoc.data();
+                                if (!userDoc.exists || userData.role !== 'admin') {
+                                    alert('Access denied: Admins only.');
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                if (userData.status && userData.status.toLowerCase() === 'inactive') {
+                                    alert('Your account is inactive. Please contact support.');
+                                    await auth.signOut();
+                                    window.location.href = 'index.html';
+                                    return;
+                                }
+                                setupUserAvatar(user);
+                                fetchNotifications();
+                                setupEventListeners();
+                            } catch (err) {
+                                alert('Error verifying admin access.');
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                        }
+                    });
+                } else {
+                    console.error('Firebase Auth not initialized');
+                }
+            } catch (error) {
+                console.error('Error initializing notifications page:', error);
+            }
+        });
+
+        function setupUserAvatar(user) {
+            if (user.photoURL) {
+                userAvatar.style.background = 'none';
+                userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
+            } else {
+                const name = user.displayName || user.email || 'U';
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                userAvatar.textContent = initials;
+            }
+        }
+
+        function setupEventListeners() {
+            // User dropdown
+            userAvatar.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userAvatar.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                if (auth) {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    });
+                }
+            });
+
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                const isDark = document.body.classList.contains('dark-theme');
+                localStorage.setItem('darkMode', isDark);
+                themeToggle.innerHTML = isDark 
+                    ? '<span>Light Mode</span><i class="fas fa-sun"></i>' 
+                    : '<span>Dark Mode</span><i class="fas fa-moon"></i>';
+            });
+
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<span>Light Mode</span><i class="fas fa-sun"></i>';
+            }
+
+            // Notification search
+            notificationSearch.addEventListener('input', debounce(() => {
+                currentPage = 1;
+                fetchNotifications();
+            }, 300));
+
+            // Filters
+            notificationFilters.addEventListener('submit', (e) => {
+                e.preventDefault();
+                currentPage = 1;
+                fetchNotifications();
+            });
+
+            resetFilters.addEventListener('click', () => {
+                notificationFilters.reset();
+                notificationSearch.value = '';
+                currentPage = 1;
+                fetchNotifications();
+            });
+
+            // Export notifications
+            document.getElementById('export-dropdown-btn').addEventListener('click', () => {
+                const dropdown = document.getElementById('export-dropdown-menu');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.getElementById('export-dropdown-menu').addEventListener('click', (e) => {
+                if (e.target.classList.contains('export-option')) {
+                    const format = e.target.getAttribute('data-format');
+                    exportNotifications(format);
+                    // Close dropdown after selection
+                    document.getElementById('export-dropdown-menu').style.display = 'none';
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('export-dropdown-menu');
+                const dropdownBtn = document.getElementById('export-dropdown-btn');
+                if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Test system alert
+            document.getElementById('test-system-alert').addEventListener('click', async () => {
+                await createSystemAlert(
+                    'Test System Alert',
+                    'This is a test system alert to demonstrate the notification system functionality.',
+                    'normal'
+                );
+                fetchNotifications();
+                window.showToast('success', 'Test system alert created');
+            });
+
+            // Mark all read
+            markAllReadBtn.addEventListener('click', async () => {
+                if (!confirm('Mark all notifications as read?')) return;
+                try {
+                    const batch = db.batch();
+                    const snapshot = await db.collection('notifications')
+                        .where('status', '==', 'unread')
+                        .get();
+                    snapshot.forEach(doc => {
+                        batch.update(doc.ref, {
+                            status: 'read',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    await batch.commit();
+                    await db.collection('activityLogs').add({
+                        type: 'notifications_marked_read',
+                        title: 'Notifications Marked Read',
+                        description: 'All notifications marked as read by admin',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    fetchNotifications();
+                    window.showToast('success', 'All notifications marked as read.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to mark notifications as read: ' + err.message);
+                }
+            });
+
+            // Delete all notifications
+            deleteAllBtn.addEventListener('click', async () => {
+                if (!confirm('Delete all notifications? This cannot be undone.')) return;
+                try {
+                    const batch = db.batch();
+                    const snapshot = await db.collection('notifications').get();
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    await db.collection('activityLogs').add({
+                        type: 'notifications_deleted',
+                        title: 'Notifications Deleted',
+                        description: 'All notifications deleted by admin',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    fetchNotifications();
+                    window.showToast('success', 'All notifications deleted successfully.');
+                } catch (err) {
+                    window.showToast('error', 'Failed to delete notifications: ' + err.message);
+                }
+            });
+
+            // Pagination
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchNotifications(true);
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                currentPage++;
+                fetchNotifications();
+            });
+        }
+
+        // Fetch Notifications with Filters and Pagination
+        async function fetchNotifications(isPrev = false) {
+            const tbody = document.getElementById('notifications-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem;">Loading...</td></tr>';
+
+            let query = db.collection('notifications').orderBy('createdAt', 'desc');
+            
+            // Apply filters
+            const statusFilter = document.getElementById('status-filter').value;
+            const typeFilter = document.getElementById('type-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const searchQuery = notificationSearch.value.trim().toLowerCase();
+
+            // Apply status filter
+            if (statusFilter) {
+                query = query.where('status', '==', statusFilter);
+            }
+            
+            // Apply type filter
+            if (typeFilter) {
+                query = query.where('type', '==', typeFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const now = new Date();
+                let startDate;
+                if (dateFilter === 'today') {
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                } else if (dateFilter === 'week') {
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                } else if (dateFilter === 'month') {
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), 0, 0, 0, 0);
+                } else if (dateFilter === 'year') {
+                    startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                }
+                if (startDate) {
+                    query = query.where('createdAt', '>=', startDate);
+                }
+            }
+
+            try {
+                let snapshot;
+                let allDocs = [];
+                
+                if (searchQuery) {
+                    // For search, fetch a larger batch and filter client-side
+                    snapshot = await query.limit(200).get();
+                    allDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    allDocs = allDocs.filter(n =>
+                        (n.title || '').toLowerCase().includes(searchQuery) ||
+                        (n.description || '').toLowerCase().includes(searchQuery) ||
+                        (n.type || '').toLowerCase().includes(searchQuery)
+                    );
+                } else {
+                    // Normal paginated fetch
+                    if (isPrev && firstVisible) {
+                        query = query.endBefore(firstVisible).limitToLast(notificationsPerPage);
+                    } else {
+                        if (lastVisible && !isPrev) {
+                            query = query.startAfter(lastVisible);
+                        }
+                        query = query.limit(notificationsPerPage);
+                    }
+                    snapshot = await query.get();
+                    allDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                }
+
+                totalNotifications = allDocs.length;
+                if (!allDocs.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem;">No notifications found</td></tr>';
+                    updatePagination(0);
+                    return;
+                }
+
+                // Paginate client-side if searching
+                let paginatedDocs = allDocs;
+                if (searchQuery) {
+                    const start = (currentPage - 1) * notificationsPerPage;
+                    const end = start + notificationsPerPage;
+                    paginatedDocs = allDocs.slice(start, end);
+                    firstVisible = null;
+                    lastVisible = null;
+                } else {
+                    firstVisible = snapshot.docs[0];
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                }
+
+                const notificationRows = paginatedDocs.map(notification => {
+                    const notificationId = notification.id;
+                    const title = notification.title || 'No Title';
+                    const description = notification.description || '-';
+                    const type = notification.type || 'system_alert';
+                    const status = notification.status || 'unread';
+                    const date = notification.createdAt && notification.createdAt.toDate ? notification.createdAt.toDate() : new Date();
+                    const rowClass = status === 'unread' ? 'notification-unread' : '';
+                    
+                    // Get proper type label with icon
+                    const typeInfo = getNotificationTypeInfo(type);
+                    
+                    return `
+                        <tr data-notification-id="${notificationId}" class="${rowClass}">
+                            <td>
+                                <div class="notification-type">
+                                    <i class="fas ${typeInfo.icon}"></i>
+                                    <span>${typeInfo.label}</span>
+                                </div>
+                            </td>
+                            <td>${title}</td>
+                            <td>${description}</td>
+                            <td>${formatNotificationDate(date)}</td>
+                            <td>
+                                <span class="status-badge status-${status}">
+                                    ${status.charAt(0).toUpperCase() + status.slice(1)}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="action-btn success mark-read-btn" title="Mark as read">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="action-btn danger delete-btn" title="Delete notification">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = notificationRows.length ? notificationRows.join('') : '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem;">No notifications found</td></tr>';
+
+                // Add event listeners for action buttons
+                tbody.querySelectorAll('.mark-read-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const row = this.closest('tr');
+                        const notificationId = row.getAttribute('data-notification-id');
+                        try {
+                            await db.collection('notifications').doc(notificationId).update({
+                                status: 'read',
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            await db.collection('activityLogs').add({
+                                type: 'notification_marked_read',
+                                title: 'Notification Marked Read',
+                                description: `Notification ${notificationId} marked as read by admin`,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            fetchNotifications();
+                            window.showToast('success', 'Notification marked as read.');
+                        } catch (err) {
+                            window.showToast('error', 'Failed to mark notification as read: ' + err.message);
+                        }
+                    });
+                });
+
+                tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const row = this.closest('tr');
+                        const notificationId = row.getAttribute('data-notification-id');
+                        if (!confirm('Are you sure you want to delete this notification? This cannot be undone.')) return;
+                        try {
+                            await db.collection('notifications').doc(notificationId).delete();
+                            await db.collection('activityLogs').add({
+                                type: 'notification_deleted',
+                                title: 'Notification Deleted',
+                                description: `Notification ${notificationId} deleted by admin`,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            fetchNotifications();
+                            window.showToast('success', 'Notification deleted successfully.');
+                        } catch (err) {
+                            window.showToast('error', 'Failed to delete notification: ' + err.message);
+                        }
+                    });
+                });
+
+                updatePagination(notificationRows.length);
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:2rem;">Failed to load notifications</td></tr>';
+                console.error('Error fetching notifications:', err);
+            }
+        }
+
+        // Helper function to get notification type information
+        function getNotificationTypeInfo(type) {
+            const typeMap = {
+                'user_registered': { label: 'User Registration', icon: 'fa-user-plus', color: '#10b981' },
+                'login': { label: 'User Login', icon: 'fa-sign-in-alt', color: '#3b82f6' },
+                'transaction': { label: 'Transaction Created', icon: 'fa-plus-circle', color: '#10b981' },
+                'transaction_updated': { label: 'Transaction Updated', icon: 'fa-edit', color: '#f59e0b' },
+                'transaction_delete': { label: 'Transaction Deleted', icon: 'fa-trash', color: '#ef4444' },
+                'budget_add': { label: 'Budget Added', icon: 'fa-plus-square', color: '#10b981' },
+                'budget_edit': { label: 'Budget Edited', icon: 'fa-edit', color: '#f59e0b' },
+                'budget_delete': { label: 'Budget Deleted', icon: 'fa-trash', color: '#ef4444' },
+                'goal_add': { label: 'Goal Added', icon: 'fa-flag', color: '#10b981' },
+                'goal_edit': { label: 'Goal Edited', icon: 'fa-edit', color: '#f59e0b' },
+                'goal_delete': { label: 'Goal Deleted', icon: 'fa-trash', color: '#ef4444' },
+                'password_reset': { label: 'Password Reset', icon: 'fa-key', color: '#8b5cf6' },
+                'system_alert': { label: 'System Alert', icon: 'fa-exclamation-triangle', color: '#f59e0b' },
+                'notification_marked_read': { label: 'Notification Read', icon: 'fa-check-circle', color: '#10b981' },
+                'notification_deleted': { label: 'Notification Deleted', icon: 'fa-trash', color: '#ef4444' }
+            };
+            
+            return typeMap[type] || { label: type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), icon: 'fa-bell', color: '#6b7280' };
+        }
+
+        // Helper function to format notification dates
+        function formatNotificationDate(date) {
+            const now = new Date();
+            const diffInMs = now - date;
+            const diffInHours = diffInMs / (1000 * 60 * 60);
+            const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            
+            if (diffInHours < 1) {
+                const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+                return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+            } else if (diffInHours < 24) {
+                return `${Math.floor(diffInHours)} hour${Math.floor(diffInHours) !== 1 ? 's' : ''} ago`;
+            } else if (diffInDays < 7) {
+                return `${Math.floor(diffInDays)} day${Math.floor(diffInDays) !== 1 ? 's' : ''} ago`;
+            } else {
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+        }
+
+        function updatePagination(currentCount) {
+            const start = currentCount === 0 ? 0 : (currentPage - 1) * notificationsPerPage + 1;
+            const end = currentCount === 0 ? 0 : start + currentCount - 1;
+            document.getElementById('pagination-start').textContent = start;
+            document.getElementById('pagination-end').textContent = end;
+            document.getElementById('pagination-total').textContent = totalNotifications;
+            prevPageBtn.disabled = currentPage <= 1;
+            nextPageBtn.disabled = end >= totalNotifications || currentCount < notificationsPerPage;
+        }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Show mobile nav on small screens
+        function handleMobileNav() {
+            const nav = document.querySelector('.mobile-nav');
+            if (window.innerWidth <= 768) {
+                nav.style.display = 'block';
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', handleMobileNav);
+
+        // --- Notification Mirroring Helper ---
+        async function addNotification({ type, title, description, userId }) {
+            try {
+                await db.collection('notifications').add({
+                    type,
+                    title,
+                    description,
+                    status: 'unread',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: userId || null
+                });
+            } catch (err) {
+                // Optionally log or ignore
+            }
+        }
+
+        // --- System Alert Creation Function ---
+        async function createSystemAlert(title, description, priority = 'normal') {
+            try {
+                await db.collection('notifications').add({
+                    type: 'system_alert',
+                    title: title,
+                    description: description,
+                    status: 'unread',
+                    priority: priority, // 'low', 'normal', 'high', 'critical'
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: null // System alerts are for all users
+                });
+                
+                // Also log to activity logs
+                await db.collection('activityLogs').add({
+                    type: 'system_alert',
+                    title: title,
+                    description: description,
+                    priority: priority,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log('System alert created:', title);
+            } catch (err) {
+                console.error('Error creating system alert:', err);
+            }
+        }
+
+        // --- Notification Statistics Function ---
+        async function getNotificationStats() {
+            try {
+                const stats = {
+                    total: 0,
+                    unread: 0,
+                    read: 0,
+                    byType: {},
+                    recentActivity: 0
+                };
+
+                // Get total counts
+                const totalSnapshot = await db.collection('notifications').get();
+                stats.total = totalSnapshot.size;
+
+                // Get unread count
+                const unreadSnapshot = await db.collection('notifications').where('status', '==', 'unread').get();
+                stats.unread = unreadSnapshot.size;
+                stats.read = stats.total - stats.unread;
+
+                // Get counts by type
+                const typeGroups = {};
+                totalSnapshot.forEach(doc => {
+                    const type = doc.data().type || 'unknown';
+                    typeGroups[type] = (typeGroups[type] || 0) + 1;
+                });
+                stats.byType = typeGroups;
+
+                // Get recent activity (last 24 hours)
+                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const recentSnapshot = await db.collection('notifications')
+                    .where('createdAt', '>=', yesterday)
+                    .get();
+                stats.recentActivity = recentSnapshot.size;
+
+                return stats;
+            } catch (err) {
+                console.error('Error getting notification stats:', err);
+                return null;
+            }
+        }
+
+        // --- Export Notifications Function ---
+        async function exportNotifications(format = 'csv') {
+            try {
+                const snapshot = await db.collection('notifications').orderBy('createdAt', 'desc').get();
+                const notifications = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    createdAt: doc.data().createdAt?.toDate?.() || new Date()
+                }));
+
+                if (format === 'csv') {
+                    const csvContent = [
+                        ['Type', 'Title', 'Description', 'Status', 'Date', 'User ID'],
+                        ...notifications.map(n => [
+                            n.type || '',
+                            n.title || '',
+                            n.description || '',
+                            n.status || '',
+                            n.createdAt.toLocaleString(),
+                            n.userId || ''
+                        ])
+                    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `notifications_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else if (format === 'pdf') {
+                    // Check if jsPDF is available
+                    if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
+                        window.showToast('error', 'PDF export requires jsPDF library');
+                        return;
+                    }
+
+                    const doc = new (window.jsPDF || window.jspdf.jsPDF)();
+                    
+                    // Set document properties
+                    doc.setProperties({
+                        title: 'Notifications Report',
+                        subject: 'System Notifications Export',
+                        author: 'HipoBudget Admin',
+                        creator: 'HipoBudget System'
+                    });
+
+                    // Add title
+                    doc.setFontSize(18);
+                    doc.setTextColor(99, 102, 241);
+                    doc.text('Notifications Report', 14, 20);
+                    
+                    // Add export info
+                    doc.setFontSize(10);
+                    doc.setTextColor(107, 114, 128);
+                    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+                    doc.text(`Total notifications: ${notifications.length}`, 14, 35);
+
+                    // Prepare table data
+                    const headers = ['Type', 'Title', 'Description', 'Status', 'Date'];
+                    const rows = notifications.map(n => [
+                        getNotificationTypeInfo(n.type || 'unknown').label,
+                        n.title || 'No Title',
+                        n.description || '-',
+                        n.status ? n.status.charAt(0).toUpperCase() + n.status.slice(1) : 'Unknown',
+                        n.createdAt.toLocaleString()
+                    ]);
+
+                    // Add table
+                    if (doc.autoTable) {
+                        doc.autoTable({
+                            head: [headers],
+                            body: rows,
+                            startY: 45,
+                            styles: {
+                                fontSize: 8,
+                                cellPadding: 2
+                            },
+                            headStyles: {
+                                fillColor: [99, 102, 241],
+                                textColor: 255,
+                                fontStyle: 'bold'
+                            },
+                            alternateRowStyles: {
+                                fillColor: [248, 250, 252]
+                            },
+                            columnStyles: {
+                                0: { cellWidth: 25 }, // Type
+                                1: { cellWidth: 40 }, // Title
+                                2: { cellWidth: 50 }, // Description
+                                3: { cellWidth: 20 }, // Status
+                                4: { cellWidth: 35 }  // Date
+                            },
+                            didDrawPage: function(data) {
+                                // Add page number
+                                doc.setFontSize(8);
+                                doc.setTextColor(107, 114, 128);
+                                doc.text(`Page ${doc.internal.getNumberOfPages()}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                            }
+                        });
+                    } else {
+                        // Fallback if autoTable is not available
+                        let y = 50;
+                        headers.forEach((header, i) => {
+                            doc.text(header, 14 + i * 40, y);
+                        });
+                        y += 10;
+                        rows.forEach(row => {
+                            row.forEach((cell, i) => {
+                                doc.text(String(cell).substring(0, 20), 14 + i * 40, y);
+                            });
+                            y += 8;
+                        });
+                    }
+
+                    // Save the PDF
+                    doc.save(`notifications_${new Date().toISOString().split('T')[0]}.pdf`);
+                }
+
+                window.showToast('success', `Notifications exported as ${format.toUpperCase()}`);
+            } catch (err) {
+                console.error('Error exporting notifications:', err);
+                window.showToast('error', 'Failed to export notifications');
+            }
+        }
+
+        // Make functions globally available
+        window.createSystemAlert = createSystemAlert;
+        window.getNotificationStats = getNotificationStats;
+        window.exportNotifications = exportNotifications;
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>
