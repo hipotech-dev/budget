@@ -2,2322 +2,1839 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HipoBudget - Secure Financial Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HipoBudget - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
+    <!-- Firebase scripts and config FIRST -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script>window.firebase = firebase;</script>
-    <!-- Fallback Firebase SDK if primary fails -->
-    <script>
-        if (typeof firebase === 'undefined') {
-            console.warn('Primary Firebase CDN failed, trying fallback...');
-            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-app-compat.js"><\/script>');
-            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-auth-compat.js"><\/script>');
-            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/dist/firebase-firestore-compat.js"><\/script>');
-        }
-    </script>
     <script src="firebase-init.js"></script>
-    <!-- Wait for Firebase to be ready before loading theme.js -->
-    <script>
-        // Ensure Firebase is ready before loading theme.js
-        (async function() {
-            try {
-                // Check if Firebase SDK loaded
-                if (typeof firebase === 'undefined') {
-                    console.error('Firebase SDK not loaded');
-                    return;
-                }
-                
-                if (window.FirebaseManager) {
-                    await window.FirebaseManager.waitForReady();
-                    console.log('Firebase ready, loading theme.js');
-                } else {
-                    console.warn('FirebaseManager not available');
-                }
-            } catch (error) {
-                console.warn('Firebase initialization warning:', error);
-            }
-        })();
-    </script>
+    <!-- Theme and main scripts AFTER Firebase is initialized -->
     <script src="theme.js"></script>
-    <!-- Password strength meter - using alternative CDN -->
-    <script src="https://unpkg.com/zxcvbn@4.4.2/dist/zxcvbn.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="en.json"></script>
+    <script src="fr.json"></script>
+    <script src="sw.json"></script>
     <style>
         :root {
-            --primary: #6C5CE7;
-            --primary-dark: #5649C0;
-            --primary-light: #A29BFE;
-            --secondary: #00B894;
-            --secondary-dark: #00A383;
-            --accent: #FD79A8;
-            --dark: #2D3436;
-            --dark-gray: #636E72;
-            --light: #F5F6FA;
-            --light-gray: #DFE6E9;
-            --success: #00B894;
-            --error: #D63031;
-            --warning: #FDCB6E;
-            --info: #0984E3;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-bg: #ffffff;
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #fbbf24;
+            --success: #34d399;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --light-gray: #334155;
+            --card-bg: #1e293b;
+            --body-bg: #0f172a;
+            --text-color: #f8fafc;
+            --sidebar-bg: #1e293b;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        body {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--light);
-            font-family: 'Inter', sans-serif;
-            color: var(--dark);
-            line-height: 1.6;
+        html {
+            height: 100%;
             overflow-x: hidden;
         }
         
-        /* Welcome Section */
-        .welcome-section {
-            flex: 1;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100%;
             position: relative;
-            overflow: hidden;
-            z-index: 1;
+            padding-bottom: calc(60px + var(--safe-area-inset-bottom));
         }
         
-        .welcome-section::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            z-index: -1;
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
         }
         
-        .welcome-section::after {
-            content: '';
-            position: absolute;
-            bottom: -80px;
-            left: -80px;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            z-index: -1;
-        }
-        
-        .welcome-content {
-            max-width: 500px;
-            z-index: 1;
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+            overflow-y: auto;
         }
         
         .logo {
             display: flex;
             align-items: center;
             margin-bottom: 2rem;
-            justify-content: center;
-            font-family: 'Space Grotesk', sans-serif;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
         }
         
         .logo-icon {
-            font-size: 2.5rem;
-            margin-right: 1rem;
-            color: var(--accent);
-            background: white;
-            width: 60px;
-            height: 60px;
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        #avatarDropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 150px;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #logout-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: none;
+            background: none;
+            color: var(--danger);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #logout-btn:hover {
+            background-color: var(--light-gray);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        
+        /* Summary Cards */
+        .summary-card {
+            grid-column: span 3;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
         }
         
-        .logo-text {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        
-        .welcome-title {
-            font-size: 2.75rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-            text-align: center;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        
-        .welcome-description {
-            font-size: 1.15rem;
-            line-height: 1.7;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-            text-align: center;
-        }
-        
-        .features {
-            margin-top: 2.5rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-        
-        .feature {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-icon {
-            margin-right: 1rem;
-            color: var(--accent);
-            font-size: 1.2rem;
-            margin-top: 3px;
-        }
-        
-        .feature-text {
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-        
-        .security-badge {
-            display: flex;
-            align-items: center;
-            margin-top: 3rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .security-badge-icon {
-            margin-right: 0.75rem;
+        .income-icon {
+            background-color: rgba(16, 185, 129, 0.1);
             color: var(--success);
-            font-size: 1.2rem;
         }
         
-        /* Auth Section */
-        .auth-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 4rem;
-            background-color: white;
-            position: relative;
-            overflow: hidden;
+        .expense-icon {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
         }
         
-        .auth-container {
-            max-width: 450px;
-            width: 100%;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--light-gray);
-            justify-content: center;
-            gap: 1rem;
-        }
-        
-        .auth-tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--dark-gray);
-            position: relative;
-            transition: var(--transition);
-            border-radius: 0.5rem 0.5rem 0 0;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        
-        .auth-tab.active {
+        .budget-icon {
+            background-color: rgba(99, 102, 241, 0.1);
             color: var(--primary);
         }
         
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: var(--primary);
-            border-radius: 3px 3px 0 0;
-        }
-        
-        .auth-tab:hover {
-            color: var(--primary-dark);
-            background: rgba(108, 92, 231, 0.05);
-        }
-        
-        .auth-content {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .auth-content.active {
-            display: block;
-        }
-        
-        .auth-title {
-            font-size: 2rem;
+        .card-value {
+            font-size: 1.75rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--dark);
-            text-align: center;
-            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
         }
         
-        .auth-subtitle {
-            font-size: 1rem;
-            color: var(--dark-gray);
-            margin-bottom: 2rem;
-            text-align: center;
+        .card-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
         }
         
-        .auth-form .form-group {
+        .positive {
+            color: var(--success);
+        }
+        
+        .negative {
+            color: var(--danger);
+        }
+        
+        /* Charts Section */
+        .chart-section {
+            grid-column: span 8;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem;
         }
         
-        .auth-form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 0.95rem;
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
         
-        .auth-form input,
-        .auth-form select {
-            width: 100%;
-            padding: 0.85rem 1.25rem;
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .time-period {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
             border: 1px solid var(--light-gray);
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            transition: var(--transition);
-            background-color: white;
-            color: var(--dark);
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .auth-form input:focus,
-        .auth-form select:focus {
+        .time-period:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
         
-        .auth-form input::placeholder {
-            color: var(--dark-gray);
-            opacity: 0.6;
+        /* Quick Actions */
+        .quick-actions {
+            grid-column: span 4;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
         }
         
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            padding: 0.85rem 1.5rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             border: none;
-            font-family: 'Space Grotesk', sans-serif;
-            box-shadow: var(--shadow-sm);
+            gap: 0.5rem;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
         }
         
         .btn-primary {
             background-color: var(--primary);
             color: white;
-            width: 100%;
         }
         
         .btn-primary:hover {
             background-color: var(--primary-dark);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-1px);
         }
         
-        .btn-secondary {
-            background-color: white;
-            color: var(--dark);
+        .btn-outline {
+            background: transparent;
             border: 1px solid var(--light-gray);
-            width: 100%;
+            color: var(--text-color);
         }
         
-        .btn-secondary:hover {
-            background-color: var(--light);
-            box-shadow: var(--shadow-sm);
+        .btn-outline:hover {
+            background: var(--light-gray);
+            border-color: var(--gray);
         }
         
-        .auth-footer {
+        .btn i {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover i {
+            transform: scale(1.1);
+        }
+        
+        /* Goals Section */
+        .goals-section {
+            grid-column: span 12;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-top: 1.5rem;
-            text-align: center;
-            color: var(--dark-gray);
-            font-size: 0.95rem;
+            transition: background-color 0.3s ease;
         }
         
-        .auth-footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 0.25rem;
-            transition: var(--transition);
-        }
-        
-        .auth-footer a:hover {
-            text-decoration: underline;
-            color: var(--primary-dark);
-        }
-        
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 1.5rem 0;
-            color: var(--dark-gray);
-        }
-        
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background-color: var(--light-gray);
-        }
-        
-        .divider-text {
-            padding: 0 1rem;
-            font-size: 0.9rem;
-            color: var(--dark-gray);
-        }
-        
-        .social-auth {
-            display: flex;
-            gap: 1rem;
+        .goal-item {
             margin-bottom: 1.5rem;
         }
         
-        .social-btn {
-            flex: 1;
-            padding: 0.85rem;
-            border: 1px solid var(--light-gray);
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .goal-title {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .goal-amount {
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease, background-color 0.3s ease;
+        }
+        
+        .progress-70 {
+            width: 70%;
+            background-color: var(--primary);
+        }
+        
+        .progress-45 {
+            width: 45%;
+            background-color: var(--secondary);
+        }
+        
+        .progress-90 {
+            width: 90%;
+            background-color: var(--success);
+        }
+        
+        .goal-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+        
+        /* Recent Transactions */
+        .transactions-section {
+            grid-column: span 8;
+            background: var(--card-bg);
             border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-top: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            transition: border-color 0.3s ease;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow-sm);
+            margin-right: 1rem;
+            transition: all 0.3s ease;
         }
         
-        .social-btn:hover:not(:disabled) {
-            background-color: var(--light);
-            box-shadow: var(--shadow-sm);
-            transform: translateY(-1px);
-        }
-        
-        .social-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        
-        .social-icon {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .password-container {
-            position: relative;
-        }
-        
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--dark-gray);
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-        }
-        
-        .error-message {
-            color: var(--error);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            display: none;
-            padding: 0.75rem;
-            background-color: rgba(214, 48, 49, 0.1);
-            border-radius: 0.5rem;
-            border-left: 3px solid var(--error);
-        }
-        
-        .error-message.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .success-message {
-            color: var(--success);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            display: none;
-            padding: 0.75rem;
-            background-color: rgba(0, 184, 148, 0.1);
-            border-radius: 0.5rem;
-            border-left: 3px solid var(--success);
-        }
-        
-        .success-message.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .password-strength {
-            margin-top: 0.5rem;
-            height: 6px;
-            border-radius: 3px;
-            background-color: var(--light-gray);
+        .transaction-details {
+            flex: 1;
+            min-width: 0;
             overflow: hidden;
         }
         
-        .password-strength-bar {
-            height: 100%;
-            width: 0;
-            transition: var(--transition);
-        }
-        
-        .password-strength-text {
-            font-size: 0.8rem;
-            color: var(--dark-gray);
-            margin-top: 0.25rem;
-            text-align: right;
+        .transaction-title {
             font-weight: 500;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        .form-group.terms-checkbox {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-            gap: 0.75rem;
+        .transaction-category {
+            font-size: 0.75rem;
+            color: var(--gray);
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
-        .terms-checkbox input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            margin: 0;
-            cursor: pointer;
-            flex-shrink: 0;
-            margin-top: 3px;
-        }
-
-        .terms-text {
-            font-size: 0.9rem;
-            color: var(--dark-gray);
-            line-height: 1.5;
-            cursor: pointer;
-        }
-
-        .terms-text a {
-            color: var(--primary);
-            text-decoration: none;
+        
+        .transaction-amount {
             font-weight: 600;
-        }
-
-        .terms-text a:hover {
-            text-decoration: underline;
-        }
-        
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .btn.loading .loading-spinner {
-            display: inline-block;
-        }
-        
-        .btn.loading span {
-            display: none;
-        }
-        
-        .verification-banner {
-            padding: 1rem;
-            background-color: rgba(9, 132, 227, 0.1);
-            color: var(--info);
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            border-left: 3px solid var(--info);
-        }
-        
-        .verification-icon {
-            margin-right: 0.75rem;
-            font-size: 1.2rem;
-            color: var(--info);
-        }
-        
-        .verification-text {
-            flex: 1;
-            font-size: 0.9rem;
-        }
-        
-        .verification-link {
-            color: var(--info);
-            font-weight: 600;
-            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
             margin-left: 0.5rem;
+        }
+        
+        .income-amount {
+            color: var(--success);
+        }
+        
+        .expense-amount {
+            color: var(--danger);
+        }
+        
+        /* Budget Categories */
+        .categories-section {
+            grid-column: span 4;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-top: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .category-item {
+            margin-bottom: 1rem;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .category-title {
+            flex: 1 1 0;
+            text-transform: capitalize;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
         
-        .verification-link:hover {
-            text-decoration: underline;
-        }
-        
-        .language-selector {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            z-index: 10;
+        .category-amounts, .category-amount {
             display: flex;
+            gap: 0.25rem;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
             align-items: center;
-            gap: 0.5rem;
+            flex-shrink: 1;
+            min-width: 0;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .spent-amount {
+            color: #ef4444;
+            margin-right: 2px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .total-amount {
+            color: #64748b;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .divider {
+            color: #64748b;
+            margin: 0 2px;
+            min-width: 0;
         }
         
-        .language-selector select {
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--light-gray);
-            background-color: white;
-            color: var(--dark);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1rem;
-            padding-right: 2rem;
-        }
-        
-        .language-selector select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-        }
-        
-        .language-selector i {
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        /* Floating Wallet Animation */
-        .wallet-float {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: -1;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .wallet-float i {
-            font-size: 2.5rem;
-            color: white;
-        }
-        
-        .wallet-float:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        
-        .wallet-float:nth-child(2) {
-            top: 60%;
-            right: 15%;
-            animation-delay: 1s;
-            width: 80px;
-            height: 80px;
-        }
-        
-        .wallet-float:nth-child(3) {
-            bottom: 10%;
-            left: 20%;
-            animation-delay: 2s;
-            width: 100px;
-            height: 100px;
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-            100% { transform: translateY(0) rotate(0deg); }
-        }
-        
-        /* Password Reset Modal */
-        #password-reset-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--dark);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        
-        .modal-text {
-            margin-bottom: 1.5rem;
-            color: var(--dark-gray);
-            line-height: 1.6;
-        }
-        
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .modal-actions .btn {
-            flex: 1;
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 1024px) {
-            .welcome-title {
-                font-size: 2.25rem;
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .summary-card {
+                grid-column: span 6;
             }
             
-            .welcome-description {
-                font-size: 1rem;
+            .chart-section {
+                grid-column: span 12;
             }
             
-            .auth-title {
-                font-size: 1.75rem;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .quick-actions {
+                grid-column: span 12;
             }
         }
         
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding-bottom: 0;
             }
             
-            .welcome-section,
-            .auth-section {
-                width: 100%;
-                padding: 2rem 1.5rem;
-                min-height: auto;
-            }
-            
-            .welcome-content {
-                max-width: 100%;
-                padding: 0;
-            }
-            
-            .auth-container {
-                max-width: 100%;
-                padding: 0;
-            }
-            
-            .logo {
-                margin-bottom: 1.5rem;
-            }
-            
-            .welcome-title {
-                font-size: 2rem;
-                margin-bottom: 1rem;
-            }
-            
-            .auth-title {
-                font-size: 1.5rem;
-            }
-            
-            .auth-tabs {
-                margin-bottom: 1.5rem;
-            }
-            
-            .auth-tab {
-                padding: 0.75rem 1rem;
-                font-size: 0.95rem;
-            }
-            
-            .security-badge {
-                margin-top: 2rem;
-                font-size: 0.85rem;
-            }
-            
-            .wallet-float {
+            .sidebar {
                 display: none;
             }
             
-            .language-selector,
-            .currency-selector {
-                position: relative;
-                top: auto;
-                right: auto;
-                left: auto;
+            .main-content {
+                padding: 1rem;
+                padding-bottom: calc(60px + var(--safe-area-inset-bottom));
+            }
+            
+            .header {
                 margin-bottom: 1rem;
+                padding-top: 0.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .summary-card, 
+            .chart-section, 
+            .quick-actions, 
+            .goals-section, 
+            .transactions-section, 
+            .categories-section {
+                grid-column: span 12 !important;
+                width: 100%;
+                margin-bottom: 1rem;
+                margin-top: 0;
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                padding: 1rem;
+            }
+            
+            .card-value {
+                font-size: 1.5rem;
+            }
+            
+            .section-header {
+                margin-bottom: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
                 justify-content: center;
             }
             
-            .currency-selector select {
-                background-color: white;
-                color: var(--dark);
-                border-color: var(--light-gray);
+            .transaction-item {
+                padding: 0.75rem 0;
             }
             
-            .currency-selector i {
-                color: var(--dark);
+            .transaction-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+            
+            .transaction-title {
+                font-size: 0.95rem;
+            }
+            
+            .transaction-amount {
+                font-size: 0.95rem;
+            }
+            
+            .encouragement-widget {
+                grid-column: span 12 !important;
+                margin-left: 0 !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                padding: 1rem !important;
+                border-radius: 0.75rem;
+                box-sizing: border-box;
             }
         }
-        
-        @media (max-width: 480px) {
-            .welcome-section,
-            .auth-section {
-                padding: 1.5rem 1rem;
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.5rem;
+            padding-bottom: calc(0.5rem + var(--safe-area-inset-bottom));
+            transition: background-color 0.3s ease;
+        }
+
+        .mobile-nav-items {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.25rem;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.7rem;
+            padding: 0.5rem 0.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger-content {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .hamburger-content.active {
+            display: block;
+        }
+
+        .hamburger-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-item:hover {
+            background: var(--light-gray);
+        }
+
+        .hamburger-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        /* Floating Action Button */
+        .floating-action-btn {
+            position: fixed;
+            bottom: calc(80px + var(--safe-area-inset-bottom));
+            right: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .floating-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Prevent horizontal scrolling */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav,
+            .hamburger-menu {
+                display: block;
             }
             
-            .logo {
-                margin-bottom: 1rem;
+            /* Hide realtime clock on mobile */
+            #realtime-clock {
+                display: none;
             }
             
-            .logo-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 2rem;
+            /* Adjust avatar dropdown position */
+            #avatar-dropdown {
+                top: 50px;
+                right: 10px;
             }
             
-            .logo-text {
-                font-size: 1.75rem;
+            /* Improve chart responsiveness */
+            .chart-container {
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
             }
             
-            .welcome-title {
-                font-size: 1.75rem;
+            /* Better transaction item layout */
+            .transaction-item {
+                padding: 0.5rem 0;
             }
             
-            .auth-title {
-                font-size: 1.4rem;
+            .transaction-icon {
+                margin-right: 0.75rem;
             }
             
-            .auth-subtitle {
+            /* Better goal item layout */
+            .goal-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .goal-amount {
+                margin-top: 0.25rem;
+            }
+        }
+
+        /* Very small devices (e.g., iPhone 5/SE) */
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .summary-card {
+                padding: 1rem;
+            }
+            
+            .card-value {
+                font-size: 1.25rem;
+            }
+            
+            .card-change {
+                font-size: 0.75rem;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-nav-item {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.1rem;
+            }
+            
+            .mobile-nav-item i {
+                font-size: 1rem;
+            }
+        }
+
+        .hamburger-item.admin-link, .hamburger-item.user-management-link { display: none; }
+
+        @media (max-width: 600px) {
+            .category-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .category-amounts {
+                max-width: 100%;
                 font-size: 0.95rem;
-                margin-bottom: 1.5rem;
             }
-            
-            .social-auth {
-                flex-direction: column;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
+        }
+
+        /* Add after .summary-card styles */
+        .income-card {
+            background: linear-gradient(135deg, #e0f7ef 0%, #b2f5ea 100%);
+            color: #059669;
+        }
+        .expense-card {
+            background: linear-gradient(135deg, #ffe4e6 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+        .budget-card {
+            background: linear-gradient(135deg, #ede9fe 0%, #c7d2fe 100%);
+            color: #6366f1;
+        }
+        .savings-card {
+            background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);
+            color: #f59e0b;
+        }
+        .encouragement-widget {
+            grid-column: span 4;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-left: 1.5rem;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .encouragement-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: transparent;
+        }
+        .encouragement-bg.success {
+            background: radial-gradient(circle at 30% 30%, #d1fae5 0%, #6ee7b7 40%, transparent 80%);
+            animation: float-crystals-success 3s infinite linear;
+        }
+        .encouragement-bg.alert {
+            background: radial-gradient(circle at 70% 70%, #fee2e2 0%, #fca5a5 40%, transparent 80%);
+            animation: float-crystals-alert 3s infinite linear;
+        }
+        @keyframes float-crystals-success {
+            0% { background-position: 0 0, 100% 100%; }
+            100% { background-position: 100% 100%, 0 0; }
+        }
+        @keyframes float-crystals-alert {
+            0% { background-position: 100% 0, 0 100%; }
+            100% { background-position: 0 100%, 100% 0; }
+        }
+        .encouragement-content {
+            position: relative;
+            z-index: 2;
+        }
+        .encouragement-success {
+            color: #10b981 !important;
+        }
+        .encouragement-alert {
+            color: #ef4444 !important;
+        }
+        .encouragement-neutral {
+            color: #6366f1 !important;
+        }
+        .encouragement-content.encouragement-vertical {
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center;
+            text-align: center;
+        }
+        #encouragementIcon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        #encouragementMessage, #encouragementQuote {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <nav style="width:100%;display:flex;justify-content:flex-end;align-items:center;padding:1rem 2rem 0 2rem;gap:1.5rem;position:fixed;top:0;left:0;z-index:100;background:var(--light);box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-        <a href="pricing.html" style="font-weight:600;color:var(--primary);text-decoration:none;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
-            <i class="fas fa-tags"></i> Pricing
-        </a>
-    </nav>
-    <div style="display:flex;flex:1;min-height:100vh;width:100vw;margin-top:64px;">
-        <!-- Welcome Section -->
-        <section class="welcome-section" style="flex:1;min-width:0;">
-            <div class="wallet-float">
-                <i class="fas fa-wallet"></i>
-            </div>
-            <div class="wallet-float">
-                <i class="fas fa-coins"></i>
-            </div>
-            <div class="wallet-float">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="language-selector">
-                <i class="fas fa-globe"></i>
-                <select id="language-selector">
-                    <option value="en">English</option>
-                    <option value="sw">Kiswahili</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                    <option value="ja">日本語</option>
-                    <option value="zh">中文</option>
-                    <option value="hi">हिन्दी</option>
-                    <option value="ar">العربية</option>
-                    <option value="ru">Русский</option>
-                    <option value="pt">Português</option>
-                </select>
-            </div>
-            <div class="welcome-content">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <div class="logo-text">HipoBudget</div>
-                </div>
-                <h1 class="welcome-title" data-i18n="welcome_title">Smart Finance Management</h1>
-                <p class="welcome-description" data-i18n="welcome_description">
-                    Take control of your finances with our intelligent budgeting tools. 
-                    HipoBudget helps you save more, spend wisely, and achieve your 
-                    financial goals faster.
-                </p>
-                <a href="pricing.html" class="btn btn-secondary" style="margin: 1.5rem auto 0 auto; display: inline-flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-tags"></i> See Pricing
-                </a>
-            </div>
-        </section>
-        <!-- Auth Section -->
-        <section class="auth-section" style="flex:1;min-width:0;">
-            <div class="auth-container">
-                <div class="auth-tabs">
-                    <div class="auth-tab active" data-tab="signin" data-i18n="sign_in_tab">Sign In</div>
-                    <div class="auth-tab" data-tab="signup" data-i18n="sign_up_tab">Sign Up</div>
-                </div>
-                
-                <!-- Sign In Content -->
-                <div class="auth-content active" id="signin-tab">
-                    <h2 class="auth-title" data-i18n="sign_in_title">Welcome Back</h2>
-                    <p class="auth-subtitle" data-i18n="sign_in_subtitle">Sign in to access your financial dashboard</p>
-                    
-                    <div class="verification-banner" id="email-verification-banner" style="display: none;">
-                        <span class="verification-icon"><i class="fas fa-envelope"></i></span>
-                        <span class="verification-text" data-i18n="verification_prompt">Please verify your email address to access all features.</span>
-                        <a href="#" class="verification-link" id="resend-verification" data-i18n="resend_link">Resend</a>
-                    </div>
-                    
-                    <div class="social-auth">
-                        <button class="social-btn" id="google-sign-in">
-                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                                <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
-                            </svg>
-                            <span data-i18n="sign_in_with_google">google</span>
-                        </button>
-                        <button class="social-btn" id="apple-sign-in">
-                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                                <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
-                            </svg>
-                            <span data-i18n="sign_in_with_apple">Apple</span>
-                        </button>
-                    </div>
-                    
-                    <div class="divider">
-                        <span class="divider-text" data-i18n="or_divider">or</span>
-                    </div>
-                    
-                    <form class="auth-form" id="signin-form">
-                        <div class="form-group">
-                            <label for="signin-email" data-i18n="email_label">Email Address</label>
-                            <input type="email" id="signin-email" placeholder="Enter your email" required autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="signin-password" data-i18n="password_label">Password</label>
-                            <div class="password-container">
-                                <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
-                                <button type="button" class="toggle-password" data-target="signin-password">
-                                    <i class="far fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="signin-role" data-i18n="role_label">I am a</label>
-                            <select id="signin-role">
-                                <option value="admin" data-i18n="role_admin">Administrator</option>
-                                <option value="user" selected data-i18n="role_user">Regular User</option>
-                            </select>
-                        </div>
-                        <div class="error-message" id="signin-error"></div>
-                        <div class="success-message" id="signin-success"></div>
-                        <button type="submit" class="btn btn-primary" id="signin-button">
-                            <span class="loading-spinner"></span>
-                            <span data-i18n="sign_in_button">Sign In</span>
-                        </button>
-                    </form>
-                    
-                    <div class="auth-footer">
-                        <p><a href="#" id="forgot-password" data-i18n="forgot_password">Forgot password?</a></p>
-                    </div>
-                </div>
-                
-                <!-- Sign Up Content -->
-                <div class="auth-content" id="signup-tab">
-                    <h2 class="auth-title" data-i18n="sign_up_title">Create Account</h2>
-                    <p class="auth-subtitle" data-i18n="sign_up_subtitle">Get started with HipoBudget in just a few steps</p>
-                    
-                    <div class="social-auth">
-                        <button class="social-btn" id="google-sign-up">
-                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                                <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
-                            </svg>
-                            <span data-i18n="sign_up_with_google">oogle</span>
-                        </button>
-                        <button class="social-btn" id="apple-sign-up">
-                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                                <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
-                            </svg>
-                            <span data-i18n="sign_up_with_apple">Apple</span>
-                        </button>
-                    </div>
-                    
-                    <div class="divider">
-                        <span class="divider-text" data-i18n="or_divider">or</span>
-                    </div>
-                    
-                    <form class="auth-form" id="signup-form">
-                        <div class="form-group">
-                            <label for="signup-name" data-i18n="full_name_label">Full Name</label>
-                            <input type="text" id="signup-name" placeholder="Enter your full name" required autocomplete="name">
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-email" data-i18n="email_label">Email Address</label>
-                            <input type="email" id="signup-email" placeholder="Enter your email" required autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-role" data-i18n="role_label">I am a</label>
-                            <select id="signup-role">
-                                <option value="admin" data-i18n="role_admin">Administrator</option>
-                                <option value="user" selected data-i18n="role_user">Regular User</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-password" data-i18n="password_label">Password</label>
-                            <div class="password-container">
-                                <input type="password" id="signup-password" placeholder="Create a password" required autocomplete="new-password">
-                                <button type="button" class="toggle-password" data-target="signup-password">
-                                    <i class="far fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="password-strength">
-                                <div class="password-strength-bar" id="password-strength-bar"></div>
-                            </div>
-                            <div class="password-strength-text" id="password-strength-text"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-confirm-password" data-i18n="confirm_password_label">Confirm Password</label>
-                            <div class="password-container">
-                                <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required autocomplete="new-password">
-                                <button type="button" class="toggle-password" data-target="signup-confirm-password">
-                                    <i class="far fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-group terms-checkbox">
-                            <input type="checkbox" id="terms-agreement" required>
-                            <label for="terms-agreement" class="terms-text">
-                                <span data-i18n="terms_agree">I agree to the</span>
-                                <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="terms_link">Terms of Service</a>
-                                <span data-i18n="and">and</span>
-                                <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="privacy_link">Privacy Policy</a>
-                            </label>
-                        </div>
-                        <div class="error-message" id="signup-error"></div>
-                        <div class="success-message" id="signup-success"></div>
-                        <button type="submit" class="btn btn-primary" id="signup-button">
-                            <span class="loading-spinner"></span>
-                            <span data-i18n="sign_up_button">Create Account</span>
-                        </button>
-                    </form>
-                    
-                    <div class="auth-footer">
-                        <p>
-                            <span data-i18n="already_have_account">Already have an account?</span>
-                            <a href="#" class="switch-tab" data-tab="signin" data-i18n="sign_in_link">Sign in</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Password Reset Modal -->
-    <div id="password-reset-modal">
-        <div class="modal-content">
-            <h2 class="modal-title" data-i18n="reset_password_title">Reset Password</h2>
-            <p class="modal-text" data-i18n="reset_password_instructions">
-                Enter your email address and we'll send you a link to reset your password.
-            </p>
-            <div class="form-group">
-                <label for="reset-email" data-i18n="email_label">Email Address</label>
-                <input type="email" id="reset-email" placeholder="Enter your email">
-            </div>
-            <div class="error-message" id="reset-error"></div>
-            <div class="success-message" id="reset-success"></div>
-            <div class="modal-actions">
-                <button id="cancel-reset" class="btn btn-secondary" data-i18n="cancel_button">Cancel</button>
-                <button id="submit-reset" class="btn btn-primary" data-i18n="send_reset_link">Send Reset Link</button>
-            </div>
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="hamburger-content" id="hamburgerContent">
+            <a href="settings.html" class="hamburger-item">
+                <i class="fas fa-cog"></i>
+                <span data-i18n="settings">Settings</span>
+            </a>
+            <a href="User management.html" class="hamburger-item user-management-link">
+                <i class="fas fa-users"></i>
+                <span data-i18n="user_management">User Management</span>
+            </a>
+            <a href="Admin.html" class="hamburger-item admin-link">
+                <i class="fas fa-user-shield"></i>
+                <span data-i18n="admin">Admin</span>
+            </a>
+            <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--light-gray);">
+            <a href="#" class="hamburger-item" id="hamburgerLogout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span data-i18n="logout">Logout</span>
+            </a>
         </div>
     </div>
+    <div class="hamburger-backdrop" id="hamburgerBackdrop"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item${window.location.pathname.endsWith('dashboard.html') ? ' active' : ''}">
+                <i class="fas fa-home"></i>
+                <span data-i18n="dashboard">Home</span>
+            </a>
+            <a href="transaction.html" class="mobile-nav-item${window.location.pathname.endsWith('transaction.html') ? ' active' : ''}">
+                <i class="fas fa-exchange-alt"></i>
+                <span data-i18n="transactions">Trans.</span>
+            </a>
+            <a href="budget.html" class="mobile-nav-item${window.location.pathname.endsWith('budget.html') ? ' active' : ''}">
+                <i class="fas fa-chart-pie"></i>
+                <span data-i18n="budget">Budget</span>
+            </a>
+            <a href="goals.html" class="mobile-nav-item${window.location.pathname.endsWith('goals.html') ? ' active' : ''}">
+                <i class="fas fa-bullseye"></i>
+                <span data-i18n="goals">Goals</span>
+            </a>
+            <a href="Reports.html" class="mobile-nav-item${window.location.pathname.endsWith('Reports.html') ? ' active' : ''}">
+                <i class="fas fa-chart-line"></i>
+                <span data-i18n="reports">Reports</span>
+            </a>
+            <a href="pricing.html" class="mobile-nav-item${window.location.pathname.endsWith('pricing.html') ? ' active' : ''}">
+                <i class="fas fa-tags"></i>
+                <span data-i18n="pricing">Pricing</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <!-- Sidebar (hidden on mobile) -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">HipoBudget</span>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link${window.location.pathname.endsWith('dashboard.html') ? ' active' : ''}">
+                        <i class="fas fa-home"></i>
+                        <span data-i18n="dashboard">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="transaction.html" class="nav-link${window.location.pathname.endsWith('transaction.html') ? ' active' : ''}">
+                        <i class="fas fa-wallet"></i>
+                        <span data-i18n="transactions">Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="budget.html" class="nav-link${window.location.pathname.endsWith('budget.html') ? ' active' : ''}">
+                        <i class="fas fa-chart-pie"></i>
+                        <span data-i18n="budget">Budget</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="goals.html" class="nav-link${window.location.pathname.endsWith('goals.html') ? ' active' : ''}">
+                        <i class="fas fa-bullseye"></i>
+                        <span data-i18n="goals">Goals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="Reports.html" class="nav-link${window.location.pathname.endsWith('Reports.html') ? ' active' : ''}">
+                        <i class="fas fa-chart-line"></i>
+                        <span data-i18n="reports">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="pricing.html" class="nav-link${window.location.pathname.endsWith('pricing.html') ? ' active' : ''}">
+                        <i class="fas fa-tags"></i>
+                        <span data-i18n="pricing">Pricing</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span data-i18n="settings_title">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title" data-i18n="dashboard">Dashboard</h1>
+                <div class="user-menu">
+                    <span id="realtime-clock"></span>
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div id="avatar-dropdown" style="display:none;position:absolute;right:1rem;top:60px;background:var(--card-bg);border:1px solid var(--light-gray);border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);z-index:10;transition:all 0.3s ease;">
+                        <button id="logout-btn" style="padding:0.75rem 1.5rem;width:100%;background:none;border:none;color:var(--danger);font-weight:500;cursor:pointer;" data-i18n="logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <!-- Summary Cards -->
+                <div class="summary-card income-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="total_income">Total Income</span>
+                        <div class="card-icon income-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">--</div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>--</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card expense-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="total_expenses">Total Expenses</span>
+                        <div class="card-icon expense-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">--</div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>--</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card budget-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="remaining_budget">Remaining Budget</span>
+                        <div class="card-icon budget-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">--</div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>--</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card savings-card">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="savings_rate">Savings Rate</span>
+                        <div class="card-icon budget-icon">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">--</div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>--</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions" style="grid-column: span 12; margin-bottom: 1.5rem;">
+                    <div class="action-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="addTransactionBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-plus"></i>
+                            <span data-i18n="add_transaction">Add Transaction</span>
+                        </button>
+                        <button class="btn btn-outline" id="viewAllTransactionsBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-list"></i>
+                            <span data-i18n="view_all_transactions">View All Transactions</span>
+                        </button>
+                        <button class="btn btn-primary" id="addBudgetBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-chart-pie"></i>
+                            <span data-i18n="add_budget">Add Budget</span>
+                        </button>
+                        <button class="btn btn-outline" id="viewAllBudgetsBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-tasks"></i>
+                            <span data-i18n="view_all_budgets">View All Budgets</span>
+                        </button>
+                        <button class="btn btn-primary" id="addGoalBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-bullseye"></i>
+                            <span data-i18n="add_goal">Add Goal</span>
+                        </button>
+                        <button class="btn btn-outline" id="viewAllGoalsBtn" style="display: flex; align-items: center;">
+                            <i class="fas fa-flag"></i>
+                            <span data-i18n="view_all_goals">View All Goals</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Spending Chart -->
+                <div class="chart-section" style="grid-column: span 8;">
+                    <div class="section-header">
+                        <h2 class="section-title" data-i18n="spending_trends">Spending Trends</h2>
+                        <select class="time-period" id="timePeriodSelect">
+                            <option value="6" data-i18n="last_6_months">Last 6 Months</option>
+                            <option value="12" data-i18n="this_year">This Year</option>
+                            <option value="24" data-i18n="last_year">Last Year</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="spendingChart"></canvas>
+                    </div>
+                </div>
+                <!-- Encouragement Widget -->
+                <div class="encouragement-widget" id="encouragementWidget">
+                    <div class="encouragement-bg" id="encouragementBg"></div>
+                    <div class="encouragement-content encouragement-vertical" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;">
+                        <span id="encouragementIcon" style="font-size:2.5rem;margin-bottom:0.5rem;"></span>
+                        <div id="encouragementMessage" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; text-align:center;"></div>
+                        <div id="encouragementQuote" style="font-size: 0.95rem; text-align:center;"></div>
+                    </div>
+                </div>
+                
+                <!-- Goals Section -->
+                <div class="goals-section" id="goalsSection">
+                    <div class="section-header">
+                        <h2 class="section-title" data-i18n="goal_tracker">Goal Tracker</h2>
+                        <a href="goals.html" data-i18n="view_all">View All</a>
+                    </div>
+                    <!-- Goals will be dynamically inserted here -->
+                    <div id="goals-container"></div>
+                </div>
+                
+                <!-- Recent Transactions -->
+                <div class="transactions-section" id="transactionsSection">
+                    <div class="section-header">
+                        <h2 class="section-title" data-i18n="recent_transactions">Recent Transactions</h2>
+                        <a href="transaction.html" data-i18n="view_all">View All</a>
+                    </div>
+                    <!-- Transactions will be dynamically inserted here -->
+                    <div id="transactions-container"></div>
+                </div>
+                
+                <!-- Budget Categories -->
+                <div class="categories-section" id="categoriesSection">
+                    <div class="section-header">
+                        <h2 class="section-title" data-i18n="budget_categories">Budget Categories</h2>
+                        <a href="budget.html" data-i18n="view_all">View All</a>
+                    </div>
+                    <!-- Categories will be dynamically inserted here -->
+                    <div id="categories-container"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <button class="floating-action-btn" id="fabAddTransaction" aria-label="Add Transaction" style="z-index:9999;position:fixed;bottom:80px;right:24px;">
+        <i class="fas fa-plus"></i>
+    </button>
 
     <script>
-        // Internationalization support
-        const i18n = {
-            en: {
-                welcome_title: "Smart Finance Management",
-                welcome_description: "Take control of your finances with our intelligent budgeting tools. HipoBudget helps you save more, spend wisely, and achieve your financial goals faster with multi-currency support.",
-                feature1: "AI-powered financial insights",
-                feature2: "Automated expense tracking",
-                feature3: "Custom savings plans",
-                feature4: "Bank-level security",
-                feature5: "Multi-currency support",
-                feature6: "Export reports in multiple formats",
-                security_badge: "256-bit encryption • GDPR compliant • ISO 27001 certified",
-                sign_in_tab: "Sign In",
-                sign_up_tab: "Sign Up",
-                sign_in_title: "Welcome Back",
-                sign_in_subtitle: "Sign in to access your financial dashboard",
-                verification_prompt: "Please verify your email address to access all features.",
-                resend_link: "Resend",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "or",
-                email_label: "Email Address",
-                password_label: "Password",
-                role_label: "I am a",
-                role_admin: "Administrator",
-                role_user: "Regular User",
-                sign_in_button: "Sign In",
-                forgot_password: "Forgot password?",
-                sign_up_title: "Create Account",
-                sign_up_subtitle: "Get started with HipoBudget in just a few steps",
-                full_name_label: "Full Name",
-                confirm_password_label: "Confirm Password",
-                terms_agree: "I agree to the",
-                terms_link: "Terms of Service",
-                and: "and",
-                privacy_link: "Privacy Policy",
-                sign_up_button: "Create Account",
-                already_have_account: "Already have an account?",
-                sign_in_link: "Sign in",
-                reset_password_title: "Reset Password",
-                reset_password_instructions: "Enter your email address and we'll send you a link to reset your password.",
-                cancel_button: "Cancel",
-                send_reset_link: "Send Reset Link",
-                password_weak: "Weak",
-                password_fair: "Fair",
-                password_good: "Good",
-                password_strong: "Strong",
-                password_very_strong: "Very Strong",
-                currency_usd: "US Dollar (USD)",
-                currency_eur: "Euro (EUR)",
-                currency_gbp: "British Pound (GBP)",
-                currency_jpy: "Japanese Yen (JPY)",
-                currency_cad: "Canadian Dollar (CAD)",
-                currency_aud: "Australian Dollar (AUD)",
-                currency_cny: "Chinese Yuan (CNY)",
-                currency_inr: "Indian Rupee (INR)"
-            },
-            es: {
-                welcome_title: "Gestión Inteligente de Finanzas",
-                welcome_description: "Toma el control de tus finanzas con nuestras herramientas de presupuesto inteligente. HipoBudget te ayuda a ahorrar más, gastar sabiamente y alcanzar tus metas financieras más rápido con soporte para múltiples monedas.",
-                feature1: "Información financiera con IA",
-                feature2: "Seguimiento automático de gastos",
-                feature3: "Planes de ahorro personalizados",
-                feature4: "Seguridad de nivel bancario",
-                feature5: "Soporte para múltiples monedas",
-                feature6: "Exportar reportes en múltiples formatos",
-                security_badge: "Encriptación de 256-bit • Cumple con GDPR • Certificado ISO 27001",
-                sign_in_tab: "Iniciar Sesión",
-                sign_up_tab: "Registrarse",
-                sign_in_title: "Bienvenido de Nuevo",
-                sign_in_subtitle: "Inicia sesión para acceder a tu panel financiero",
-                verification_prompt: "Por favor verifica tu dirección de correo electrónico para acceder a todas las funciones.",
-                resend_link: "Reenviar",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "o",
-                email_label: "Correo Electrónico",
-                password_label: "Contraseña",
-                role_label: "Soy un",
-                role_admin: "Administrador",
-                role_user: "Usuario Regular",
-                sign_in_button: "Iniciar Sesión",
-                forgot_password: "¿Olvidaste tu contraseña?",
-                sign_up_title: "Crear Cuenta",
-                sign_up_subtitle: "Comienza con HipoBudget en solo unos pasos",
-                full_name_label: "Nombre Completo",
-                confirm_password_label: "Confirmar Contraseña",
-                terms_agree: "Acepto los",
-                terms_link: "Términos de Servicio",
-                and: "y",
-                privacy_link: "Política de Privacidad",
-                sign_up_button: "Crear Cuenta",
-                already_have_account: "¿Ya tienes una cuenta?",
-                sign_in_link: "Iniciar Sesión",
-                reset_password_title: "Restablecer Contraseña",
-                reset_password_instructions: "Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
-                cancel_button: "Cancelar",
-                send_reset_link: "Enviar Enlace",
-                password_weak: "Débil",
-                password_fair: "Aceptable",
-                password_good: "Buena",
-                password_strong: "Fuerte",
-                password_very_strong: "Muy Fuerte",
-                currency_usd: "Dólar Estadounidense (USD)",
-                currency_eur: "Euro (EUR)",
-                currency_gbp: "Libra Esterlina (GBP)",
-                currency_jpy: "Yen Japonés (JPY)",
-                currency_cad: "Dólar Canadiense (CAD)",
-                currency_aud: "Dólar Australiano (AUD)",
-                currency_cny: "Yuan Chino (CNY)",
-                currency_inr: "Rupia India (INR)"
-            },
-            fr: {
-                welcome_title: "Gestion Financière Intelligente",
-                welcome_description: "Prenez le contrôle de vos finances avec nos outils de budgétisation intelligents. HipoBudget vous aide à économiser plus, à dépenser judicieusement et à atteindre vos objectifs financiers plus rapidement avec la prise en charge de plusieurs devises.",
-                feature1: "Informations financières alimentées par l'IA",
-                feature2: "Suivi automatique des dépenses",
-                feature3: "Plans d'épargne personnalisés",
-                feature4: "Sécurité de niveau bancaire",
-                feature5: "Prise en charge de plusieurs devises",
-                feature6: "Exporter des rapports dans plusieurs formats",
-                security_badge: "Chiffrement 256-bit • Conforme au RGPD • Certifié ISO 27001",
-                sign_in_tab: "Connexion",
-                sign_up_tab: "Inscription",
-                sign_in_title: "Content de vous revoir",
-                sign_in_subtitle: "Connectez-vous pour accéder à votre tableau de bord financier",
-                verification_prompt: "Veuillez vérifier votre adresse e-mail pour accéder à toutes les fonctionnalités.",
-                resend_link: "Renvoyer",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "ou",
-                email_label: "Adresse e-mail",
-                password_label: "Mot de passe",
-                role_label: "Je suis un",
-                role_admin: "Administrateur",
-                role_user: "Utilisateur Régulier",
-                sign_in_button: "Connexion",
-                forgot_password: "Mot de passe oublié?",
-                sign_up_title: "Créer un compte",
-                sign_up_subtitle: "Commencez avec HipoBudget en quelques étapes",
-                full_name_label: "Nom complet",
-                confirm_password_label: "Confirmer le mot de passe",
-                terms_agree: "J'accepte les",
-                terms_link: "Conditions d'utilisation",
-                and: "et",
-                privacy_link: "Politique de confidentialité",
-                sign_up_button: "Créer un compte",
-                already_have_account: "Vous avez déjà un compte?",
-                sign_in_link: "Connexion",
-                reset_password_title: "Réinitialiser le mot de passe",
-                reset_password_instructions: "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
-                cancel_button: "Annuler",
-                send_reset_link: "Envoyer le lien",
-                password_weak: "Faible",
-                password_fair: "Moyen",
-                password_good: "Bon",
-                password_strong: "Fort",
-                password_very_strong: "Très fort",
-                currency_usd: "Dollar Américain (USD)",
-                currency_eur: "Euro (EUR)",
-                currency_gbp: "Livre Sterling (GBP)",
-                currency_jpy: "Yen Japonais (JPY)",
-                currency_cad: "Dollar Canadien (CAD)",
-                currency_aud: "Dollar Australien (AUD)",
-                currency_cny: "Yuan Chinois (CNY)",
-                currency_inr: "Roupie Indienne (INR)"
-            },
-            de: {
-                welcome_title: "Intelligente Finanzverwaltung",
-                welcome_description: "Übernehmen Sie die Kontrolle über Ihre Finanzen mit unseren intelligenten Budgetierungstools. HipoBudget hilft Ihnen, mehr zu sparen, klüger auszugeben und Ihre finanziellen Ziele schneller mit Multi-Währungsunterstützung zu erreichen.",
-                feature1: "KI-gestützte Finanzeinblicke",
-                feature2: "Automatische Ausgabenverfolgung",
-                feature3: "Individuelle Sparpläne",
-                feature4: "Banklevel-Sicherheit",
-                feature5: "Multi-Währungsunterstützung",
-                feature6: "Berichte in mehreren Formaten exportieren",
-                security_badge: "256-Bit-Verschlüsselung • DSGVO-konform • ISO 27001 zertifiziert",
-                sign_in_tab: "Anmelden",
-                sign_up_tab: "Registrieren",
-                sign_in_title: "Willkommen zurück",
-                sign_in_subtitle: "Melden Sie sich an, um auf Ihr Finanzdashboard zuzugreifen",
-                verification_prompt: "Bitte bestätigen Sie Ihre E-Mail-Adresse, um auf alle Funktionen zugreifen zu können.",
-                resend_link: "Erneut senden",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "oder",
-                email_label: "E-Mail-Adresse",
-                password_label: "Passwort",
-                role_label: "Ich bin ein",
-                role_admin: "Administrator",
-                role_user: "Regelmäßiger Benutzer",
-                sign_in_button: "Anmelden",
-                forgot_password: "Passwort vergessen?",
-                sign_up_title: "Konto erstellen",
-                sign_up_subtitle: "Beginnen Sie mit HipoBudget in nur wenigen Schritten",
-                full_name_label: "Vollständiger Name",
-                confirm_password_label: "Passwort bestätigen",
-                terms_agree: "Ich stimme den",
-                terms_link: "Nutzungsbedingungen",
-                and: "und",
-                privacy_link: "Datenschutzrichtlinie",
-                sign_up_button: "Konto erstellen",
-                already_have_account: "Haben Sie bereits ein Konto?",
-                sign_in_link: "Anmelden",
-                reset_password_title: "Passwort zurücksetzen",
-                reset_password_instructions: "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
-                cancel_button: "Abbrechen",
-                send_reset_link: "Link senden",
-                password_weak: "Schwach",
-                password_fair: "Mäßig",
-                password_good: "Gut",
-                password_strong: "Stark",
-                password_very_strong: "Sehr stark",
-                currency_usd: "US-Dollar (USD)",
-                currency_eur: "Euro (EUR)",
-                currency_gbp: "Britisches Pfund (GBP)",
-                currency_jpy: "Japanischer Yen (JPY)",
-                currency_cad: "Kanadischer Dollar (CAD)",
-                currency_aud: "Australischer Dollar (AUD)",
-                currency_cny: "Chinesischer Yuan (CNY)",
-                currency_inr: "Indische Rupie (INR)"
-            },
-            ja: {
-                welcome_title: "スマートファイナンス管理",
-                welcome_description: "インテリジェントな予算管理ツールで財務をコントロールしましょう。HipoBudgetは、マルチ通貨サポートにより、より多く節約し、賢く支出し、より速く財務目標を達成するのに役立ちます。",
-                feature1: "AIを活用した財務分析",
-                feature2: "自動支出追跡",
-                feature3: "カスタム貯蓄プラン",
-                feature4: "銀行レベルのセキュリティ",
-                feature5: "マルチ通貨サポート",
-                feature6: "複数形式でのレポート出力",
-                security_badge: "256ビット暗号化 • GDPR準拠 • ISO 27001認証",
-                sign_in_tab: "ログイン",
-                sign_up_tab: "新規登録",
-                sign_in_title: "おかえりなさい",
-                sign_in_subtitle: "財務ダッシュボードにアクセスするにはログインしてください",
-                verification_prompt: "すべての機能にアクセスするには、メールアドレスを確認してください。",
-                resend_link: "再送",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "または",
-                email_label: "メールアドレス",
-                password_label: "パスワード",
-                role_label: "私は",
-                role_admin: "管理者",
-                role_user: "一般ユーザー",
-                sign_in_button: "ログイン",
-                forgot_password: "パスワードをお忘れですか？",
-                sign_up_title: "アカウント作成",
-                sign_up_subtitle: "数ステップでHipoBudgetを始めましょう",
-                full_name_label: "氏名",
-                confirm_password_label: "パスワード確認",
-                terms_agree: "以下に同意します",
-                terms_link: "利用規約",
-                and: "および",
-                privacy_link: "プライバシーポリシー",
-                sign_up_button: "アカウント作成",
-                already_have_account: "すでにアカウントをお持ちですか？",
-                sign_in_link: "ログイン",
-                reset_password_title: "パスワードリセット",
-                reset_password_instructions: "メールアドレスを入力すると、パスワードをリセットするためのリンクが送信されます。",
-                cancel_button: "キャンセル",
-                send_reset_link: "リセットリンクを送信",
-                password_weak: "弱い",
-                password_fair: "普通",
-                password_good: "良い",
-                password_strong: "強い",
-                password_very_strong: "非常に強い",
-                currency_usd: "米ドル (USD)",
-                currency_eur: "ユーロ (EUR)",
-                currency_gbp: "英ポンド (GBP)",
-                currency_jpy: "日本円 (JPY)",
-                currency_cad: "カナダドル (CAD)",
-                currency_aud: "豪ドル (AUD)",
-                currency_cny: "人民元 (CNY)",
-                currency_inr: "インドルピー (INR)"
-            },
-            sw: {
-                welcome_title: "Usimamizi wa Fedha wa Akili",
-                welcome_description: "Chukua udhibiti wa fedha zako kwa zana zetu za bajeti za kisasa. HipoBudget inakusaidia kuokoa zaidi, kutumia kwa busara, na kufikia malengo yako ya kifedha haraka kwa msaada wa sarafu nyingi.",
-                feature1: "Maarifa ya kifedha yanayoendeshwa na AI",
-                feature2: "Ufuatiliaji wa matumizi kiotomatiki",
-                feature3: "Mipango maalum ya akiba",
-                feature4: "Usalama wa kiwango cha benki",
-                feature5: "Msaada wa sarafu nyingi",
-                feature6: "Hamisha ripoti kwa miundo mingi",
-                security_badge: "Usimbaji fiche wa 256-bit • Inatii GDPR • Imethibitishwa ISO 27001",
-                sign_in_tab: "Ingia",
-                sign_up_tab: "Jisajili",
-                sign_in_title: "Karibu Tena",
-                sign_in_subtitle: "Ingia ili kufikia dashibodi yako ya kifedha",
-                verification_prompt: "Tafadhali thibitisha barua pepe yako ili kufikia vipengele vyote.",
-                resend_link: "Tuma tena",
-                sign_in_with_google: "Google",
-                sign_in_with_apple: "Apple",
-                sign_up_with_google: "Google",
-                sign_up_with_apple: "Apple",
-                or_divider: "au",
-                email_label: "Barua Pepe",
-                password_label: "Nenosiri",
-                role_label: "Mimi ni",
-                role_admin: "Msimamizi",
-                role_user: "Mtumiaji wa Kawaida",
-                sign_in_button: "Ingia",
-                forgot_password: "Umesahau nenosiri?",
-                sign_up_title: "Unda Akaunti",
-                sign_up_subtitle: "Anza na HipoBudget kwa hatua chache tu",
-                full_name_label: "Jina Kamili",
-                confirm_password_label: "Thibitisha Nenosiri",
-                terms_agree: "Ninakubali",
-                terms_link: "Masharti ya Huduma",
-                and: "na",
-                privacy_link: "Sera ya Faragha",
-                sign_up_button: "Unda Akaunti",
-                already_have_account: "Tayari una akaunti?",
-                sign_in_link: "Ingia",
-                reset_password_title: "Weka Upya Nenosiri",
-                reset_password_instructions: "Weka barua pepe yako na tutakutumia kiungo cha kuweka upya nenosiri lako.",
-                cancel_button: "Ghairi",
-                send_reset_link: "Tuma Kiungo",
-                password_weak: "Dhaifu",
-                password_fair: "Wastani",
-                password_good: "Nzuri",
-                password_strong: "Imara",
-                password_very_strong: "Imara Sana",
-                currency_usd: "Dola ya Marekani (USD)",
-                currency_eur: "Euro (EUR)",
-                currency_gbp: "Pauni ya Uingereza (GBP)",
-                currency_jpy: "Yen ya Japani (JPY)",
-                currency_cad: "Dola ya Kanada (CAD)",
-                currency_aud: "Dola ya Australia (AUD)",
-                currency_cny: "Yuan ya China (CNY)",
-                currency_inr: "Rupia ya India (INR)"
+    // Get Firebase instances from centralized manager
+    let auth, db;
+    
+    // --- Spending Trends Chart ---
+    let spendingChartInstance = null;
+    function getMonthLabel(date) {
+        return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+    }
+    function groupSpendingByMonth(transactions, monthsBack) {
+        const now = new Date();
+        const months = [];
+        const monthMap = {};
+        for (let i = monthsBack - 1; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const label = getMonthLabel(d);
+            months.push(label);
+            monthMap[label] = 0;
+        }
+        transactions.forEach(tx => {
+            if (tx.type === 'expense' && tx.date) {
+                let txDate = tx.date;
+                if (typeof txDate === 'object' && txDate.seconds) {
+                    txDate = new Date(txDate.seconds * 1000);
+                } else {
+                    txDate = new Date(txDate);
+                }
+                const label = getMonthLabel(txDate);
+                if (monthMap[label] !== undefined) {
+                    monthMap[label] += Number(tx.amount) || 0;
+                }
             }
-        };
-
-        // Set language based on browser preference or user selection
-        function setLanguage(lang) {
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[lang] && i18n[lang][key]) {
-                    if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
-                        el.setAttribute('placeholder', i18n[lang][key]);
-                    } else if (el.tagName === 'OPTION' && el.hasAttribute('data-i18n')) {
-                        el.textContent = i18n[lang][key];
-                    } else {
-                        el.textContent = i18n[lang][key];
+        });
+        return { labels: months, data: months.map(m => monthMap[m]) };
+    }
+    function renderSpendingChart(transactions, monthsBack) {
+        const ctx = document.getElementById('spendingChart').getContext('2d');
+        const { labels, data } = groupSpendingByMonth(transactions, monthsBack);
+        if (spendingChartInstance) spendingChartInstance.destroy();
+        spendingChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Spending',
+                    data: data,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239,68,68,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${window.formatCurrency(ctx.raw)}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#ef4444',
+                            callback: value => window.formatCurrency(value)
+                        }
+                    },
+                    x: {
+                        ticks: { color: '#ef4444' }
                     }
                 }
+            }
+        });
+    }
+    // --- END Spending Trends Chart ---
+
+    // Fetch and display dashboard data
+    async function fetchDashboardData(userId) {
+        // Fetch transactions for this user
+        let totalIncome = 0, totalExpenses = 0, recentTxs = [], allTxs = [];
+        try {
+            const txSnapshot = await db.collection('transactions')
+                .where('userId', '==', userId)
+                .orderBy('date', 'desc')
+                .limit(100)
+                .get();
+            txSnapshot.forEach(doc => {
+                const tx = doc.data();
+                if (tx.type === 'income') totalIncome += Number(tx.amount);
+                if (tx.type === 'expense') totalExpenses += Number(tx.amount);
+                recentTxs.push({ ...tx, id: doc.id });
+                allTxs.push({ ...tx, id: doc.id });
             });
-            
-            // Update currency options
-            const currencyOptions = {
-                USD: i18n[lang].currency_usd || "US Dollar (USD)",
-                EUR: i18n[lang].currency_eur || "Euro (EUR)",
-                GBP: i18n[lang].currency_gbp || "British Pound (GBP)",
-                JPY: i18n[lang].currency_jpy || "Japanese Yen (JPY)",
-                CAD: i18n[lang].currency_cad || "Canadian Dollar (CAD)",
-                AUD: i18n[lang].currency_aud || "Australian Dollar (AUD)",
-                CNY: i18n[lang].currency_cny || "Chinese Yuan (CNY)",
-                INR: i18n[lang].currency_inr || "Indian Rupee (INR)"
-            };
-            
-            const currencySelector = document.getElementById('currency-selector');
-            if (currencySelector) {
-                const selectedValue = currencySelector.value;
-                currencySelector.innerHTML = '';
-                for (const [value, text] of Object.entries(currencyOptions)) {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    option.textContent = text;
-                    currencySelector.appendChild(option);
-                }
-                currencySelector.value = selectedValue;
-            }
+        } catch (e) {
+            console.error('Error fetching transactions:', e);
         }
-
-        // Initialize language
-        document.getElementById('language-selector').addEventListener('change', (e) => {
-            const lang = e.target.value;
-            localStorage.setItem('preferredLanguage', lang);
-            setLanguage(lang);
-        });
-
-        // Set initial language based on browser preference or saved preference
-        const savedLang = localStorage.getItem('preferredLanguage');
-        const browserLang = navigator.language.split('-')[0];
-        const supportedLangs = ['en', 'sw', 'es', 'fr', 'de', 'ja', 'zh', 'hi', 'ar', 'ru', 'pt'];
-        const defaultLang = savedLang || (supportedLangs.includes(browserLang) ? browserLang : 'en');
-        document.getElementById('language-selector').value = defaultLang;
-        setLanguage(defaultLang);
-
-        // Currency selector
-        document.getElementById('currency-selector').addEventListener('change', (e) => {
-            localStorage.setItem('preferredCurrency', e.target.value);
-        });
-
-        // Set initial currency
-        const savedCurrency = localStorage.getItem('preferredCurrency') || 'USD';
-        document.getElementById('currency-selector').value = savedCurrency;
-
-        // Helper function to display error messages
-        const showError = (elementId, message) => {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.classList.add('active');
+        // Update summary cards
+        const cardValues = document.querySelectorAll('.summary-card .card-value');
+        if (cardValues[0]) cardValues[0].textContent = window.formatCurrency(totalIncome);
+        if (cardValues[1]) cardValues[1].textContent = window.formatCurrency(totalExpenses);
+        if (cardValues[2]) cardValues[2].textContent = window.formatCurrency(totalIncome - totalExpenses);
+        if (cardValues[3]) cardValues[3].textContent = totalIncome > 0 ? ((totalIncome-totalExpenses)/totalIncome*100).toFixed(1) + '%' : '--';
+        // Render recent transactions
+        const txContainer = document.getElementById('transactions-container');
+        if (txContainer) {
+            txContainer.innerHTML = recentTxs.length ? recentTxs.map(tx => `
+                <div class="tx-item" style="padding:0.5rem 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+                    <span>${tx.description || tx.category || 'Transaction'}</span>
+                    <span style="color:${tx.type==='income'?'#10b981':'#ef4444'};font-weight:600;">${tx.type==='income'?'+':'-'}${window.formatCurrency(Number(tx.amount))}</span>
+                </div>
+            `).join('') : '<div style="color:#aaa;text-align:center;">No recent transactions.</div>';
+        }
+        // Fetch and render goals
+        try {
+            const goalsSnap = await db.collection('goals')
+                .where('userId', '==', userId)
+                .orderBy('createdAt', 'desc')
+                .limit(3)
+                .get();
+            const goals = [];
+            goalsSnap.forEach(doc => goals.push(doc.data()));
+            const goalsContainer = document.getElementById('goals-container');
+            if (goalsContainer) {
+                goalsContainer.innerHTML = goals.length ? goals.map(goal => `
+                    <div class="goal-item" style="margin-bottom:0.5rem;">
+                        <div><b>${goal.title || 'Goal'}</b></div>
+                        <div style="font-size:0.9em;color:#888;">Target: ${window.formatCurrency(goal.target || 0)}</div>
+                    </div>
+                `).join('') : '<div style="color:#aaa;text-align:center;">No goals set.</div>';
             }
-        };
-
-        // Helper function to display success messages
-        const showSuccess = (elementId, message) => {
-            const successElement = document.getElementById(elementId);
-            if (successElement) {
-                successElement.textContent = message;
-                successElement.classList.add('active');
+        } catch (e) {
+            console.error('Error fetching goals:', e);
+        }
+        // Fetch and render budget categories
+        try {
+            const catSnap = await db.collection('budgets')
+                .where('userId', '==', userId)
+                .get();
+            const cats = [];
+            catSnap.forEach(doc => cats.push(doc.data()));
+            const catContainer = document.getElementById('categories-container');
+            if (catContainer) {
+                catContainer.innerHTML = cats.length ? cats.map(cat => `
+                    <div class="cat-item" style="margin-bottom:0.5rem;">
+                        <div><b>${cat.category || 'Category'}</b></div>
+                        <div style="font-size:0.9em;color:#888;">Budget: ${window.formatCurrency(cat.amount || 0)}</div>
+                    </div>
+                `).join('') : '<div style="color:#aaa;text-align:center;">No budget categories.</div>';
             }
-        };
+        } catch (e) {
+            console.error('Error fetching budget categories:', e);
+        }
+        // Render spending chart
+        const monthsBack = parseInt(document.getElementById('timePeriodSelect').value) || 6;
+        renderSpendingChart(allTxs, monthsBack);
+        const encouragement = getEncouragement(allTxs);
+        document.getElementById('encouragementIcon').innerHTML = encouragement.icon;
+        document.getElementById('encouragementMessage').textContent = encouragement.message;
+        document.getElementById('encouragementQuote').textContent = encouragement.quote;
+        document.getElementById('encouragementMessage').className = encouragement.colorClass;
+        document.getElementById('encouragementIcon').className = encouragement.colorClass;
+        const bg = document.getElementById('encouragementBg');
+        bg.className = 'encouragement-bg' + (encouragement.bgClass ? ' ' + encouragement.bgClass : '');
+    }
+    
+    // i18n initialization and management
+    window._i18n = window._i18n || {};
 
-        // Helper function to clear messages
-        const clearMessage = (elementId) => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.textContent = '';
-                element.classList.remove('active');
-            }
-        };
-
-        // Helper function to clear form inputs
-        const clearForm = (formId) => {
-            const form = document.getElementById(formId);
-            if (form) form.reset();
-        };
-
-        // Helper function to set button loading state
-        const setLoading = (buttonId, isLoading) => {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                if (isLoading) {
-                    button.classList.add('loading');
-                    button.disabled = true;
-                } else {
-                    button.classList.remove('loading');
-                    button.disabled = false;
-                }
-            }
-        };
-
-        // Password strength indicator
-        const updatePasswordStrength = (password) => {
-            if (!password) {
-                document.getElementById('password-strength-bar').style.width = '0%';
-                document.getElementById('password-strength-bar').style.backgroundColor = '';
-                document.getElementById('password-strength-text').textContent = '';
+    // Load translations into cache
+    async function loadTranslations(lang) {
+        try {
+            // Check cache first
+            const cached = localStorage.getItem('i18n_' + lang);
+            if (cached) {
+                window._i18n[lang] = JSON.parse(cached);
                 return;
             }
 
-            const result = zxcvbn(password);
-            const strength = result.score; // 0-4
-            const strengthText = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-            const strengthColors = ['var(--error)', 'var(--warning)', 'var(--info)', 'var(--success)', 'var(--success)'];
-            const strengthWidth = [20, 40, 60, 80, 100];
+            // Fetch from file if not in cache
+            const resp = await fetch(`${lang}.json`);
+            if (resp.ok) {
+                const translations = await resp.json();
+                window._i18n[lang] = translations;
+                localStorage.setItem('i18n_' + lang, JSON.stringify(translations));
+            }
+        } catch (err) {
+            console.error('Error loading translations:', err);
+        }
+    }
 
-            document.getElementById('password-strength-bar').style.width = strengthWidth[strength] + '%';
-            document.getElementById('password-strength-bar').style.backgroundColor = strengthColors[strength];
-            
-            const currentLang = document.getElementById('language-selector').value;
-            document.getElementById('password-strength-text').textContent = i18n[currentLang]['password_' + strengthText[strength].toLowerCase().replace(' ', '_')];
-        };
-
-        // Initialize Firebase with centralized manager
-        let auth = null;
-        let db = null;
+    // Apply translations to DOM
+    function applyTranslations() {
+        const lang = localStorage.getItem('userLanguage') || 'en';
+        const translations = window._i18n[lang] || {};
         
-        async function initializeApp() {
-            try {
-                console.log('Initializing Firebase with centralized manager...');
-                
-                // Wait for Firebase to be ready
-                const firebaseInstance = await window.FirebaseManager.waitForReady();
-                auth = firebaseInstance.auth;
-                db = firebaseInstance.firestore;
-                
-                // Set persistence to LOCAL to keep user logged in between sessions
-                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                    .then(() => console.log('Auth persistence set to LOCAL'))
-                    .catch(error => console.error('Error setting auth persistence:', error));
-                
-                console.log('Firebase initialized successfully');
-                
-                // Initialize auth state listener
-                initializeAuthStateListener();
-                
-            } catch (error) {
-                console.error('Firebase initialization error:', error.message);
-                showError('signin-error', 'Failed to initialize Firebase. Check your internet connection or Firebase configuration.');
-                showError('signup-error', 'Failed to initialize Firebase. Check your internet connection or Firebase configuration.');
-                // Disable forms if Firebase is not initialized
-                document.getElementById('signin-form').querySelectorAll('input, button, select').forEach(el => el.disabled = true);
-                document.getElementById('signup-form').querySelectorAll('input, button, select').forEach(el => el.disabled = true);
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (translations[key]) {
+                // For inputs, update placeholder if it exists
+                if (element.hasAttribute('placeholder')) {
+                    element.placeholder = translations[key];
+                } else {
+                    element.textContent = translations[key];
+                }
             }
-        }
+        });
 
-        // Check authentication state
-        function initializeAuthStateListener() {
-            if (auth) {
-                auth.onAuthStateChanged(async user => {
-                    if (user) {
-                        console.log('User state changed:', user.email);
-                        
-                        // Check if email is verified
-                        if (!user.emailVerified) {
-                            document.getElementById('email-verification-banner').style.display = 'flex';
-                        } else {
-                            document.getElementById('email-verification-banner').style.display = 'none';
-                        }
-                        
-                        // Fetch user role from Firestore
-                        try {
-                            const userDoc = await db.collection('users').doc(user.uid).get();
-                            if (userDoc.exists) {
-                                const userData = userDoc.data();
-                                localStorage.setItem('userRole', userData.role);
-                                localStorage.setItem('userName', userData.name || user.displayName || 'User');
-                                
-                                // Redirect based on role if email is verified
-                                if (user.emailVerified) {
-                                    if (userData.role === 'admin') {
-                                        window.location.href = 'Admin.html';
-                                    } else {
-                                        window.location.href = 'dashboard.html';
-                                    }
-                                }
-                            }
-                        } catch (err) {
-                            console.error('Error fetching user role:', err);
-                        }
+        // Update document title
+        if (translations['dashboard_title']) {
+            document.title = 'HipoBudget - ' + translations['dashboard_title'];
+        }
+    }
+
+    // Initialize i18n and apply translations
+    async function initializeI18n() {
+        const lang = localStorage.getItem('userLanguage') || 'en';
+        await loadTranslations(lang);
+        applyTranslations();
+
+        // Listen for language changes
+        window.addEventListener('storage', async function(e) {
+            if (e.key === 'userLanguage') {
+                const newLang = e.newValue || 'en';
+                await loadTranslations(newLang);
+                applyTranslations();
+            }
+        });
+    }
+
+    // Make i18n functions globally available
+    window.i18nApply = applyTranslations;
+    window.i18nTranslate = function(key) {
+        const lang = localStorage.getItem('userLanguage') || 'en';
+        if (window._i18n[lang] && window._i18n[lang][key]) {
+            return window._i18n[lang][key];
+        }
+        // Fallback: prettify the key
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Initialize Firebase and setup page
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            // Initialize Firebase
+            const firebaseInstance = await window.FirebaseManager?.waitForReady?.();
+            if (!firebaseInstance) {
+                showToast('error', 'Firebase initialization failed. Please try again later.');
+                return;
+            }
+            auth = firebaseInstance.auth;
+            db = firebaseInstance.firestore;
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            
+            // Initialize i18n
+            await initializeI18n();
+
+            // Setup user avatar and dropdown
+            const setupUserAvatar = (user) => {
+                const userAvatar = document.getElementById('user-avatar');
+                const avatarDropdown = document.getElementById('avatar-dropdown');
+                
+                if (userAvatar && avatarDropdown) {
+                    if (user.photoURL) {
+                        userAvatar.style.background = 'none';
+                        userAvatar.innerHTML = `<img src='${user.photoURL}' alt='avatar' style='width:100%;height:100%;border-radius:50%;object-fit:cover;'>`;
                     } else {
-                        console.log('No user signed in');
-                        document.getElementById('email-verification-banner').style.display = 'none';
+                        const name = user.displayName || user.email || 'U';
+                        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        userAvatar.textContent = initials;
+                    }
+                    userAvatar.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        avatarDropdown.style.display = avatarDropdown.style.display === 'block' ? 'none' : 'block';
+                    });
+                    document.addEventListener('click', function(e) {
+                        if (!userAvatar.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                            avatarDropdown.style.display = 'none';
+                        }
+                    });
+                }
+            };
+
+            // Setup action buttons
+            const setupActionButtons = () => {
+                const buttons = {
+                    'addTransactionBtn': 'transaction.html?action=add',
+                    'viewAllTransactionsBtn': 'transaction.html',
+                    'addBudgetBtn': 'budget.html?action=add',
+                    'viewAllBudgetsBtn': 'budget.html',
+                    'addGoalBtn': 'goals.html?action=add',
+                    'viewAllGoalsBtn': 'goals.html'
+                };
+
+                Object.entries(buttons).forEach(([btnId, href]) => {
+                    const btn = document.getElementById(btnId);
+                    if (btn) {
+                        btn.style.cursor = 'pointer';
+                        btn.addEventListener('click', () => {
+                            window.location.href = href;
+                        });
                     }
                 });
-            }
-        }
+            };
 
-        // Initialize the app when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
+            // Setup navigation menu
+            const setupNavigation = () => {
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    });
+                });
+            };
 
-        // Tab switching functionality
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('Tab clicked:', tab.getAttribute('data-tab'));
-                
-                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                const tabId = tab.getAttribute('data-tab');
-                const content = document.getElementById(`${tabId}-tab`);
-                if (content) {
-                    content.classList.add('active');
-                } else {
-                    console.error('Content not found for tab:', tabId);
-                }
-
-                clearForm('signin-form');
-                clearForm('signup-form');
-                clearMessage('signin-error');
-                clearMessage('signup-error');
-                clearMessage('signin-success');
-                clearMessage('signup-success');
-            });
-        });
-
-        // Switch tab from footer link
-        document.querySelectorAll('.switch-tab').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tabId = link.getAttribute('data-tab');
-                console.log('Footer link clicked:', tabId);
-                
-                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
-                
-                const targetTab = document.querySelector(`.auth-tab[data-tab="${tabId}"]`);
-                const targetContent = document.getElementById(`${tabId}-tab`);
-                if (targetTab && targetContent) {
-                    targetTab.classList.add('active');
-                    targetContent.classList.add('active');
-                } else {
-                    console.error('Target tab or content not found:', tabId);
-                }
-
-                clearForm('signin-form');
-                clearForm('signup-form');
-                clearMessage('signin-error');
-                clearMessage('signup-error');
-                clearMessage('signin-success');
-                clearMessage('signup-success');
-            });
-        });
-
-        // Toggle password visibility
-        document.querySelectorAll('.toggle-password').forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                const targetId = toggle.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                if (passwordInput) {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    toggle.innerHTML = type === 'password' ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
-                    console.log('Toggled password visibility for:', targetId);
-                }
-            });
-        });
-
-        // Password strength meter
-        document.getElementById('signup-password').addEventListener('input', (e) => {
-            updatePasswordStrength(e.target.value);
-        });
-
-        // Resend verification email
-        document.getElementById('resend-verification').addEventListener('click', async (e) => {
-            e.preventDefault();
-            setLoading('signin-button', true);
-            
-            try {
-                await auth.currentUser.sendEmailVerification();
-                showSuccess('signin-success', 'Verification email sent! Please check your inbox.');
-            } catch (error) {
-                console.error('Error sending verification email:', error);
-                showError('signin-error', 'Failed to send verification email. Please try again later.');
-            } finally {
-                setLoading('signin-button', false);
-            }
-        });
-
-        // Sign In Form Submission
-        document.getElementById('signin-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearMessage('signin-error');
-            clearMessage('signin-success');
-            setLoading('signin-button', true);
-            
-            if (!auth || !db) {
-                showError('signin-error', 'Authentication service unavailable.');
-                setLoading('signin-button', false);
-                return;
-            }
-
-            const email = document.getElementById('signin-email').value;
-            const password = document.getElementById('signin-password').value;
-            const role = document.getElementById('signin-role').value;
-
-            if (!email || !password) {
-                showError('signin-error', 'Please fill in all required fields.');
-                setLoading('signin-button', false);
-                return;
-            }
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                
-                if (!userCredential.user.emailVerified) {
-                    showError('signin-error', 'Please verify your email before logging in.');
-                    document.getElementById('email-verification-banner').style.display = 'flex';
-                    await auth.signOut();
-                    setLoading('signin-button', false);
+            // Auth state change handler
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = 'index.html';
                     return;
                 }
-                
-                // Fetch user role from Firestore
-                const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
-                if (!userDoc.exists) {
-                    showError('signin-error', 'User role not found. Contact support.');
-                    await auth.signOut();
-                    setLoading('signin-button', false);
-                    return;
-                }
-                
-                const userRole = userDoc.data().role;
-                localStorage.setItem('userRole', userRole);
-                localStorage.setItem('userName', userDoc.data().name || userCredential.user.displayName || 'User');
-                
-                // Additional check for admin role consistency
-                if (userRole === 'admin') {
-                    const adminQuery = await db.collection('users')
-                        .where('email', '==', userCredential.user.email)
-                        .where('role', '==', 'admin')
-                        .get();
-                    
-                    if (adminQuery.size === 0) {
-                        showError('signin-error', 'Admin account verification failed. Contact support.');
-                        await auth.signOut();
-                        setLoading('signin-button', false);
-                        return;
-                    }
-                }
-                
-                // Redirect based on role
-                if (userRole === 'admin') {
-                    window.location.href = 'Admin.html';
-                } else {
-                    window.location.href = 'dashboard.html';
-                }
 
-                // Log login action
-                await db.collection('activityLogs').add({
-                    type: 'login',
-                    user: userCredential.user.email,
-                    userId: userCredential.user.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    title: 'User Logged In',
-                    description: `${userCredential.user.email} logged in.`
-                });
-                await window.addNotification({
-                    type: 'login',
-                    title: 'User Logged In',
-                    description: `${userCredential.user.email} logged in.`,
-                    userId: userCredential.user.uid
-                });
-            } catch (error) {
-                console.error('Email sign-in error:', error);
-                let errorMessage = 'An error occurred. Please try again.';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                    case 'auth/invalid-credential':
-                        errorMessage = 'Invalid email or password, or this account is not registered.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Too many attempts. Please try again later.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This account has been disabled. Contact support.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showError('signin-error', errorMessage);
-                setLoading('signin-button', false);
-            }
-        });
-
-        // Sign Up Form Submission
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearMessage('signup-error');
-            clearMessage('signup-success');
-            setLoading('signup-button', true);
-            
-            if (!auth || !db) {
-                showError('signup-error', 'Authentication service unavailable.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const confirmPassword = document.getElementById('signup-confirm-password').value;
-            const role = document.getElementById('signup-role').value;
-            const termsAgreed = document.getElementById('terms-agreement').checked;
-
-            if (!name || !email || !password || !confirmPassword) {
-                showError('signup-error', 'Please fill in all required fields.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            if (!termsAgreed) {
-                showError('signup-error', 'You must agree to the Terms of Service and Privacy Policy.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showError('signup-error', 'Passwords do not match.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            // Check password strength
-            const passwordStrength = zxcvbn(password).score;
-            if (passwordStrength < 2) { // Require at least "Fair" strength
-                showError('signup-error', 'Password is too weak. Please choose a stronger password.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            // Check if another admin exists with this email before registering
-            let adminExists = false;
-            try {
-                const adminQuery = await db.collection('users')
-                    .where('email', '==', email)
-                    .where('role', '==', 'admin')
-                    .get();
-                if (adminQuery.size > 0) {
-                    adminExists = true;
-                }
-            } catch (err) {
-                // If the check fails, assume admin exists to be safe
-                adminExists = true;
-            }
-            if (role === 'admin' && adminExists) {
-                showError('signup-error', 'An admin account with this email already exists. Please contact support.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            try {
-                // Now create the user
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                
-                // Update user profile with display name
-                await userCredential.user.updateProfile({ displayName: name });
-                
-                // Store additional user data in Firestore
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    name: name,
-                    email: userCredential.user.email,
-                    role: role,
-                    preferredCurrency: localStorage.getItem('preferredCurrency') || 'USD',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Send email verification
-                await userCredential.user.sendEmailVerification({
-                    url: window.location.origin, // Redirect URL after verification
-                    handleCodeInApp: true
-                });
-                
-                showSuccess('signup-success', 'A verification email has been sent. Please verify your email before logging in.');
-                
-                // Switch to sign-in tab after a delay
-                setTimeout(() => {
-                    document.querySelector('.auth-tab[data-tab="signin"]').click();
-                }, 3000);
-
-                // Log registration action
                 try {
-                    await db.collection('activityLogs').add({
-                        type: 'user_registered',
-                        user: email,
-                        userId: userCredential.user.uid,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        title: 'New User Registered',
-                        description: `${email} registered an account.`
-                    });
-                    await window.addNotification({
-                        type: 'user_registered',
-                        title: 'New User Registered',
-                        description: `${email} registered an account.`,
-                        userId: userCredential.user.uid
-                    });
-                } catch (err) {
-                    console.warn('Could not log registration to activityLogs:', err.message);
-                }
-            } catch (error) {
-                console.error('Sign-up error:', error);
-                let errorMessage = 'An error occurred. Please try again.';
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'This email is already registered.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Password is too weak.';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage = 'Email/password accounts are not enabled.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showError('signup-error', errorMessage);
-            } finally {
-                setLoading('signup-button', false);
-            }
-        });
+                    // Setup UI components
+                    setupUserAvatar(user);
+                    setupActionButtons();
+                    setupNavigation();
 
-        // Google Sign-In
-        document.getElementById('google-sign-in').addEventListener('click', async (e) => {
-            e.preventDefault();
-            clearMessage('signin-error');
-            setLoading('signin-button', true);
-            
-            if (!auth) {
-                showError('signin-error', 'Authentication service unavailable.');
-                setLoading('signin-button', false);
-                return;
-            }
+                    // Load user preferences
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        // Handle language preference
+                        if (userData.language && userData.language !== localStorage.getItem('userLanguage')) {
+                            localStorage.setItem('userLanguage', userData.language);
+                            await loadTranslations(userData.language);
+                            applyTranslations();
+                        }
 
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.addScope('profile');
-            provider.addScope('email');
-            provider.setCustomParameters({
-                prompt: 'select_account' // Force account selection
-            });
-
-            try {
-                const result = await auth.signInWithPopup(provider);
-                console.log('Google sign-in successful:', result.user.email);
-                // Check if this is a new user
-                const isNewUser = result.additionalUserInfo.isNewUser;
-                if (isNewUser) {
-                    // For new users, set them as regular users (not admin)
-                    await db.collection('users').doc(result.user.uid).set({
-                        name: result.user.displayName,
-                        email: result.user.email,
-                        role: 'user', // Default to user role for Google sign-ups
-                        preferredCurrency: localStorage.getItem('preferredCurrency') || 'USD',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    // For existing users, update last login time
-                    await db.collection('users').doc(result.user.uid).update({
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                // Store user data in localStorage
-                const userDoc = await db.collection('users').doc(result.user.uid).get();
-                if (userDoc.exists) {
-                    // Check if another admin exists with this email
-                    if (userDoc.data().role === 'admin') {
-                        // Check if another admin exists with the same email (case-insensitive)
-                        const adminQuery = await db.collection('users')
-                            .where('email', '==', result.user.email)
-                            .where('role', '==', 'admin')
-                            .get();
-                        if (adminQuery.size > 1) {
-                            showError('signin-error', 'An admin account with this email already exists. Please contact support.');
-                            setLoading('signin-button', false);
-                            await auth.signOut();
-                            return;
+                        // Handle currency preference
+                        if (userData.currency && userData.currency !== localStorage.getItem('userCurrency')) {
+                            localStorage.setItem('userCurrency', userData.currency);
+                            window.dispatchEvent(new StorageEvent('storage', { 
+                                key: 'userCurrency', 
+                                newValue: userData.currency 
+                            }));
                         }
                     }
-                    localStorage.setItem('userRole', userDoc.data().role);
-                    localStorage.setItem('userName', userDoc.data().name || result.user.displayName || 'User');
-                    // Redirect based on role
-                    if (userDoc.data().role === 'admin') {
-                        window.location.href = 'Admin.html';
-                    } else {
-                        window.location.href = 'dashboard.html';
+
+                    // Fetch and display dashboard data
+                    await fetchDashboardData(user.uid);
+
+                    // Setup logout button
+                    const logoutBtn = document.getElementById('logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', async function() {
+                            if (auth) {
+                                await auth.signOut();
+                                window.location.href = 'index.html';
+                            }
+                        });
                     }
+                    // Setup floating action button to go to transaction page on click
+                    const fab = document.getElementById('fabAddTransaction');
+                    if (fab) {
+                        fab.addEventListener('click', function(e) {
+                            window.location.href = 'transaction.html';
+                        });
+                    }
+
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                    showToast('error', window.i18nTranslate('error_loading_dashboard'));
                 }
-
-                // Log login action
-                await db.collection('activityLogs').add({
-                    type: 'login',
-                    user: result.user.email,
-                    userId: result.user.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    title: 'User Logged In',
-                    description: `${result.user.email} logged in.`
-                });
-                await window.addNotification({
-                    type: 'login',
-                    title: 'User Logged In',
-                    description: `${result.user.email} logged in.`,
-                    userId: result.user.uid
-                });
-            } catch (error) {
-                console.error('Google sign-in error:', error);
-                let errorMessage = 'Google Sign-In failed. Please try again.';
-                switch (error.code) {
-                    case 'auth/popup-blocked':
-                        errorMessage = 'Popup blocked. Please allow popups and try again.';
-                        break;
-                    case 'auth/popup-closed-by-user':
-                        errorMessage = 'Sign-in cancelled. Please try again.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage = 'This domain is not authorized for Google Sign-In.';
-                        break;
-                    case 'auth/account-exists-with-different-credential':
-                        errorMessage = 'An account already exists with the same email but different sign-in method.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showError('signin-error', errorMessage);
-            } finally {
-                setLoading('signin-button', false);
-            }
-        });
-
-        // Google Sign-Up
-        document.getElementById('google-sign-up').addEventListener('click', async (e) => {
-            e.preventDefault();
-            clearMessage('signup-error');
-            setLoading('signup-button', true);
-            
-            if (!auth) {
-                showError('signup-error', 'Authentication service unavailable.');
-                setLoading('signup-button', false);
-                return;
-            }
-
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.addScope('profile');
-            provider.addScope('email');
-            provider.setCustomParameters({
-                prompt: 'select_account' // Force account selection
             });
 
-            try {
-                const result = await auth.signInWithPopup(provider);
-                console.log('Google sign-up successful:', result.user.email);
-                // For new users, set them as regular users (not admin)
-                await db.collection('users').doc(result.user.uid).set({
-                    name: result.user.displayName,
-                    email: result.user.email,
-                    role: 'user', // Default to user role for Google sign-ups
-                    preferredCurrency: localStorage.getItem('preferredCurrency') || 'USD',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            showToast('error', window.i18nTranslate('error_initializing'));
+        }
+    });
+
+    // Hamburger menu toggle
+    (function() {
+        const btn = document.getElementById('hamburgerBtn');
+        const content = document.getElementById('hamburgerContent');
+        const backdrop = document.getElementById('hamburgerBackdrop');
+        if (btn && content) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                content.classList.toggle('active');
+                if (content.classList.contains('active')) {
+                    backdrop && (backdrop.style.display = 'block');
+                    btn.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    backdrop && (backdrop.style.display = 'none');
+                    btn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+            // Close on outside click
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.hamburger-menu') && content.classList.contains('active')) {
+                    content.classList.remove('active');
+                    backdrop && (backdrop.style.display = 'none');
+                    btn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+            // Close on menu item click
+            content.querySelectorAll('.hamburger-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    content.classList.remove('active');
+                    backdrop && (backdrop.style.display = 'none');
+                    btn.innerHTML = '<i class="fas fa-bars"></i>';
                 });
-                // Check if another admin exists with this email
-                const adminQuery = await db.collection('users')
-                    .where('email', '==', result.user.email)
-                    .where('role', '==', 'admin')
-                    .get();
-                if (adminQuery.size > 0 && document.getElementById('signup-role') && document.getElementById('signup-role').value === 'admin') {
-                    showError('signup-error', 'An admin account with this email already exists. Please contact support.');
-                    setLoading('signup-button', false);
-                    await auth.signOut();
-                    return;
-                }
-                // Store user data in localStorage
-                localStorage.setItem('userRole', 'user');
-                localStorage.setItem('userName', result.user.displayName || 'User');
-                // Redirect to user dashboard
-                window.location.href = 'dashboard.html';
-            } catch (error) {
-                console.error('Google sign-up error:', error);
-                let errorMessage = 'Google Sign-Up failed. Please try again.';
-                switch (error.code) {
-                    case 'auth/popup-blocked':
-                        errorMessage = 'Popup blocked. Please allow popups and try again.';
-                        break;
-                    case 'auth/popup-closed-by-user':
-                        errorMessage = 'Sign-up cancelled. Please try again.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage = 'This domain is not authorized for Google Sign-In.';
-                        break;
-                    case 'auth/account-exists-with-different-credential':
-                        errorMessage = 'An account already exists with the same email but different sign-in method.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showError('signup-error', errorMessage);
-            } finally {
-                setLoading('signup-button', false);
+            });
+        }
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                content.classList.remove('active');
+                backdrop.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        }
+    })();
+
+    function getEncouragement(transactions) {
+        const now = new Date();
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        let income = 0, expenses = 0;
+        transactions.forEach(tx => {
+            let txDate = tx.date;
+            if (typeof txDate === 'object' && txDate.seconds) {
+                txDate = new Date(txDate.seconds * 1000);
+            } else {
+                txDate = new Date(txDate);
+            }
+            if (txDate >= lastMonth) {
+                if (tx.type === 'income') income += Number(tx.amount);
+                if (tx.type === 'expense') expenses += Number(tx.amount);
             }
         });
+        let type, message, quote, icon, colorClass, bgClass;
+        if (income - expenses > 0) {
+            type = 'success';
+            message = "Great job! You're saving more than you spend this month.";
+            quote = "“Do not save what is left after spending, but spend what is left after saving.” – Warren Buffett";
+            icon = '<i class="fas fa-trophy"></i>';
+            colorClass = 'encouragement-success';
+            bgClass = 'success';
+        } else if (income - expenses < 0) {
+            type = 'alert';
+            message = "Alert: You're spending more than you earn this month.";
+            quote = "“Beware of little expenses; a small leak will sink a great ship.” – Benjamin Franklin";
+            icon = '<i class="fas fa-exclamation-triangle"></i>';
+            colorClass = 'encouragement-alert';
+            bgClass = 'alert';
+        } else {
+            type = 'neutral';
+            message = "You're breaking even. Consider setting a savings goal!";
+            quote = "“A budget is telling your money where to go instead of wondering where it went.” – Dave Ramsey";
+            icon = '<i class="fas fa-balance-scale"></i>';
+            colorClass = 'encouragement-neutral';
+            bgClass = '';
+        }
+        return { message, quote, icon, colorClass, bgClass };
+    }
 
-        // Apple Sign-In (placeholder - would need proper configuration)
-        document.getElementById('apple-sign-in').addEventListener('click', (e) => {
-            e.preventDefault();
-            showError('signin-error', 'Apple Sign-In is not yet configured. Please use another method.');
-        });
-
-        // Apple Sign-Up (placeholder - would need proper configuration)
-        document.getElementById('apple-sign-up').addEventListener('click', (e) => {
-            e.preventDefault();
-            showError('signup-error', 'Apple Sign-Up is not yet configured. Please use another method.');
-        });
-
-        // Forgot Password
-        document.getElementById('forgot-password').addEventListener('click', (e) => {
-            e.preventDefault();
-            clearMessage('signin-error');
-            document.getElementById('password-reset-modal').style.display = 'flex';
-        });
-
-        // Cancel Password Reset
-        document.getElementById('cancel-reset').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('password-reset-modal').style.display = 'none';
-            clearMessage('reset-error');
-            clearMessage('reset-success');
-            document.getElementById('reset-email').value = '';
-        });
-
-        // Submit Password Reset
-        document.getElementById('submit-reset').addEventListener('click', async (e) => {
-            e.preventDefault();
-            clearMessage('reset-error');
-            clearMessage('reset-success');
-            
-            const email = document.getElementById('reset-email').value;
-            if (!email) {
-                showError('reset-error', 'Please enter your email address.');
-                return;
-            }
-
-            try {
-                await auth.sendPasswordResetEmail(email, {
-                    url: window.location.origin + '?action=reset_password', // Redirect URL after reset
-                    handleCodeInApp: true
-                });
-                showSuccess('reset-success', 'Password reset email sent! Check your inbox.');
-                document.getElementById('reset-email').value = '';
-                
-                // Close modal after 3 seconds
-                setTimeout(() => {
-                    document.getElementById('password-reset-modal').style.display = 'none';
-                    clearMessage('reset-error');
-                    clearMessage('reset-success');
-                }, 3000);
-
-                // Log password reset action
-                await db.collection('activityLogs').add({
-                    type: 'password_reset',
-                    user: email,
-                    userId: null,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    title: 'Password Reset',
-                    description: `${email} requested a password reset.`
-                });
-                await window.addNotification({
-                    type: 'password_reset',
-                    title: 'Password Reset',
-                    description: `${email} requested a password reset.`,
-                    userId: null
-                });
-            } catch (error) {
-                console.error('Forgot password error:', error);
-                let errorMessage = 'Error sending password reset email.';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No account found with this email.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Too many attempts. Please try again later.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showError('reset-error', errorMessage);
-            }
-        });
-
-        // Check for password reset action in URL
-        function checkUrlAction() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
-            
-            if (action === 'reset_password') {
-                document.getElementById('password-reset-modal').style.display = 'flex';
-                showSuccess('reset-success', 'You can now reset your password. Enter your email above.');
-            } else if (action === 'verify_email') {
-                document.querySelector('.auth-tab[data-tab="signin"]').click();
-                showSuccess('signin-success', 'Email verified successfully! You can now sign in.');
+    // --- Robust multi-currency logic (match settings page) ---
+    window.getUserCurrency = function() {
+        return localStorage.getItem('userCurrency') || 'USD';
+    };
+    window.formatCurrency = function(amount) {
+        const currency = window.getUserCurrency();
+        if (currency === 'TZS') {
+            return 'Tsh ' + Number(amount).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: currency
+        }).format(amount);
+    };
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'userCurrency') {
+            if (typeof fetchDashboardData === 'function' && auth && auth.currentUser) {
+                fetchDashboardData(auth.currentUser.uid);
             }
         }
+    });
 
-        // Initialize the page
-        checkUrlAction();
+    // Highlight active sidebar nav link
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.getAttribute('href') && window.location.pathname.endsWith(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
+    // Highlight active mobile nav link
+    document.querySelectorAll('.mobile-nav-item').forEach(link => {
+        if (link.getAttribute('href') && window.location.pathname.endsWith(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
     </script>
 </body>
 </html>
