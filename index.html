@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>window.firebase = firebase;</script>
-    <!-- Fallback Firebase SDK if primary fails -->
+    <!-- Fallback Firebase SDK -->
     <script>
         if (typeof firebase === 'undefined') {
             console.warn('Primary Firebase CDN failed, trying fallback...');
@@ -21,20 +22,20 @@
         }
     </script>
     <script src="firebase-init.js"></script>
-    <!-- Wait for Firebase to be ready before loading theme.js -->
     <script>
         // Ensure Firebase is ready before loading theme.js
         (async function() {
             try {
-                // Check if Firebase SDK loaded
                 if (typeof firebase === 'undefined') {
                     console.error('Firebase SDK not loaded');
                     return;
                 }
-                
                 if (window.FirebaseManager) {
                     await window.FirebaseManager.waitForReady();
                     console.log('Firebase ready, loading theme.js');
+                    const script = document.createElement('script');
+                    script.src = 'theme.js';
+                    document.head.appendChild(script);
                 } else {
                     console.warn('FirebaseManager not available');
                 }
@@ -43,8 +44,7 @@
             }
         })();
     </script>
-    <script src="theme.js"></script>
-    <!-- Password strength meter - using alternative CDN -->
+    <!-- Password strength meter -->
     <script src="https://unpkg.com/zxcvbn@4.4.2/dist/zxcvbn.js"></script>
     <style>
         :root {
@@ -67,15 +67,33 @@
             --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        
+
+        [data-theme="dark"] {
+            --primary: #8B7CFF;
+            --primary-dark: #6A5ACD;
+            --primary-light: #B0A8FF;
+            --secondary: #00CC99;
+            --secondary-dark: #00A375;
+            --accent: #FF8CAB;
+            --dark: #E6E6E6;
+            --dark-gray: #A0A0A0;
+            --light: #2D2D2D;
+            --light-gray: #4A4A4A;
+            --success: #00CC99;
+            --error: #FF6B6B;
+            --warning: #FFD166;
+            --info: #4DA8DA;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             display: flex;
+            flex-direction: row;
             min-height: 100vh;
             background-color: var(--light);
             font-family: 'Inter', sans-serif;
@@ -83,21 +101,52 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-        
-        /* Welcome Section */
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background-color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        nav a {
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav a:hover {
+            color: var(--primary-dark);
+        }
+
         .welcome-section {
             flex: 1;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 4rem;
+            padding: 2rem 3rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            z-index: 1;
+            margin-top: 60px;
         }
-        
+
+        [data-theme="dark"] .welcome-section {
+            background: linear-gradient(135deg, #4A4A4A, #2D2D2D);
+        }
+
         .welcome-section::before {
             content: '';
             position: absolute;
@@ -109,7 +158,7 @@
             background: rgba(255, 255, 255, 0.05);
             z-index: -1;
         }
-        
+
         .welcome-section::after {
             content: '';
             position: absolute;
@@ -121,12 +170,13 @@
             background: rgba(255, 255, 255, 0.05);
             z-index: -1;
         }
-        
+
         .welcome-content {
-            max-width: 500px;
+            max-width: 90%;
+            margin: 0 auto;
             z-index: 1;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
@@ -134,7 +184,7 @@
             justify-content: center;
             font-family: 'Space Grotesk', sans-serif;
         }
-        
+
         .logo-icon {
             font-size: 2.5rem;
             margin-right: 1rem;
@@ -148,13 +198,13 @@
             justify-content: center;
             box-shadow: var(--shadow-md);
         }
-        
+
         .logo-text {
             font-size: 2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
         }
-        
+
         .welcome-title {
             font-size: 2.75rem;
             font-weight: 700;
@@ -163,7 +213,7 @@
             text-align: center;
             font-family: 'Space Grotesk', sans-serif;
         }
-        
+
         .welcome-description {
             font-size: 1.15rem;
             line-height: 1.7;
@@ -171,32 +221,32 @@
             opacity: 0.9;
             text-align: center;
         }
-        
+
         .features {
             margin-top: 2.5rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
         }
-        
+
         .feature {
             display: flex;
             align-items: flex-start;
             margin-bottom: 0.5rem;
         }
-        
+
         .feature-icon {
             margin-right: 1rem;
             color: var(--accent);
             font-size: 1.2rem;
             margin-top: 3px;
         }
-        
+
         .feature-text {
             font-size: 0.95rem;
             opacity: 0.9;
         }
-        
+
         .security-badge {
             display: flex;
             align-items: center;
@@ -208,33 +258,36 @@
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .security-badge-icon {
             margin-right: 0.75rem;
             color: var(--success);
             font-size: 1.2rem;
         }
-        
-        /* Auth Section */
+
         .auth-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 4rem;
+            padding: 2rem 3rem;
             background-color: white;
             position: relative;
             overflow: hidden;
+            margin-top: 60px;
         }
-        
+
+        [data-theme="dark"] .auth-section {
+            background-color: #3C3C3C;
+        }
+
         .auth-container {
-            max-width: 450px;
-            width: 100%;
+            max-width: 90%;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
-        
+
         .auth-tabs {
             display: flex;
             margin-bottom: 2rem;
@@ -242,7 +295,7 @@
             justify-content: center;
             gap: 1rem;
         }
-        
+
         .auth-tab {
             padding: 0.75rem 1.5rem;
             cursor: pointer;
@@ -253,11 +306,11 @@
             border-radius: 0.5rem 0.5rem 0 0;
             font-family: 'Space Grotesk', sans-serif;
         }
-        
+
         .auth-tab.active {
             color: var(--primary);
         }
-        
+
         .auth-tab.active::after {
             content: '';
             position: absolute;
@@ -268,26 +321,26 @@
             background-color: var(--primary);
             border-radius: 3px 3px 0 0;
         }
-        
+
         .auth-tab:hover {
             color: var(--primary-dark);
             background: rgba(108, 92, 231, 0.05);
         }
-        
+
         .auth-content {
             display: none;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .auth-content.active {
             display: block;
         }
-        
+
         .auth-title {
             font-size: 2rem;
             font-weight: 700;
@@ -296,18 +349,19 @@
             text-align: center;
             font-family: 'Space Grotesk', sans-serif;
         }
-        
+
         .auth-subtitle {
             font-size: 1rem;
             color: var(--dark-gray);
-            margin-bottom: 2rem;
+            margin: 0 auto 2rem;
             text-align: center;
+            max-width: 400px;
         }
-        
+
         .auth-form .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .auth-form label {
             display: block;
             margin-bottom: 0.5rem;
@@ -315,7 +369,7 @@
             color: var(--dark);
             font-size: 0.95rem;
         }
-        
+
         .auth-form input,
         .auth-form select {
             width: 100%;
@@ -323,23 +377,27 @@
             border: 1px solid var(--light-gray);
             border-radius: 0.75rem;
             font-size: 1rem;
-            transition: var(--transition);
-            background-color: white;
-            color: var(--dark);
         }
-        
+
         .auth-form input:focus,
         .auth-form select:focus {
-            outline: none;
-            border-color: var(--primary);
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
             box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
-        
+
         .auth-form input::placeholder {
             color: var(--dark-gray);
             opacity: 0.6;
         }
-        
+
+        [data-theme="dark"] .auth-form input,
+        [data-theme="dark"] .auth-form select {
+            background-color: #4A4A4A;
+            color: var(--dark);
+            border-color: var(--light-gray);
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -354,38 +412,38 @@
             font-family: 'Space Grotesk', sans-serif;
             box-shadow: var(--shadow-sm);
         }
-        
+
         .btn-primary {
             background-color: var(--primary);
             color: white;
             width: 100%;
         }
-        
-        .btn-primary:hover {
+
+        .btn-primary:hover:not(:disabled) {
             background-color: var(--primary-dark);
             box-shadow: var(--shadow-md);
             transform: translateY(-1px);
         }
-        
+
         .btn-secondary {
             background-color: white;
             color: var(--dark);
             border: 1px solid var(--light-gray);
             width: 100%;
         }
-        
-        .btn-secondary:hover {
+
+        .btn-secondary:hover:not(:disabled) {
             background-color: var(--light);
             box-shadow: var(--shadow-sm);
         }
-        
+
         .auth-footer {
             margin-top: 1.5rem;
             text-align: center;
             color: var(--dark-gray);
             font-size: 0.95rem;
         }
-        
+
         .auth-footer a {
             color: var(--primary);
             text-decoration: none;
@@ -393,38 +451,38 @@
             margin-left: 0.25rem;
             transition: var(--transition);
         }
-        
+
         .auth-footer a:hover {
             text-decoration: underline;
             color: var(--primary-dark);
         }
-        
+
         .divider {
             display: flex;
             align-items: center;
             margin: 1.5rem 0;
             color: var(--dark-gray);
         }
-        
+
         .divider::before, .divider::after {
             content: '';
             flex: 1;
             height: 1px;
             background-color: var(--light-gray);
         }
-        
+
         .divider-text {
             padding: 0 1rem;
             font-size: 0.9rem;
             color: var(--dark-gray);
         }
-        
+
         .social-auth {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .social-btn {
             flex: 1;
             padding: 0.85rem;
@@ -438,27 +496,28 @@
             transition: var(--transition);
             box-shadow: var(--shadow-sm);
         }
-        
+
         .social-btn:hover:not(:disabled) {
             background-color: var(--light);
             box-shadow: var(--shadow-sm);
             transform: translateY(-1px);
         }
-        
+
         .social-btn:disabled {
             cursor: not-allowed;
             opacity: 0.5;
         }
-        
+
         .social-icon {
             width: 20px;
             height: 20px;
+            margin-right: 8px;
         }
-        
+
         .password-container {
             position: relative;
         }
-        
+
         .toggle-password {
             position: absolute;
             right: 15px;
@@ -466,45 +525,46 @@
             transform: translateY(-50%);
             cursor: pointer;
             color: var(--dark-gray);
-            background: none;
-            border: none;
-            font-size: 1.1rem;
         }
-        
+
         .error-message {
             color: var(--error);
             font-size: 0.9rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            display: none;
-            padding: 0.75rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
             background-color: rgba(214, 48, 49, 0.1);
             border-radius: 0.5rem;
             border-left: 3px solid var(--error);
+            display: none;
+            line-height: 1.4;
+            max-width: 100%;
+            box-sizing: border-box;
         }
-        
+
         .error-message.active {
             display: block;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         .success-message {
             color: var(--success);
             font-size: 0.9rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            display: none;
-            padding: 0.75rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
             background-color: rgba(0, 184, 148, 0.1);
             border-radius: 0.5rem;
             border-left: 3px solid var(--success);
+            display: none;
+            line-height: 1.4;
+            max-width: 100%;
+            box-sizing: border-box;
         }
-        
+
         .success-message.active {
             display: block;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         .password-strength {
             margin-top: 0.5rem;
             height: 6px;
@@ -512,13 +572,13 @@
             background-color: var(--light-gray);
             overflow: hidden;
         }
-        
+
         .password-strength-bar {
             height: 100%;
             width: 0;
             transition: var(--transition);
         }
-        
+
         .password-strength-text {
             font-size: 0.8rem;
             color: var(--dark-gray);
@@ -526,7 +586,7 @@
             text-align: right;
             font-weight: 500;
         }
-        
+
         .form-group.terms-checkbox {
             display: flex;
             align-items: flex-start;
@@ -560,7 +620,7 @@
         .terms-text a:hover {
             text-decoration: underline;
         }
-        
+
         .loading-spinner {
             display: none;
             width: 20px;
@@ -571,19 +631,19 @@
             animation: spin 1s ease-in-out infinite;
             margin-right: 8px;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         .btn.loading .loading-spinner {
             display: inline-block;
         }
-        
+
         .btn.loading span {
             display: none;
         }
-        
+
         .verification-banner {
             padding: 1rem;
             background-color: rgba(9, 132, 227, 0.1);
@@ -594,18 +654,18 @@
             align-items: center;
             border-left: 3px solid var(--info);
         }
-        
+
         .verification-icon {
             margin-right: 0.75rem;
             font-size: 1.2rem;
             color: var(--info);
         }
-        
+
         .verification-text {
             flex: 1;
             font-size: 0.9rem;
         }
-        
+
         .verification-link {
             color: var(--info);
             font-weight: 600;
@@ -613,22 +673,28 @@
             margin-left: 0.5rem;
             white-space: nowrap;
         }
-        
+
         .verification-link:hover {
             text-decoration: underline;
         }
-        
-        .language-selector {
+
+        .language-selector, .currency-selector {
             position: absolute;
             top: 1.5rem;
-            right: 1.5rem;
-            z-index: 10;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
-        .language-selector select {
+
+        .language-selector {
+            right: 1.5rem;
+        }
+
+        .currency-selector {
+            right: 7rem;
+        }
+
+        .language-selector select, .currency-selector select {
             padding: 0.5rem 0.75rem;
             border-radius: 0.5rem;
             border: 1px solid var(--light-gray);
@@ -644,19 +710,30 @@
             background-size: 1rem;
             padding-right: 2rem;
         }
-        
-        .language-selector select:focus {
-            outline: none;
-            border-color: var(--primary);
+
+        .language-selector select:focus, .currency-selector select:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
             box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
-        
-        .language-selector i {
+
+        .language-selector i, .currency-selector i {
             color: white;
             font-size: 1.2rem;
         }
-        
-        /* Floating Wallet Animation */
+
+        [data-theme="dark"] .language-selector select,
+        [data-theme="dark"] .currency-selector select {
+            background-color: #4A4A4A;
+            color: var(--dark);
+            border-color: var(--light-gray);
+        }
+
+        [data-theme="dark"] .language-selector i,
+        [data-theme="dark"] .currency-selector i {
+            color: var(--dark);
+        }
+
         .wallet-float {
             position: absolute;
             width: 120px;
@@ -670,19 +747,21 @@
             border: 1px solid rgba(255,255,255,0.2);
             z-index: -1;
             animation: float 6s ease-in-out infinite;
+            opacity: 0.5;
+            pointer-events: none;
         }
-        
+
         .wallet-float i {
             font-size: 2.5rem;
             color: white;
         }
-        
+
         .wallet-float:nth-child(1) {
             top: 20%;
             left: 10%;
             animation-delay: 0s;
         }
-        
+
         .wallet-float:nth-child(2) {
             top: 60%;
             right: 15%;
@@ -690,7 +769,7 @@
             width: 80px;
             height: 80px;
         }
-        
+
         .wallet-float:nth-child(3) {
             bottom: 10%;
             left: 20%;
@@ -698,14 +777,13 @@
             width: 100px;
             height: 100px;
         }
-        
+
         @keyframes float {
             0% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
             100% { transform: translateY(0) rotate(0deg); }
         }
-        
-        /* Password Reset Modal */
+
         #password-reset-modal {
             display: none;
             position: fixed;
@@ -720,7 +798,7 @@
             backdrop-filter: blur(5px);
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         .modal-content {
             background-color: white;
             padding: 2rem;
@@ -730,12 +808,16 @@
             box-shadow: var(--shadow-lg);
             animation: slideUp 0.3s ease-out;
         }
-        
+
+        [data-theme="dark"] .modal-content {
+            background-color: #3C3C3C;
+        }
+
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        
+
         .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -743,154 +825,170 @@
             color: var(--dark);
             font-family: 'Space Grotesk', sans-serif;
         }
-        
+
         .modal-text {
             margin-bottom: 1.5rem;
             color: var(--dark-gray);
             line-height: 1.6;
         }
-        
+
         .modal-actions {
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        
+
         .modal-actions .btn {
             flex: 1;
         }
-        
-        /* Responsive Styles */
-        @media (max-width: 1024px) {
+
+        .theme-toggle {
+            position: absolute;
+            top: 1.5rem;
+            right: 13rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            color: var(--dark);
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .welcome-section, .auth-section {
+                padding: 3rem 2rem;
+            }
+
+            .welcome-content, .auth-container {
+                max-width: 95%;
+            }
+
             .welcome-title {
-                font-size: 2.25rem;
+                font-size: 2.5rem;
             }
-            
-            .welcome-description {
-                font-size: 1rem;
-            }
-            
+
             .auth-title {
-                font-size: 1.75rem;
+                font-size: 1.8rem;
             }
-            
+
             .features {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
         }
-        
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
             }
-            
-            .welcome-section,
-            .auth-section {
+
+            .welcome-section, .auth-section {
                 width: 100%;
                 padding: 2rem 1.5rem;
                 min-height: auto;
             }
-            
-            .welcome-content {
+
+            .welcome-content, .auth-container {
                 max-width: 100%;
                 padding: 0;
             }
-            
-            .auth-container {
-                max-width: 100%;
-                padding: 0;
-            }
-            
+
             .logo {
                 margin-bottom: 1.5rem;
             }
-            
+
             .welcome-title {
                 font-size: 2rem;
-                margin-bottom: 1rem;
             }
-            
+
             .auth-title {
                 font-size: 1.5rem;
             }
-            
+
             .auth-tabs {
                 margin-bottom: 1.5rem;
             }
-            
+
             .auth-tab {
                 padding: 0.75rem 1rem;
                 font-size: 0.95rem;
             }
-            
+
             .security-badge {
                 margin-top: 2rem;
                 font-size: 0.85rem;
             }
-            
+
             .wallet-float {
                 display: none;
             }
-            
-            .language-selector,
-            .currency-selector {
+
+            .language-selector, .currency-selector, .theme-toggle {
                 position: relative;
                 top: auto;
                 right: auto;
                 left: auto;
                 margin-bottom: 1rem;
                 justify-content: center;
+                display: flex;
+                width: 100%;
+                justify-content: center;
             }
-            
-            .currency-selector select {
+
+            .theme-toggle {
+                margin: 0 auto 1rem;
+            }
+
+            .currency-selector select, .language-selector select {
                 background-color: white;
                 color: var(--dark);
                 border-color: var(--light-gray);
             }
-            
-            .currency-selector i {
+
+            .currency-selector i, .language-selector i, .theme-toggle i {
                 color: var(--dark);
             }
         }
-        
+
         @media (max-width: 480px) {
-            .welcome-section,
-            .auth-section {
+            .welcome-section, .auth-section {
                 padding: 1.5rem 1rem;
             }
-            
+
             .logo {
                 margin-bottom: 1rem;
             }
-            
+
             .logo-icon {
                 width: 50px;
                 height: 50px;
                 font-size: 2rem;
             }
-            
+
             .logo-text {
                 font-size: 1.75rem;
             }
-            
+
             .welcome-title {
                 font-size: 1.75rem;
             }
-            
+
             .auth-title {
                 font-size: 1.4rem;
             }
-            
+
             .auth-subtitle {
                 font-size: 0.95rem;
                 margin-bottom: 1.5rem;
             }
-            
+
             .social-auth {
                 flex-direction: column;
             }
-            
+
             .modal-actions {
                 flex-direction: column;
             }
@@ -898,14 +996,12 @@
     </style>
 </head>
 <body>
-    <!-- Add Pricing link to the top navigation or hero section -->
-    <nav style="width:100%;display:flex;justify-content:flex-end;align-items:center;padding:1rem 2rem 0 2rem;gap:1.5rem;">
-        <a href="pricing.html" style="font-weight:600;color:var(--primary);text-decoration:none;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+    <nav>
+        <a href="pricing.html" aria-label="View Pricing">
             <i class="fas fa-tags"></i> Pricing
         </a>
     </nav>
-    
-    <!-- Welcome Section -->
+
     <section class="welcome-section">
         <div class="wallet-float">
             <i class="fas fa-wallet"></i>
@@ -916,10 +1012,9 @@
         <div class="wallet-float">
             <i class="fas fa-chart-line"></i>
         </div>
-        <!-- Only the language selector remains -->
         <div class="language-selector">
             <i class="fas fa-globe"></i>
-            <select id="language-selector">
+            <select id="language-selector" aria-label="Select Language">
                 <option value="en">English</option>
                 <option value="sw">Kiswahili</option>
                 <option value="es">Español</option>
@@ -933,7 +1028,19 @@
                 <option value="pt">Português</option>
             </select>
         </div>
-        
+        <div class="currency-selector">
+            <i class="fas fa-money-bill-wave"></i>
+            <select id="currency-selector" aria-label="Select Currency">
+                <option value="USD" data-i18n="currency_usd">US Dollar (USD)</option>
+                <option value="EUR" data-i18n="currency_eur">Euro (EUR)</option>
+                <option value="GBP" data-i18n="currency_gbp">British Pound (GBP)</option>
+                <option value="JPY" data-i18n="currency_jpy">Japanese Yen (JPY)</option>
+                <option value="CAD" data-i18n="currency_cad">Canadian Dollar (CAD)</option>
+                <option value="AUD" data-i18n="currency_aud">Australian Dollar (AUD)</option>
+                <option value="CNY" data-i18n="currency_cny">Chinese Yuan (CNY)</option>
+                <option value="INR" data-i18n="currency_inr">Indian Rupee (INR)</option>
+            </select>
+        </div>
         <div class="welcome-content">
             <div class="logo">
                 <div class="logo-icon">
@@ -947,22 +1054,49 @@
                 HipoBudget helps you save more, spend wisely, and achieve your 
                 financial goals faster.
             </p>
-            <!-- Add Pricing button here -->
-            <a href="pricing.html" class="btn btn-secondary" style="margin: 1.5rem auto 0 auto; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-brain feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature1">AI-powered financial insights</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-search-dollar feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature2">Automated expense tracking</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-piggy-bank feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature3">Custom savings plans</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lock feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature4">Bank-level security</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-globe feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature5">Multi-currency support</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-file-export feature-icon"></i>
+                    <span class="feature-text" data-i18n="feature6">Export reports in multiple formats</span>
+                </div>
+            </div>
+            <div class="security-badge">
+                <i class="fas fa-shield-alt security-badge-icon"></i>
+                <span data-i18n="security_badge">256-bit encryption • GDPR compliant • ISO 27001 certified</span>
+            </div>
+            <a href="pricing.html" class="btn btn-secondary" style="margin: 1.5rem auto 0 auto; display: inline-flex; align-items: center; gap: 0.5rem;" aria-label="See Pricing">
                 <i class="fas fa-tags"></i> See Pricing
             </a>
         </div>
     </section>
-    
-    <!-- Auth Section -->
+
     <section class="auth-section">
         <div class="auth-container">
             <div class="auth-tabs">
                 <div class="auth-tab active" data-tab="signin" data-i18n="sign_in_tab">Sign In</div>
                 <div class="auth-tab" data-tab="signup" data-i18n="sign_up_tab">Sign Up</div>
             </div>
-            
-            <!-- Sign In Content -->
+
             <div class="auth-content active" id="signin-tab">
                 <h2 class="auth-title" data-i18n="sign_in_title">Welcome Back</h2>
                 <p class="auth-subtitle" data-i18n="sign_in_subtitle">Sign in to access your financial dashboard</p>
@@ -972,26 +1106,26 @@
                     <span class="verification-text" data-i18n="verification_prompt">Please verify your email address to access all features.</span>
                     <a href="#" class="verification-link" id="resend-verification" data-i18n="resend_link">Resend</a>
                 </div>
-                
+
                 <div class="social-auth">
-                    <button class="social-btn" id="google-sign-in">
+                    <button class="social-btn" id="google-sign-in" aria-label="Sign in with Google">
                         <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
                             <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
                         </svg>
-                        <span data-i18n="sign_in_with_google">google</span>
+                        <span data-i18n="sign_in_with_google">Google</span>
                     </button>
-                    <button class="social-btn" id="apple-sign-in">
+                    <button class="social-btn" id="apple-sign-in" aria-label="Sign in with Apple" disabled>
                         <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                             <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
                         </svg>
                         <span data-i18n="sign_in_with_apple">Apple</span>
                     </button>
                 </div>
-                
+
                 <div class="divider">
                     <span class="divider-text" data-i18n="or_divider">or</span>
                 </div>
-                
+
                 <form class="auth-form" id="signin-form">
                     <div class="form-group">
                         <label for="signin-email" data-i18n="email_label">Email Address</label>
@@ -1001,55 +1135,54 @@
                         <label for="signin-password" data-i18n="password_label">Password</label>
                         <div class="password-container">
                             <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
-                            <button type="button" class="toggle-password" data-target="signin-password">
+                            <button type="button" class="toggle-password" data-target="signin-password" aria-label="Toggle password visibility">
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="signin-role" data-i18n="role_label">I am a</label>
-                        <select id="signin-role">
+                        <select id="signin-role" aria-label="Select Role">
                             <option value="admin" data-i18n="role_admin">Administrator</option>
                             <option value="user" selected data-i18n="role_user">Regular User</option>
                         </select>
                     </div>
                     <div class="error-message" id="signin-error"></div>
                     <div class="success-message" id="signin-success"></div>
-                    <button type="submit" class="btn btn-primary" id="signin-button">
+                    <button type="submit" class="btn btn-primary" id="signin-button" aria-label="Sign In">
                         <span class="loading-spinner"></span>
                         <span data-i18n="sign_in_button">Sign In</span>
                     </button>
                 </form>
-                
+
                 <div class="auth-footer">
                     <p><a href="#" id="forgot-password" data-i18n="forgot_password">Forgot password?</a></p>
                 </div>
             </div>
-            
-            <!-- Sign Up Content -->
+
             <div class="auth-content" id="signup-tab">
                 <h2 class="auth-title" data-i18n="sign_up_title">Create Account</h2>
                 <p class="auth-subtitle" data-i18n="sign_up_subtitle">Get started with HipoBudget in just a few steps</p>
-                
+
                 <div class="social-auth">
-                    <button class="social-btn" id="google-sign-up">
+                    <button class="social-btn" id="google-sign-up" aria-label="Sign up with Google">
                         <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
                             <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
                         </svg>
-                        <span data-i18n="sign_up_with_google">oogle</span>
+                        <span data-i18n="sign_up_with_google">Google</span>
                     </button>
-                    <button class="social-btn" id="apple-sign-up">
+                    <button class="social-btn" id="apple-sign-up" aria-label="Sign up with Apple" disabled>
                         <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                             <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
                         </svg>
                         <span data-i18n="sign_up_with_apple">Apple</span>
                     </button>
                 </div>
-                
+
                 <div class="divider">
                     <span class="divider-text" data-i18n="or_divider">or</span>
                 </div>
-                
+
                 <form class="auth-form" id="signup-form">
                     <div class="form-group">
                         <label for="signup-name" data-i18n="full_name_label">Full Name</label>
@@ -1061,7 +1194,7 @@
                     </div>
                     <div class="form-group">
                         <label for="signup-role" data-i18n="role_label">I am a</label>
-                        <select id="signup-role">
+                        <select id="signup-role" aria-label="Select Role">
                             <option value="admin" data-i18n="role_admin">Administrator</option>
                             <option value="user" selected data-i18n="role_user">Regular User</option>
                         </select>
@@ -1070,7 +1203,7 @@
                         <label for="signup-password" data-i18n="password_label">Password</label>
                         <div class="password-container">
                             <input type="password" id="signup-password" placeholder="Create a password" required autocomplete="new-password">
-                            <button type="button" class="toggle-password" data-target="signup-password">
+                            <button type="button" class="toggle-password" data-target="signup-password" aria-label="Toggle password visibility">
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
@@ -1083,7 +1216,7 @@
                         <label for="signup-confirm-password" data-i18n="confirm_password_label">Confirm Password</label>
                         <div class="password-container">
                             <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required autocomplete="new-password">
-                            <button type="button" class="toggle-password" data-target="signup-confirm-password">
+                            <button type="button" class="toggle-password" data-target="signup-confirm-password" aria-label="Toggle password visibility">
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
@@ -1099,12 +1232,12 @@
                     </div>
                     <div class="error-message" id="signup-error"></div>
                     <div class="success-message" id="signup-success"></div>
-                    <button type="submit" class="btn btn-primary" id="signup-button">
+                    <button type="submit" class="btn btn-primary" id="signup-button" aria-label="Create Account">
                         <span class="loading-spinner"></span>
                         <span data-i18n="sign_up_button">Create Account</span>
                     </button>
                 </form>
-                
+
                 <div class="auth-footer">
                     <p>
                         <span data-i18n="already_have_account">Already have an account?</span>
@@ -1115,7 +1248,6 @@
         </div>
     </section>
 
-    <!-- Password Reset Modal -->
     <div id="password-reset-modal">
         <div class="modal-content">
             <h2 class="modal-title" data-i18n="reset_password_title">Reset Password</h2>
@@ -1124,7 +1256,7 @@
             </p>
             <div class="form-group">
                 <label for="reset-email" data-i18n="email_label">Email Address</label>
-                <input type="email" id="reset-email" placeholder="Enter your email">
+                <input type="email" id="reset-email" placeholder="Enter your email" required>
             </div>
             <div class="error-message" id="reset-error"></div>
             <div class="success-message" id="reset-success"></div>
@@ -1134,7 +1266,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // Internationalization support
         const i18n = {
