@@ -898,222 +898,218 @@
     </style>
 </head>
 <body>
-    <!-- Add Pricing link to the top navigation or hero section -->
-    <nav style="width:100%;display:flex;justify-content:flex-end;align-items:center;padding:1rem 2rem 0 2rem;gap:1.5rem;">
+    <nav style="width:100%;display:flex;justify-content:flex-end;align-items:center;padding:1rem 2rem 0 2rem;gap:1.5rem;position:fixed;top:0;left:0;z-index:100;background:var(--light);box-shadow:0 2px 8px rgba(0,0,0,0.03);">
         <a href="pricing.html" style="font-weight:600;color:var(--primary);text-decoration:none;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
             <i class="fas fa-tags"></i> Pricing
         </a>
     </nav>
-    
-    <!-- Welcome Section -->
-    <section class="welcome-section">
-        <div class="wallet-float">
-            <i class="fas fa-wallet"></i>
-        </div>
-        <div class="wallet-float">
-            <i class="fas fa-coins"></i>
-        </div>
-        <div class="wallet-float">
-            <i class="fas fa-chart-line"></i>
-        </div>
-        <!-- Only the language selector remains -->
-        <div class="language-selector">
-            <i class="fas fa-globe"></i>
-            <select id="language-selector">
-                <option value="en">English</option>
-                <option value="sw">Kiswahili</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="ja">日本語</option>
-                <option value="zh">中文</option>
-                <option value="hi">हिन्दी</option>
-                <option value="ar">العربية</option>
-                <option value="ru">Русский</option>
-                <option value="pt">Português</option>
-            </select>
-        </div>
-        
-        <div class="welcome-content">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div class="logo-text">HipoBudget</div>
+    <div style="display:flex;flex:1;min-height:100vh;width:100vw;margin-top:64px;">
+        <!-- Welcome Section -->
+        <section class="welcome-section" style="flex:1;min-width:0;">
+            <div class="wallet-float">
+                <i class="fas fa-wallet"></i>
             </div>
-            <h1 class="welcome-title" data-i18n="welcome_title">Smart Finance Management</h1>
-            <p class="welcome-description" data-i18n="welcome_description">
-                Take control of your finances with our intelligent budgeting tools. 
-                HipoBudget helps you save more, spend wisely, and achieve your 
-                financial goals faster.
-            </p>
-            <!-- Add Pricing button here -->
-            <a href="pricing.html" class="btn btn-secondary" style="margin: 1.5rem auto 0 auto; display: inline-flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-tags"></i> See Pricing
-            </a>
-        </div>
-    </section>
-    
-    <!-- Auth Section -->
-    <section class="auth-section">
-        <div class="auth-container">
-            <div class="auth-tabs">
-                <div class="auth-tab active" data-tab="signin" data-i18n="sign_in_tab">Sign In</div>
-                <div class="auth-tab" data-tab="signup" data-i18n="sign_up_tab">Sign Up</div>
+            <div class="wallet-float">
+                <i class="fas fa-coins"></i>
             </div>
-            
-            <!-- Sign In Content -->
-            <div class="auth-content active" id="signin-tab">
-                <h2 class="auth-title" data-i18n="sign_in_title">Welcome Back</h2>
-                <p class="auth-subtitle" data-i18n="sign_in_subtitle">Sign in to access your financial dashboard</p>
-                
-                <div class="verification-banner" id="email-verification-banner" style="display: none;">
-                    <span class="verification-icon"><i class="fas fa-envelope"></i></span>
-                    <span class="verification-text" data-i18n="verification_prompt">Please verify your email address to access all features.</span>
-                    <a href="#" class="verification-link" id="resend-verification" data-i18n="resend_link">Resend</a>
-                </div>
-                
-                <div class="social-auth">
-                    <button class="social-btn" id="google-sign-in">
-                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                            <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
-                        </svg>
-                        <span data-i18n="sign_in_with_google">google</span>
-                    </button>
-                    <button class="social-btn" id="apple-sign-in">
-                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                            <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
-                        </svg>
-                        <span data-i18n="sign_in_with_apple">Apple</span>
-                    </button>
-                </div>
-                
-                <div class="divider">
-                    <span class="divider-text" data-i18n="or_divider">or</span>
-                </div>
-                
-                <form class="auth-form" id="signin-form">
-                    <div class="form-group">
-                        <label for="signin-email" data-i18n="email_label">Email Address</label>
-                        <input type="email" id="signin-email" placeholder="Enter your email" required autocomplete="email">
-                    </div>
-                    <div class="form-group">
-                        <label for="signin-password" data-i18n="password_label">Password</label>
-                        <div class="password-container">
-                            <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
-                            <button type="button" class="toggle-password" data-target="signin-password">
-                                <i class="far fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signin-role" data-i18n="role_label">I am a</label>
-                        <select id="signin-role">
-                            <option value="admin" data-i18n="role_admin">Administrator</option>
-                            <option value="user" selected data-i18n="role_user">Regular User</option>
-                        </select>
-                    </div>
-                    <div class="error-message" id="signin-error"></div>
-                    <div class="success-message" id="signin-success"></div>
-                    <button type="submit" class="btn btn-primary" id="signin-button">
-                        <span class="loading-spinner"></span>
-                        <span data-i18n="sign_in_button">Sign In</span>
-                    </button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p><a href="#" id="forgot-password" data-i18n="forgot_password">Forgot password?</a></p>
-                </div>
+            <div class="wallet-float">
+                <i class="fas fa-chart-line"></i>
             </div>
-            
-            <!-- Sign Up Content -->
-            <div class="auth-content" id="signup-tab">
-                <h2 class="auth-title" data-i18n="sign_up_title">Create Account</h2>
-                <p class="auth-subtitle" data-i18n="sign_up_subtitle">Get started with HipoBudget in just a few steps</p>
-                
-                <div class="social-auth">
-                    <button class="social-btn" id="google-sign-up">
-                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                            <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
-                        </svg>
-                        <span data-i18n="sign_up_with_google">oogle</span>
-                    </button>
-                    <button class="social-btn" id="apple-sign-up">
-                        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                            <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
-                        </svg>
-                        <span data-i18n="sign_up_with_apple">Apple</span>
-                    </button>
+            <div class="language-selector">
+                <i class="fas fa-globe"></i>
+                <select id="language-selector">
+                    <option value="en">English</option>
+                    <option value="sw">Kiswahili</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="ar">العربية</option>
+                    <option value="ru">Русский</option>
+                    <option value="pt">Português</option>
+                </select>
+            </div>
+            <div class="welcome-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="logo-text">HipoBudget</div>
+                </div>
+                <h1 class="welcome-title" data-i18n="welcome_title">Smart Finance Management</h1>
+                <p class="welcome-description" data-i18n="welcome_description">
+                    Take control of your finances with our intelligent budgeting tools. 
+                    HipoBudget helps you save more, spend wisely, and achieve your 
+                    financial goals faster.
+                </p>
+                <a href="pricing.html" class="btn btn-secondary" style="margin: 1.5rem auto 0 auto; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-tags"></i> See Pricing
+                </a>
+            </div>
+        </section>
+        <!-- Auth Section -->
+        <section class="auth-section" style="flex:1;min-width:0;">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="signin" data-i18n="sign_in_tab">Sign In</div>
+                    <div class="auth-tab" data-tab="signup" data-i18n="sign_up_tab">Sign Up</div>
                 </div>
                 
-                <div class="divider">
-                    <span class="divider-text" data-i18n="or_divider">or</span>
+                <!-- Sign In Content -->
+                <div class="auth-content active" id="signin-tab">
+                    <h2 class="auth-title" data-i18n="sign_in_title">Welcome Back</h2>
+                    <p class="auth-subtitle" data-i18n="sign_in_subtitle">Sign in to access your financial dashboard</p>
+                    
+                    <div class="verification-banner" id="email-verification-banner" style="display: none;">
+                        <span class="verification-icon"><i class="fas fa-envelope"></i></span>
+                        <span class="verification-text" data-i18n="verification_prompt">Please verify your email address to access all features.</span>
+                        <a href="#" class="verification-link" id="resend-verification" data-i18n="resend_link">Resend</a>
+                    </div>
+                    
+                    <div class="social-auth">
+                        <button class="social-btn" id="google-sign-in">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                                <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
+                            </svg>
+                            <span data-i18n="sign_in_with_google">google</span>
+                        </button>
+                        <button class="social-btn" id="apple-sign-in">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                                <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
+                            </svg>
+                            <span data-i18n="sign_in_with_apple">Apple</span>
+                        </button>
+                    </div>
+                    
+                    <div class="divider">
+                        <span class="divider-text" data-i18n="or_divider">or</span>
+                    </div>
+                    
+                    <form class="auth-form" id="signin-form">
+                        <div class="form-group">
+                            <label for="signin-email" data-i18n="email_label">Email Address</label>
+                            <input type="email" id="signin-email" placeholder="Enter your email" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password" data-i18n="password_label">Password</label>
+                            <div class="password-container">
+                                <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
+                                <button type="button" class="toggle-password" data-target="signin-password">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-role" data-i18n="role_label">I am a</label>
+                            <select id="signin-role">
+                                <option value="admin" data-i18n="role_admin">Administrator</option>
+                                <option value="user" selected data-i18n="role_user">Regular User</option>
+                            </select>
+                        </div>
+                        <div class="error-message" id="signin-error"></div>
+                        <div class="success-message" id="signin-success"></div>
+                        <button type="submit" class="btn btn-primary" id="signin-button">
+                            <span class="loading-spinner"></span>
+                            <span data-i18n="sign_in_button">Sign In</span>
+                        </button>
+                    </form>
+                    
+                    <div class="auth-footer">
+                        <p><a href="#" id="forgot-password" data-i18n="forgot_password">Forgot password?</a></p>
+                    </div>
                 </div>
                 
-                <form class="auth-form" id="signup-form">
-                    <div class="form-group">
-                        <label for="signup-name" data-i18n="full_name_label">Full Name</label>
-                        <input type="text" id="signup-name" placeholder="Enter your full name" required autocomplete="name">
+                <!-- Sign Up Content -->
+                <div class="auth-content" id="signup-tab">
+                    <h2 class="auth-title" data-i18n="sign_up_title">Create Account</h2>
+                    <p class="auth-subtitle" data-i18n="sign_up_subtitle">Get started with HipoBudget in just a few steps</p>
+                    
+                    <div class="social-auth">
+                        <button class="social-btn" id="google-sign-up">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                                <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 59.9 3.9 41.4z"/>
+                            </svg>
+                            <span data-i18n="sign_up_with_google">oogle</span>
+                        </button>
+                        <button class="social-btn" id="apple-sign-up">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                                <path fill="#000000" d="M318.7 268.7c-.2-36.7 16.4-64.4 54-84.8-21.8-26.3-54.5-30.1-74.5-30.1-31.8 0-62.1 18.8-62.1 18.8s-31.8-18.8-63.2-18.8c-21.3 0-55.2 5.6-76.3 34.9-23.2 31.6-17.6 93.9-17.6 93.9s54.1 163.4 101.1 214.5c35.9 43.4 86.2 40.5 86.2 40.5s50.7-1.7 79.2-38.5c30.8-39.3 42.9-76.3 42.9-76.3s-24.5-29.8-40.3-57.3c-16.8-28.4-23.8-44.4-23.8-44.4zM155.8 107.4c19.5-23.6 52.3-27.7 52.3-27.7s8.2-23.8 1.5-53.6c-31.6 0-70.4 21.1-70.4 21.1s-35.7 19.9-35.7 60.6c0 22.1 17.8 47.9 52.3 59.2z"/>
+                            </svg>
+                            <span data-i18n="sign_up_with_apple">Apple</span>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="signup-email" data-i18n="email_label">Email Address</label>
-                        <input type="email" id="signup-email" placeholder="Enter your email" required autocomplete="email">
+                    
+                    <div class="divider">
+                        <span class="divider-text" data-i18n="or_divider">or</span>
                     </div>
-                    <div class="form-group">
-                        <label for="signup-role" data-i18n="role_label">I am a</label>
-                        <select id="signup-role">
-                            <option value="admin" data-i18n="role_admin">Administrator</option>
-                            <option value="user" selected data-i18n="role_user">Regular User</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="signup-password" data-i18n="password_label">Password</label>
-                        <div class="password-container">
-                            <input type="password" id="signup-password" placeholder="Create a password" required autocomplete="new-password">
-                            <button type="button" class="toggle-password" data-target="signup-password">
-                                <i class="far fa-eye"></i>
-                            </button>
+                    
+                    <form class="auth-form" id="signup-form">
+                        <div class="form-group">
+                            <label for="signup-name" data-i18n="full_name_label">Full Name</label>
+                            <input type="text" id="signup-name" placeholder="Enter your full name" required autocomplete="name">
                         </div>
-                        <div class="password-strength">
-                            <div class="password-strength-bar" id="password-strength-bar"></div>
+                        <div class="form-group">
+                            <label for="signup-email" data-i18n="email_label">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="Enter your email" required autocomplete="email">
                         </div>
-                        <div class="password-strength-text" id="password-strength-text"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signup-confirm-password" data-i18n="confirm_password_label">Confirm Password</label>
-                        <div class="password-container">
-                            <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required autocomplete="new-password">
-                            <button type="button" class="toggle-password" data-target="signup-confirm-password">
-                                <i class="far fa-eye"></i>
-                            </button>
+                        <div class="form-group">
+                            <label for="signup-role" data-i18n="role_label">I am a</label>
+                            <select id="signup-role">
+                                <option value="admin" data-i18n="role_admin">Administrator</option>
+                                <option value="user" selected data-i18n="role_user">Regular User</option>
+                            </select>
                         </div>
+                        <div class="form-group">
+                            <label for="signup-password" data-i18n="password_label">Password</label>
+                            <div class="password-container">
+                                <input type="password" id="signup-password" placeholder="Create a password" required autocomplete="new-password">
+                                <button type="button" class="toggle-password" data-target="signup-password">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="password-strength-bar"></div>
+                            </div>
+                            <div class="password-strength-text" id="password-strength-text"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password" data-i18n="confirm_password_label">Confirm Password</label>
+                            <div class="password-container">
+                                <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required autocomplete="new-password">
+                                <button type="button" class="toggle-password" data-target="signup-confirm-password">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group terms-checkbox">
+                            <input type="checkbox" id="terms-agreement" required>
+                            <label for="terms-agreement" class="terms-text">
+                                <span data-i18n="terms_agree">I agree to the</span>
+                                <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="terms_link">Terms of Service</a>
+                                <span data-i18n="and">and</span>
+                                <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="privacy_link">Privacy Policy</a>
+                            </label>
+                        </div>
+                        <div class="error-message" id="signup-error"></div>
+                        <div class="success-message" id="signup-success"></div>
+                        <button type="submit" class="btn btn-primary" id="signup-button">
+                            <span class="loading-spinner"></span>
+                            <span data-i18n="sign_up_button">Create Account</span>
+                        </button>
+                    </form>
+                    
+                    <div class="auth-footer">
+                        <p>
+                            <span data-i18n="already_have_account">Already have an account?</span>
+                            <a href="#" class="switch-tab" data-tab="signin" data-i18n="sign_in_link">Sign in</a>
+                        </p>
                     </div>
-                    <div class="form-group terms-checkbox">
-                        <input type="checkbox" id="terms-agreement" required>
-                        <label for="terms-agreement" class="terms-text">
-                            <span data-i18n="terms_agree">I agree to the</span>
-                            <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="terms_link">Terms of Service</a>
-                            <span data-i18n="and">and</span>
-                            <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="privacy_link">Privacy Policy</a>
-                        </label>
-                    </div>
-                    <div class="error-message" id="signup-error"></div>
-                    <div class="success-message" id="signup-success"></div>
-                    <button type="submit" class="btn btn-primary" id="signup-button">
-                        <span class="loading-spinner"></span>
-                        <span data-i18n="sign_up_button">Create Account</span>
-                    </button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>
-                        <span data-i18n="already_have_account">Already have an account?</span>
-                        <a href="#" class="switch-tab" data-tab="signin" data-i18n="sign_in_link">Sign in</a>
-                    </p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <!-- Password Reset Modal -->
     <div id="password-reset-modal">
