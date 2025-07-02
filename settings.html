@@ -342,7 +342,6 @@
 
         .btn-secondary:hover {
             background-color: var(--gray);
- variability: 0;
         }
 
         .btn i {
@@ -510,6 +509,7 @@
             align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease;
+            font-family: 'Poppins', sans-serif;
         }
 
         .modal.show {
@@ -526,7 +526,16 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             position: relative;
             transform: translateY(20px);
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            border: 1px solid var(--light-gray);
+        }
+
+        .dark-theme .modal-content {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--light-gray);
         }
 
         .modal.show .modal-content {
@@ -575,6 +584,7 @@
             font-size: 0.875rem;
             margin-top: 0.5rem;
             display: none;
+            font-family: 'Poppins', sans-serif;
         }
 
         .modal-message.error {
@@ -582,6 +592,13 @@
         }
 
         .modal-message.success {
+            color: var(--success);
+        }
+
+        .dark-theme .modal-message.error {
+            color: var(--danger);
+        }
+        .dark-theme .modal-message.success {
             color: var(--success);
         }
 
@@ -701,6 +718,14 @@
             .modal-content {
                 padding: 1rem;
             }
+        }
+
+        /* Ensure cancel button text is black in light mode and white in dark mode */
+        .modal-footer .btn-outline {
+            color: #1e293b; /* black for light mode */
+        }
+        .dark-theme .modal-footer .btn-outline {
+            color: #fff; /* white for dark mode */
         }
     </style>
 </head>
@@ -1075,10 +1100,21 @@
             const selectedColor = document.querySelector(`.theme-color[data-color="${themeColor}"]`);
             if (selectedColor) selectedColor.classList.add('selected');
 
-            const deleteModal = document.getElementById('deleteModal');
-            if (deleteModal) {
-                deleteModal.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
-                deleteModal.querySelector('.modal-content').style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+            // Modal theme update
+            try {
+                const deleteModal = document.getElementById('deleteModal');
+                if (deleteModal) {
+                    const modalContent = deleteModal.querySelector('.modal-content');
+                    if (modalContent) {
+                        // These are already set by CSS variables, but force update in case of inline styles
+                        modalContent.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+                        modalContent.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                        modalContent.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--light-gray');
+                        modalContent.style.fontFamily = "'Poppins', sans-serif";
+                    }
+                }
+            } catch (e) {
+                // Fallback: do nothing, modal will use CSS
             }
         }, 100);
 
@@ -1271,102 +1307,6 @@
                             });
                         }
 
-                        // Delete account modal
-                        const deleteAccountBtn = document.getElementById('deleteAccount');
-                        const deleteModal = document.getElementById('deleteModal');
-                        const closeDeleteModalBtn = document.getElementById('closeDeleteModal');
-                        const cancelDeleteBtn = document.getElementById('cancelDelete');
-                        const confirmDeleteBtn = document.getElementById('confirmDelete');
-                        const deletePasswordInput = document.getElementById('deletePassword');
-                        const errorMessage = document.getElementById('errorMessage');
-                        const successMessage = document.getElementById('successMessage');
-
-                        function showModal() {
-                            deleteModal.classList.add('show');
-                            deletePasswordInput.value = '';
-                            confirmDeleteBtn.disabled = true;
-                            errorMessage.style.display = 'none';
-                            successMessage.style.display = 'none';
-                            deletePasswordInput.focus();
-                        }
-
-                        function hideModal() {
-                            deleteModal.classList.remove('show');
-                            setTimeout(() => {
-                                deleteModal.style.display = 'none';
-                            }, 300);
-                        }
-
-                        if (deleteAccountBtn && deleteModal) {
-                            deleteAccountBtn.addEventListener('click', () => {
-                                deleteModal.style.display = 'flex';
-                                setTimeout(() => showModal(), 10);
-                            });
-                        }
-
-                        if (closeDeleteModalBtn && deleteModal) {
-                            closeDeleteModalBtn.addEventListener('click', hideModal);
-                        }
-
-                        if (cancelDeleteBtn && deleteModal) {
-                            cancelDeleteBtn.addEventListener('click', hideModal);
-                        }
-
-                        if (deletePasswordInput && confirmDeleteBtn) {
-                            deletePasswordInput.addEventListener('input', () => {
-                                const password = deletePasswordInput.value.trim();
-                                confirmDeleteBtn.disabled = password.length < 6;
-                                errorMessage.style.display = 'none';
-                                successMessage.style.display = 'none';
-                            });
-                        }
-
-                        if (confirmDeleteBtn) {
-                            confirmDeleteBtn.addEventListener('click', async () => {
-                                confirmDeleteBtn.disabled = true;
-                                confirmDeleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${window.i18nTranslate('deleting')}`;
-                                errorMessage.style.display = 'none';
-                                successMessage.style.display = 'none';
-
-                                try {
-                                    const user = auth.currentUser;
-                                    const password = deletePasswordInput.value;
-                                    if (!user || !password) {
-                                        errorMessage.textContent = window.i18nTranslate('enter_password');
-                                        errorMessage.style.display = 'block';
-                                        confirmDeleteBtn.disabled = false;
-                                        confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
-                                        return;
-                                    }
-
-                                    const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
-                                    await user.reauthenticateWithCredential(cred);
-                                    await db.collection('users').doc(user.uid).delete();
-                                    await user.delete();
-
-                                    successMessage.textContent = window.i18nTranslate('account_deleted');
-                                    successMessage.style.display = 'block';
-                                    confirmDeleteBtn.style.display = 'none';
-                                    cancelDeleteBtn.textContent = window.i18nTranslate('close');
-                                    showToast('success', window.i18nTranslate('account_deleted'));
-                                    setTimeout(() => {
-                                        window.location.href = 'index.html';
-                                    }, 2000);
-                                } catch (err) {
-                                    let msg = window.i18nTranslate('failed_delete');
-                                    if (err.code === 'auth/wrong-password') {
-                                        msg = window.i18nTranslate('wrong_password');
-                                    } else if (err.code === 'auth/too-many-requests') {
-                                        msg = window.i18nTranslate('too_many_attempts');
-                                    }
-                                    errorMessage.textContent = msg;
-                                    errorMessage.style.display = 'block';
-                                    confirmDeleteBtn.disabled = false;
-                                    confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
-                                }
-                            });
-                        }
-
                     } catch (err) {
                         document.getElementById('name').value = '';
                         document.getElementById('email').value = '';
@@ -1451,50 +1391,107 @@
             }
         });
 
-        // i18n logic
-        (function() {
-            if (!window._i18n) window._i18n = {};
-            if (!window.i18nTranslate) {
-                window.i18nTranslate = function(key) {
-                    const lang = localStorage.getItem('userLanguage') || 'en';
-                    if (window._i18n[lang] && window._i18n[lang][key]) {
-                        return window._i18n[lang][key];
-                    }
-                    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                };
+        // --- Delete Account Modal Logic: Always Attach ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteAccountBtn = document.getElementById('deleteAccount');
+            const deleteModal = document.getElementById('deleteModal');
+            const closeDeleteModalBtn = document.getElementById('closeDeleteModal');
+            const cancelDeleteBtn = document.getElementById('cancelDelete');
+            const confirmDeleteBtn = document.getElementById('confirmDelete');
+            const deletePasswordInput = document.getElementById('deletePassword');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            function showModal() {
+                deleteModal.classList.add('show');
+                deleteModal.style.display = 'flex';
+                deletePasswordInput.value = '';
+                confirmDeleteBtn.disabled = true;
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                deletePasswordInput.focus();
             }
-            if (!window.i18nApply) {
-                window.i18nApply = function() {
-                    document.querySelectorAll('[data-i18n]').forEach(el => {
-                        const key = el.getAttribute('data-i18n');
-                        if (key) el.textContent = window.i18nTranslate(key);
-                    });
-                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                        const key = el.getAttribute('data-i18n-placeholder');
-                        if (key) el.placeholder = window.i18nTranslate(key);
-                    });
-                };
+
+            function hideModal() {
+                deleteModal.classList.remove('show');
+                setTimeout(() => {
+                    deleteModal.style.display = 'none';
+                }, 300);
             }
-            async function ensureI18nLoadedAndApply() {
-                const lang = localStorage.getItem('userLanguage') || 'en';
-                const cached = localStorage.getItem('i18n_' + lang);
-                if (cached) window._i18n[lang] = JSON.parse(cached);
-                if (!window._i18n[lang]) {
+
+            if (deleteAccountBtn && deleteModal) {
+                deleteAccountBtn.addEventListener('click', () => {
+                    showModal();
+                });
+            }
+
+            if (closeDeleteModalBtn && deleteModal) {
+                closeDeleteModalBtn.addEventListener('click', hideModal);
+            }
+
+            if (cancelDeleteBtn && deleteModal) {
+                cancelDeleteBtn.addEventListener('click', hideModal);
+            }
+
+            if (deletePasswordInput && confirmDeleteBtn) {
+                deletePasswordInput.addEventListener('input', () => {
+                    const password = deletePasswordInput.value.trim();
+                    confirmDeleteBtn.disabled = password.length < 6;
+                    errorMessage.style.display = 'none';
+                    successMessage.style.display = 'none';
+                });
+            }
+
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', async () => {
+                    confirmDeleteBtn.disabled = true;
+                    confirmDeleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${window.i18nTranslate('deleting')}`;
+                    errorMessage.style.display = 'none';
+                    successMessage.style.display = 'none';
+
+                    // Check auth state before proceeding
+                    let user = null;
                     try {
-                        const resp = await fetch(`./${lang}.json`);
-                        if (resp.ok) {
-                            window._i18n[lang] = await resp.json();
-                            localStorage.setItem('i18n_' + lang, JSON.stringify(window._i18n[lang]));
+                        user = (window.auth && window.auth.currentUser) ? window.auth.currentUser : null;
+                    } catch (e) {}
+                    const password = deletePasswordInput.value;
+                    if (!user || !password) {
+                        errorMessage.textContent = window.i18nTranslate('not_authenticated') || 'You must be logged in to delete your account.';
+                        errorMessage.style.display = 'block';
+                        confirmDeleteBtn.disabled = false;
+                        confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
+                        return;
+                    }
+
+                    try {
+                        const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                        await user.reauthenticateWithCredential(cred);
+                        await db.collection('users').doc(user.uid).delete();
+                        await user.delete();
+
+                        successMessage.textContent = window.i18nTranslate('account_deleted');
+                        successMessage.style.display = 'block';
+                        confirmDeleteBtn.style.display = 'none';
+                        cancelDeleteBtn.textContent = window.i18nTranslate('close');
+                        showToast('success', window.i18nTranslate('account_deleted'));
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } catch (err) {
+                        let msg = window.i18nTranslate('failed_delete');
+                        if (err.code === 'auth/wrong-password') {
+                            msg = window.i18nTranslate('wrong_password');
+                        } else if (err.code === 'auth/too-many-requests') {
+                            msg = window.i18nTranslate('too_many_attempts');
                         }
-                    } catch {}
-                }
-                if (window.i18nApply) window.i18nApply();
+                        errorMessage.textContent = msg;
+                        errorMessage.style.display = 'block';
+                        confirmDeleteBtn.disabled = false;
+                        confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
+                    }
+                });
             }
-            document.addEventListener('DOMContentLoaded', ensureI18nLoadedAndApply);
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'userLanguage') ensureI18nLoadedAndApply();
-            });
-        })();
+        });
     </script>
 </body>
 </html>
