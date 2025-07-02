@@ -342,7 +342,7 @@
 
         .btn-secondary:hover {
             background-color: var(--gray);
-            color: white;
+ variability: 0;
         }
 
         .btn i {
@@ -508,17 +508,29 @@
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
         }
 
         .modal-content {
             background: var(--card-bg);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 0.75rem;
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             position: relative;
-            transition: background-color 0.3s ease;
+            transform: translateY(20px);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
         }
 
         .modal-header {
@@ -533,6 +545,20 @@
             font-weight: 600;
             display: flex;
             align-items: center;
+            color: var(--danger);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-color);
         }
 
         .modal-body {
@@ -543,6 +569,20 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.5rem;
+        }
+
+        .modal-message {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .modal-message.error {
+            color: var(--danger);
+        }
+
+        .modal-message.success {
+            color: var(--success);
         }
 
         .notification-item {
@@ -628,18 +668,15 @@
             }
 
             .modal-content {
-                width: 96vw !important;
-                max-width: 96vw !important;
-                border-radius: 1rem 1rem 0 0 !important;
-                position: fixed;
-                bottom: 0;
-                top: auto;
-                margin: 0;
-                padding: 1rem;
+                width: 90vw;
+                max-width: 360px;
+                border-radius: 0.75rem;
+                position: relative;
+                bottom: auto;
             }
 
             .modal {
-                align-items: flex-end !important;
+                align-items: center;
             }
         }
 
@@ -659,6 +696,10 @@
 
             .mobile-nav-item i {
                 font-size: 1.1rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
             }
         }
     </style>
@@ -912,14 +953,16 @@
     <div class="modal" id="deleteModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" style="color:#ef4444;"><i class="fas fa-exclamation-triangle" style="color:#ef4444;margin-right:0.5rem;"></i><span data-i18n="delete_account">Delete Account</span></h3>
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle" style="margin-right:0.5rem;"></i><span data-i18n="delete_account">Delete Account</span></h3>
                 <button class="modal-close" id="closeDeleteModal" aria-label="Close">×</button>
             </div>
             <div class="modal-body">
-                <p style="color:#ef4444;font-weight:bold;" data-i18n="delete_warning">Warning: This action is <u>permanent</u> and cannot be undone. All your data will be deleted!</p>
+                <p style="font-weight:500;margin-bottom:1rem;" data-i18n="delete_warning">This action is permanent and cannot be undone. All your data will be deleted.</p>
                 <div class="form-group">
-                    <label class="form-label" for="deletePassword" style="color:#ef4444;" data-i18n="enter_password_confirm">Enter your password to confirm:</label>
+                    <label class="form-label" for="deletePassword" data-i18n="enter_password_confirm">Confirm Password</label>
                     <input type="password" class="form-control" id="deletePassword" data-i18n-placeholder="enter_password" placeholder="Enter your password">
+                    <div class="modal-message error" id="errorMessage"></div>
+                    <div class="modal-message success" id="successMessage"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -941,7 +984,6 @@
                 if (window._i18n[lang] && window._i18n[lang][key]) {
                     return window._i18n[lang][key];
                 }
-                // Fallback: prettify the key
                 return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             };
         }
@@ -1033,7 +1075,6 @@
             const selectedColor = document.querySelector(`.theme-color[data-color="${themeColor}"]`);
             if (selectedColor) selectedColor.classList.add('selected');
 
-            // Update modal colors
             const deleteModal = document.getElementById('deleteModal');
             if (deleteModal) {
                 deleteModal.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
@@ -1237,62 +1278,91 @@
                         const cancelDeleteBtn = document.getElementById('cancelDelete');
                         const confirmDeleteBtn = document.getElementById('confirmDelete');
                         const deletePasswordInput = document.getElementById('deletePassword');
+                        const errorMessage = document.getElementById('errorMessage');
+                        const successMessage = document.getElementById('successMessage');
+
+                        function showModal() {
+                            deleteModal.classList.add('show');
+                            deletePasswordInput.value = '';
+                            confirmDeleteBtn.disabled = true;
+                            errorMessage.style.display = 'none';
+                            successMessage.style.display = 'none';
+                            deletePasswordInput.focus();
+                        }
+
+                        function hideModal() {
+                            deleteModal.classList.remove('show');
+                            setTimeout(() => {
+                                deleteModal.style.display = 'none';
+                            }, 300);
+                        }
 
                         if (deleteAccountBtn && deleteModal) {
                             deleteAccountBtn.addEventListener('click', () => {
                                 deleteModal.style.display = 'flex';
-                                deletePasswordInput.value = '';
-                                confirmDeleteBtn.disabled = true;
+                                setTimeout(() => showModal(), 10);
                             });
                         }
 
                         if (closeDeleteModalBtn && deleteModal) {
-                            closeDeleteModalBtn.addEventListener('click', () => {
-                                deleteModal.style.display = 'none';
-                            });
+                            closeDeleteModalBtn.addEventListener('click', hideModal);
                         }
 
                         if (cancelDeleteBtn && deleteModal) {
-                            cancelDeleteBtn.addEventListener('click', () => {
-                                deleteModal.style.display = 'none';
-                            });
+                            cancelDeleteBtn.addEventListener('click', hideModal);
                         }
 
                         if (deletePasswordInput && confirmDeleteBtn) {
                             deletePasswordInput.addEventListener('input', () => {
-                                confirmDeleteBtn.disabled = deletePasswordInput.value.trim().length < 6;
+                                const password = deletePasswordInput.value.trim();
+                                confirmDeleteBtn.disabled = password.length < 6;
+                                errorMessage.style.display = 'none';
+                                successMessage.style.display = 'none';
                             });
                         }
 
                         if (confirmDeleteBtn) {
                             confirmDeleteBtn.addEventListener('click', async () => {
                                 confirmDeleteBtn.disabled = true;
-                                confirmDeleteBtn.textContent = window.i18nTranslate('deleting');
+                                confirmDeleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${window.i18nTranslate('deleting')}`;
+                                errorMessage.style.display = 'none';
+                                successMessage.style.display = 'none';
+
                                 try {
                                     const user = auth.currentUser;
                                     const password = deletePasswordInput.value;
                                     if (!user || !password) {
-                                        showToast('error', window.i18nTranslate('enter_password'));
+                                        errorMessage.textContent = window.i18nTranslate('enter_password');
+                                        errorMessage.style.display = 'block';
                                         confirmDeleteBtn.disabled = false;
-                                        confirmDeleteBtn.textContent = window.i18nTranslate('delete_account');
+                                        confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
                                         return;
                                     }
+
                                     const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
                                     await user.reauthenticateWithCredential(cred);
                                     await db.collection('users').doc(user.uid).delete();
                                     await user.delete();
+
+                                    successMessage.textContent = window.i18nTranslate('account_deleted');
+                                    successMessage.style.display = 'block';
+                                    confirmDeleteBtn.style.display = 'none';
+                                    cancelDeleteBtn.textContent = window.i18nTranslate('close');
                                     showToast('success', window.i18nTranslate('account_deleted'));
                                     setTimeout(() => {
                                         window.location.href = 'index.html';
-                                    }, 1800);
+                                    }, 2000);
                                 } catch (err) {
                                     let msg = window.i18nTranslate('failed_delete');
-                                    if (err?.code === 'auth/wrong-password') {
+                                    if (err.code === 'auth/wrong-password') {
                                         msg = window.i18nTranslate('wrong_password');
+                                    } else if (err.code === 'auth/too-many-requests') {
+                                        msg = window.i18nTranslate('too_many_attempts');
                                     }
-                                    showToast('error', msg);
+                                    errorMessage.textContent = msg;
+                                    errorMessage.style.display = 'block';
                                     confirmDeleteBtn.disabled = false;
-                                    confirmDeleteBtn.textContent = window.i18nTranslate('delete_account');
+                                    confirmDeleteBtn.innerHTML = window.i18nTranslate('delete_account');
                                 }
                             });
                         }
@@ -1381,7 +1451,7 @@
             }
         });
 
-        // --- i18n logic: ensure translations are loaded and applied, and respond to language changes ---
+        // i18n logic
         (function() {
             if (!window._i18n) window._i18n = {};
             if (!window.i18nTranslate) {
@@ -1390,7 +1460,6 @@
                     if (window._i18n[lang] && window._i18n[lang][key]) {
                         return window._i18n[lang][key];
                     }
-                    // Fallback: prettify the key
                     return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 };
             }
@@ -1408,7 +1477,6 @@
             }
             async function ensureI18nLoadedAndApply() {
                 const lang = localStorage.getItem('userLanguage') || 'en';
-                // Try cache first
                 const cached = localStorage.getItem('i18n_' + lang);
                 if (cached) window._i18n[lang] = JSON.parse(cached);
                 if (!window._i18n[lang]) {
